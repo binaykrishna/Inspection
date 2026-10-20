@@ -11,7 +11,7 @@
     .sheet-table th, .sheet-table td {
       border: 1px solid #cbd5e1;
       padding: 6px 10px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
     .sheet-header-dark {
       background-color: #1e3a8a;
@@ -37,7 +37,7 @@
       padding: 3px 6px;
       width: 100%;
       text-align: right;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
     .input-cell:focus {
       outline: 2px solid #2563eb;
@@ -57,6 +57,20 @@
       outline: 2px solid #2563eb;
       background-color: #eff6ff;
     }
+    /* Yellow editable cells matching Stockist details sheet */
+    .editable-yellow {
+      background-color: #fef08a !important; /* Tailwind yellow-200 */
+      border: 1px solid #eab308 !important;
+      font-weight: 600;
+      color: #713f12;
+      border-radius: 4px;
+      padding: 3px 6px;
+      width: 100%;
+    }
+    .editable-yellow:focus {
+      outline: 2px solid #ca8a04;
+      background-color: #fef9c3 !important;
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
@@ -66,20 +80,29 @@
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
         <h1 class="text-xl font-bold tracking-wide">Secondary Sales & SSF Performance Portal</h1>
-        <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix</p>
+        <p class="text-xs text-blue-200">Lubes Reseller Group — Divisional Performance & Inspection Matrix</p>
       </div>
       
-      <div class="flex items-center space-x-2 bg-blue-950 p-1 rounded-lg">
+      <!-- 5 Navigation Tabs -->
+      <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
         <button id="tab-btn-analysis" onclick="switchTab('analysis')" 
-          class="px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
           📊 Sales Analysis
         </button>
         <button id="tab-btn-ssf" onclick="switchTab('ssf')" 
-          class="px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
-          👥 SSF Wise Analysis
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          👥 SSF Analysis
+        </button>
+        <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          📋 Stockist Details
+        </button>
+        <button id="tab-btn-other" onclick="switchTab('other')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          📑 Other Details
         </button>
         <button id="tab-btn-upload" onclick="switchTab('upload')" 
-          class="px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
           📁 Upload & Settings
         </button>
       </div>
@@ -397,7 +420,235 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 3: UPLOADS & GITHUB SYNC (data/portal_data.json)     -->
+    <!-- TAB 3: STOCKIST DETAILS (From SSA-Inspection.xlsx)      -->
+    <!-- ======================================================= -->
+    <div id="tab-stockist" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-5">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
+            <p class="text-xs text-slate-500 font-medium">Comprehensive details from the Stockist Details sheet. Highlighted yellow fields are fully editable and persist in cloud sync.</p>
+          </div>
+          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition">
+            🖨️ Print Details
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse sheet-table text-left" id="table-stockist-details">
+            <thead>
+              <tr class="sheet-header-dark text-center">
+                <th class="text-left w-1/4 py-2.5">Attribute / Parameter</th>
+                <th class="w-1/6">TAKSHVI CO</th>
+                <th class="w-1/6">BIHARIJI AUTO SERVICE</th>
+                <th class="w-1/6">M/S NALATESWARI LUBRICANTS</th>
+                <th class="w-1/6">SMG TRADES</th>
+                <th class="w-1/6">SWASTIK AUTOMOBILES</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-stockist-details">
+              <!-- Rendered via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TAB 4: OTHER DETAILS (Remaining Inspection Sheets)      -->
+    <!-- ======================================================= -->
+    <div id="tab-other" class="hidden space-y-8">
+      
+      <!-- Section 1: Godown Inspection -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">8 - Godown Inspection Checklist</h2>
+          <p class="text-xs text-slate-500">Audited premises inspection checklist & equipment safety records.</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl No</th>
+                <th>Inspection Item</th>
+                <th>Remarks / Status</th>
+                <th>Additional Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-center font-bold">1</td><td>Whether adequate space for movement is available?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">2</td><td>Segregation of damaged/ contaminated/ leaky stock is done?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Godown is clean?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Weighing machine available and in working condition?</td><td class="font-semibold text-rose-600">NO</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Valid Calibration certificate for Weighing Machine available?</td><td class="font-semibold text-slate-600">NA</td><td>Calibration Date Validity: -</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>Safety Equipment against fire available?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">7</td><td>No. of Fire Extinguishers with proper validity</td><td class="font-semibold text-blue-900">3</td><td>Proper validity maintained</td></tr>
+              <tr><td class="text-center font-bold">8</td><td>Proper Illumination available?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">9</td><td>Stacking of barrels/ cartons is proper?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">10</td><td>Last date of Electrical Audit</td><td class="font-semibold text-slate-600">NA</td><td>-</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 2: SSF / OE Promoter Details Log -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">9 - SSF / OE Promoter Inspection Logs</h2>
+          <p class="text-xs text-slate-500">Historical inspection logs across stockists from the SSF OE Promoter sheet.</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader text-center">
+                <th class="text-left">Stockist</th>
+                <th>Month</th>
+                <th>SSFs Active</th>
+                <th>SSF Volume Norms</th>
+                <th>Key SSFs Assigned</th>
+                <th>SERVO Uniform</th>
+                <th>OE Promoter / Qualification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-bold text-blue-950">TAKSHVI CO (NILKANTHA)</td>
+                <td class="text-center">Apr'24 - Dec'24</td>
+                <td class="text-center font-bold">3</td>
+                <td class="text-center font-bold">3</td>
+                <td>Ranajit Maitra (8170035510), Sudam Mondal (9083256046), Sudipta Sam (9732096695), Soumitra Das (8918067604)</td>
+                <td class="text-center font-semibold text-emerald-700">Yes</td>
+                <td>Senhasis Bhattacharya (B.A. / 7029237958)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">BIHARIJI AUTO SERVICE</td>
+                <td class="text-center">Apr'24 - Jan'25</td>
+                <td class="text-center font-bold">3 - 4</td>
+                <td class="text-center font-bold">3</td>
+                <td>Arup Mukherjee (9749555224), Dolan Paul (7001152823), Bijay Sharma (6297740787), Sukhamay Mukherjee (8436488100)</td>
+                <td class="text-center font-semibold text-emerald-700">Yes</td>
+                <td>Sukhamay Mukherjee (H.S / 8436488100)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">M/S NALATESWARI LUBRICANTS</td>
+                <td class="text-center">Apr'24 - Jan'25</td>
+                <td class="text-center font-bold">5</td>
+                <td class="text-center font-bold">3</td>
+                <td>Sagar Das (7864004485), Soumen Dutta (7908634950), Biswanath Mitra (9382562229), Timir Baran Nandi (9474352537), Uttam Kabiraj (9593438808)</td>
+                <td class="text-center font-semibold text-emerald-700">Yes</td>
+                <td>Archisman Banerjee (H.S / 7908349118)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">SERVO WORLD (SMG TRADES)</td>
+                <td class="text-center">Apr'24 - Jan'25</td>
+                <td class="text-center font-bold">3</td>
+                <td class="text-center font-bold">3</td>
+                <td>Pinaki Chakraborty (9531568565), Robin Chakraborty (9434845141), Sujit Chattaraj (7872139666), Ram Prasad Chakraborty (9733939912)</td>
+                <td class="text-center font-semibold text-emerald-700">Yes</td>
+                <td>Ramprasad Chakraborty (B.A. / 9733939912)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">SWASTIK AUTOMOBILES</td>
+                <td class="text-center">Aug'24 - Jan'25</td>
+                <td class="text-center font-bold">3</td>
+                <td class="text-center font-bold">2 - 3</td>
+                <td>Nayan Choudhury (8016185353), Lalu Mahata (9800153677), Tapas Adhikary (8972880326), Dayal Mahato (8016185353)</td>
+                <td class="text-center font-semibold text-emerald-700">Yes</td>
+                <td>NA</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 3: Financials Inspection -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">10 - Financials Inspection Review</h2>
+          <p class="text-xs text-slate-500">Contractual working capital, debt, incentive receipts, and audit reconciliation.</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl No</th>
+                <th>Inspection Item</th>
+                <th>Remarks / Contractual Provision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-center font-bold">1</td><td>Working Capital requirement as per contract</td><td class="font-medium text-slate-700">Derived from Stockist Details formula: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-800">ROUNDUP((Target/12)*1.18*1.75*276/100, 0) L</code></td></tr>
+              <tr><td class="text-center font-bold">2</td><td>Details of Source of capital – Own & Other sources</td><td class="font-medium text-slate-700">OWN FOR ALL EXCEPT BIHARIJI (OWN & BANK LOAN)</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Current assets – Stock, Receivables, Cash</td><td class="font-medium text-slate-700">STOCK, RECEIVABLES & CASH IN BANK</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Current liabilities – Payables, debt</td><td class="font-medium text-slate-700">PAYABLES</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Stocks Cover: Stocks Held/ Monthly sales (No of Days)</td><td class="font-semibold text-blue-900">40 Days</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>Incentives Received by Stockist on time</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">7</td><td>Annual Closing Balance reconciliation done?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 4: Promotional Campaigns -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
+          <p class="text-xs text-slate-500">Retail outlet and Bazaar promotion campaign tracking log.</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl No</th>
+                <th>Inspection Item</th>
+                <th>Remarks / Standard Frequency</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-center font-bold">1</td><td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td><td class="font-semibold text-slate-800">2 Super Saturday campaigns</td></tr>
+              <tr><td class="text-center font-bold">2</td><td>Cumulative number of RO Campaigns conducted in current FY</td><td class="font-semibold text-slate-800">2 × current month Super Saturday campaigns</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Number of Bazaar Campaigns conducted last month</td><td class="font-semibold text-slate-800">2 Super Saturday campaigns</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Cumulative number of Bazaar Campaigns conducted in current FY</td><td class="font-semibold text-slate-800">2 × current month Super Saturday campaigns</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Campaign Van - Campaigns done last month</td><td class="font-semibold text-slate-600">0</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>Campaign Van - Cumulative Campaigns done in current FY</td><td class="font-semibold text-slate-600">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 5: Market Information -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">Market Information & Competitor Intelligence</h2>
+          <p class="text-xs text-slate-500">Observations and feedback on competitor strategies and product demands.</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl.No.</th>
+                <th>Additional Observations Or General Remarks</th>
+                <th class="w-1/4">Applicability / Region</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-center font-bold">1</td><td>CASTROL overstretching in 4T & multigrades with aggressive lower pricing products.</td><td class="text-slate-600">All Areas</td></tr>
+              <tr><td class="text-center font-bold">2</td><td>Gulf DEO coupons available in the market with double redeem value.</td><td class="text-slate-600">Bazaar & Commercial</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Gel-based RED Grease is in high demand for the retail market.</td><td class="text-slate-600">Retail Trade</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Servo Chakkada is urgently required in 2.2 L pack size.</td><td class="text-slate-600">3-Wheeler / Rural</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Motul 7100 launched in API SP specification with attractive packaging and aggressive rates.</td><td class="text-slate-600">Premium 2W</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>MAK and Castrol have launched API SP Products for PCMO category.</td><td class="text-slate-600">Passenger Car Segment</td></tr>
+              <tr><td class="text-center font-bold">7</td><td>MAK has launched scooter gear oil in small convenience pouches.</td><td class="text-slate-600">Bazaar Trade</td></tr>
+              <tr><td class="text-center font-bold">8</td><td>Less than 20% market share of Servo in the area.</td><td class="font-semibold text-rose-700 bg-rose-50">Swastik Automobiles & SMG Trades</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TAB 5: UPLOADS & GITHUB SYNC (data/portal_data.json)     -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
@@ -572,33 +823,21 @@
     const GITHUB_DATA_PATH = "data/portal_data.json";
 
     function switchTab(tab) {
-      const tabAnalysis = document.getElementById('tab-analysis');
-      const tabSsf = document.getElementById('tab-ssf');
-      const tabUpload = document.getElementById('tab-upload');
-      
-      const btnAnalysis = document.getElementById('tab-btn-analysis');
-      const btnSsf = document.getElementById('tab-btn-ssf');
-      const btnUpload = document.getElementById('tab-btn-upload');
+      const tabs = ['analysis', 'ssf', 'stockist', 'other', 'upload'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (el) el.classList.add('hidden');
+        if (btn) btn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
+      });
 
-      tabAnalysis.classList.add('hidden');
-      tabSsf.classList.add('hidden');
-      tabUpload.classList.add('hidden');
+      const activeEl = document.getElementById(`tab-${tab}`);
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
 
-      btnAnalysis.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
-      btnSsf.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
-      btnUpload.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
-
-      if (tab === 'analysis') {
-        tabAnalysis.classList.remove('hidden');
-        btnAnalysis.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
-      } else if (tab === 'ssf') {
-        tabSsf.classList.remove('hidden');
-        btnSsf.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
-        renderSSFAnalysis();
-      } else {
-        tabUpload.classList.remove('hidden');
-        btnUpload.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
-      }
+      if (tab === 'ssf') renderSSFAnalysis();
+      if (tab === 'stockist') renderStockistDetailsTable();
     }
 
     function syncStockist(val) {
@@ -635,6 +874,139 @@
     let rawDatasetLY = [];
     let rawDatasetCY = [];
     let portalCompiledData = null;
+
+    // Default Stockist Details from SSA-Inspection.xlsx
+    const DEFAULT_STOCKIST_DETAILS = {
+      type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
+      location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
+      lastInspection: ["09/09/2026", "28/09/2026", "16/09/2026", "20/01/2026", "18/09/2026"], // Yellow
+      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "03/09/2013", "30/11/2023"],
+      officeAddress: [
+        "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
+        "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
+        "NALHATI, PAIKPARA, BIRBHUM",
+        "HOLDING NO 29, KUCHKUCHIA ROAD, BANKURA",
+        "BARAKAR ROAD, SADAR PARA, PURULIA"
+      ],
+      telNo: ["9332329077", "9434008309", "9434001479 / 9641191381", "9332329077", "9434029800"],
+      godownAddress: [
+        "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
+        "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
+        "NALHATI, PAIKPARA, BIRBHUM",
+        "HOLDING NO 29, KUCHKUCHIA ROAD, BANKURA",
+        "BARAKAR ROAD, SADAR PARA, PURULIA"
+      ],
+      godownTel: ["9332329077", "7001516052", "9932470623", "9332329077", "9434029800"],
+      constitution: ["Proprietorship", "Proprietorship", "PARTNERSHIP", "PROPRIETORSHIP", "PROPRIETORSHIP"],
+      proprietor: ["MANOJ GUPTA", "AJAY KUMAR KHAITAN", "RANJANA AGARWALA / RAKESH SINGH", "MANOJ GUPTA", "SUMIT SULTANIA"],
+      vanCount: [1, 1, 3, 1, 1],
+      vanMake: ["MAHINDRA BOLERO PICKUP", "TATA ACE, 2015", "MAHINDRA BOLERO PICKUP (3 Nos)", "MAHINDRA VEERO PICK UP", "TATA ACE"],
+      vanCapacity: ["1.28 TON", "1.5 TON", "3 TON", "1.435 TON", "WB56K2090 (3 T)"],
+      vanOwnership: ["RENT", "RENT", "OWN", "OWN", "OWN"],
+      documentation: ["SDMS", "SDMS", "SDMS", "SDMS", "SDMS"],
+      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "-", "19AQLPS8030K1Z7"],
+      areaOperation: ["PURBA BARDHAMAN", "PASCHIM BARDHAMAN", "BIRBHUM, MURSHIDABAD", "BANKURA", "PURULIA"],
+      bgBank: ["SBI", "STATE BANK OF INDIA", "UCO", "SBI", "PNB"],
+      bgAmount: ["6.0 LACS", "6.0 LACS", "12 Lacs", "6.0 LACS", "1.0 LACS"],
+      bgNo: ["0570425BG0B00021", "0618825BG0B00010", "0757IGFIN000124", "-", "04750ILG000423"],
+      bgValidity: ["11.09.2028", "09.07.2028", "22.01.2028", "-", "16.11.2027"],
+      agreementValidity: ["29.04.2028", "02.03.2028", "22.01.2028", "14.09.2029", "29.11.2026"],
+      annualTargetKL: [360, 619, 1107, 300, 150], // Yellow
+      stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881], // Yellow
+      receiptKL: ["-", "-", "-", "-", "-"], // Yellow
+      currentInspectionDate: ["-", "-", "-", "-", "-"], // Yellow
+      giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
+      resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
+      coreMeets: ["1 Core", "11 Core", "6 Core", "3 Core", "1 Core Mechanic"],
+      megaMeets: ["1 Mega", "1 Mega", "0 Mega", "1 Mega", "0 Mega"],
+      roMeets: ["0 RO", "0 RO", "2 ROs", "0 RO", "0 RO"],
+      oemMeets: ["0 OEM", "1 OEM", "0 OEM", "0 OEM", "0 OEM"],
+      miniMechanicMeets: ["10 Mini meets", "50 Mini meets", "86 Mini meets", "44 Mini meets", "13 Mini meets"]
+    };
+
+    let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
+
+    // Dynamic Minimum Working Capital Formula: ROUNDUP((Target/12)*1.18*1.75*276/100, 0)
+    function calcMinWorkingCapital(targetKL) {
+      const t = parseFloat(targetKL) || 0;
+      const raw = (t / 12) * 1.18 * 1.75 * 2.76;
+      return "Rs. " + Math.ceil(raw) + " L";
+    }
+
+    function renderStockistDetailsTable() {
+      const tbody = document.getElementById('tbody-stockist-details');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const rows = [
+        { label: "Type of Stockist", key: "type", isYellow: false },
+        { label: "Location", key: "location", isYellow: false },
+        { label: "Date of Last Inspection", key: "lastInspection", isYellow: true },
+        { label: "Date of Commissioning", key: "commissioning", isYellow: false },
+        { label: "Office Address", key: "officeAddress", isYellow: false },
+        { label: "Office Tel No & Mobile No:", key: "telNo", isYellow: false },
+        { label: "Godown Address", key: "godownAddress", isYellow: false },
+        { label: "Godown Tel. No.", key: "godownTel", isYellow: false },
+        { label: "Constitution of Firm", key: "constitution", isYellow: false },
+        { label: "Proprietor / Partners / Person in Charge", key: "proprietor", isYellow: false },
+        { label: "Delivery Van - Number of Delivery Vans", key: "vanCount", isYellow: false },
+        { label: "Delivery Van - Make & Year of Manufacture", key: "vanMake", isYellow: false },
+        { label: "Delivery Van - Capacity", key: "vanCapacity", isYellow: false },
+        { label: "Delivery Van - Ownership", key: "vanOwnership", isYellow: false },
+        { label: "Documentation using Standard Software", key: "documentation", isYellow: false },
+        { label: "GST Number of the Stockist", key: "gstNumber", isYellow: false },
+        { label: "Area of operation of the Stockist", key: "areaOperation", isYellow: false },
+        { label: "Performance BG - Bank Name", key: "bgBank", isYellow: false },
+        { label: "Performance BG - Amount", key: "bgAmount", isYellow: false },
+        { label: "Performance BG - BG Number", key: "bgNo", isYellow: false },
+        { label: "Performance BG - Validity", key: "bgValidity", isYellow: false },
+        { label: "Agreement Validity", key: "agreementValidity", isYellow: false },
+        { label: "Annual Sales Target for Current FY (KL)", key: "annualTargetKL", isYellow: true, isNumber: true },
+        { label: "Stock During Last Inspection (KL)", key: "stockLastInspection", isYellow: true, isNumber: true },
+        { label: "Receipt (KL)", key: "receiptKL", isYellow: true },
+        { label: "Current Inspection Date", key: "currentInspectionDate", isYellow: true },
+        { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
+        { label: "Giveaway Amount", key: "giveaway", isYellow: false },
+        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: false },
+        { label: "BTL - Core Meets", key: "coreMeets", isYellow: false },
+        { label: "BTL - Mega Meets", key: "megaMeets", isYellow: false },
+        { label: "BTL - RO Meets", key: "roMeets", isYellow: false },
+        { label: "BTL - OEM Meets", key: "oemMeets", isYellow: false },
+        { label: "BTL - Mini Mechanic Meets", key: "miniMechanicMeets", isYellow: false }
+      ];
+
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        let html = `<td class="font-bold text-slate-800 bg-slate-50">${r.label}</td>`;
+
+        for (let idx = 0; idx < 5; idx++) {
+          if (r.isFormula) {
+            const tgt = activeStockistDetails.annualTargetKL[idx];
+            html += `<td class="text-center font-bold text-blue-900 bg-blue-50" id="wc-col-${idx}">${calcMinWorkingCapital(tgt)}</td>`;
+          } else if (r.isYellow) {
+            const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '';
+            html += `<td class="p-1"><input type="${r.isNumber ? 'number' : 'text'}" step="0.01" class="editable-yellow text-center" value="${val}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
+          } else {
+            const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '-';
+            html += `<td class="text-center font-medium">${val}</td>`;
+          }
+        }
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function onStockistYellowChange(key, idx, val) {
+      if (!activeStockistDetails[key]) activeStockistDetails[key] = [];
+      activeStockistDetails[key][idx] = val;
+
+      if (key === 'annualTargetKL') {
+        const wcEl = document.getElementById(`wc-col-${idx}`);
+        if (wcEl) wcEl.textContent = calcMinWorkingCapital(val);
+      }
+
+      localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+    }
 
     function getStockistUniverse(stockist) {
       const key = STOCKIST_KEY_MAP[stockist] || "tak";
@@ -738,6 +1110,7 @@
       const matrix = {
         updatedAt: new Date().toISOString(),
         universe: getAllUniverseData(),
+        stockistDetails: activeStockistDetails,
         monthlyData: {},
         ssfData: {}
       };
@@ -1087,7 +1460,6 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // Helper: Fetch accurate SHA with cache-busting
     async function getLatestFileSha(token) {
       const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
       try {
@@ -1147,26 +1519,25 @@
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
       portalCompiledData.universe = getAllUniverseData();
+      portalCompiledData.stockistDetails = activeStockistDetails;
       portalCompiledData.updatedAt = new Date().toISOString();
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
       try {
-        // Step 1: Force fetch live uncached SHA from GitHub
         let sha = await getLatestFileSha(token);
 
         const jsonStr = JSON.stringify(portalCompiledData);
         const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
 
         const bodyData = {
-          message: `Update sales data and universe [${new Date().toLocaleDateString()}]`,
+          message: `Update sales data and inspection profiles [${new Date().toLocaleDateString()}]`,
           content: encodedContent
         };
         if (sha) {
           bodyData.sha = sha;
         }
 
-        // Step 2: PUT request to GitHub Contents API
         let putRes = await fetch(apiUrl, {
           method: 'PUT',
           headers: {
@@ -1177,7 +1548,6 @@
           body: JSON.stringify(bodyData)
         });
 
-        // Step 3: Auto-recovery if SHA was mismatched (422 or 409)
         if (!putRes.ok && (putRes.status === 422 || putRes.status === 409)) {
           sha = await getLatestFileSha(token);
           if (sha) {
@@ -1243,6 +1613,12 @@
             localStorage.setItem('universe_data', JSON.stringify(portalCompiledData.universe));
           }
 
+          if (portalCompiledData.stockistDetails) {
+            activeStockistDetails = portalCompiledData.stockistDetails;
+            localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+            renderStockistDetailsTable();
+          }
+
           document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
           document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
 
@@ -1289,13 +1665,24 @@
         } catch(e) {}
       }
 
+      const savedStockistDetails = localStorage.getItem('stockist_details_data');
+      if (savedStockistDetails) {
+        try {
+          activeStockistDetails = JSON.parse(savedStockistDetails);
+        } catch(e) {}
+      }
+
       const cachedData = localStorage.getItem('compiled_portal_data');
       if (cachedData) {
         try {
           portalCompiledData = JSON.parse(cachedData);
+          if (portalCompiledData.stockistDetails) {
+            activeStockistDetails = portalCompiledData.stockistDetails;
+          }
         } catch(e) {}
       }
 
+      renderStockistDetailsTable();
       runAnalysis();
       pullDataFromGithub(false);
     };
