@@ -61,7 +61,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navbar -->
+  <!-- Top Navigation Header -->
   <header class="bg-blue-900 text-white shadow-md print:hidden">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -250,7 +250,7 @@
               <td id="tot-nayara">4</td>
               <td id="sup-nayara">0</td>
               <td class="font-semibold" id="cy-nayara">0.0</td>
-              <td class="font-semibold" id="ly-nayara">0.0</td>
+              <td class="font-semibold" id="ly-nayara">0.1</td>
               <td id="pct-cy-nayara">0.0%</td>
               <td id="pct-ly-nayara">0.0%</td>
             </tr>
@@ -259,7 +259,7 @@
               <td class="text-left font-medium">Bazaar Shop</td>
               <td id="tot-bazaar">550</td>
               <td id="sup-bazaar">0</td>
-              <td class="font-semibold" id="cy-bazaar">0.0</td>
+              <td class="font-semibold" id="cy-bazaar">66.4</td>
               <td class="font-semibold" id="ly-bazaar">0.0</td>
               <td id="pct-cy-bazaar">0.0%</td>
               <td id="pct-ly-bazaar">0.0%</td>
@@ -632,13 +632,9 @@
       10: "Oct'26", 11: "Nov'26", 12: "Dec'26", 1: "Jan'27", 2: "Feb'27", 3: "Mar'27"
     };
 
-    // Store in-memory raw datasets for local uploads
     let rawDatasetLY = [];
     let rawDatasetCY = [];
-
-    // Master compiled payload loaded from data/portal_data.json
     let portalCompiledData = null;
-    let currentGithubSha = null;
 
     function getStockistUniverse(stockist) {
       const key = STOCKIST_KEY_MAP[stockist] || "tak";
@@ -717,7 +713,6 @@
       document.getElementById('tot-total').textContent = totalU;
     }
 
-    // Precise Channel Identification Rule
     function categorizeChannel(custGroup, custSubGroup) {
       const cg = String(custGroup || '').trim().toUpperCase();
       const csg = String(custSubGroup || '').trim().toUpperCase();
@@ -727,11 +722,9 @@
       if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
       if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
 
-      // KSK only if contains KSK and NOT NON
       const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
       if (isKsk) return 'ksk';
 
-      // Non-KSK contains all other subgroups and blanks
       return 'nonKsk';
     }
 
@@ -740,15 +733,13 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // --- High-Performance Aggregation Compiler ---
-    // Takes raw rows and compiles them into a 35KB structured matrix for instant GitHub syncing
     function compilePortalMatrix(rowsCY, rowsLY) {
       const stockistKeys = ["Takshvi Co", "Nalateswari Lubricants", "Bihariji Auto Service Station", "SMG Trades", "Swastik Automobiles"];
       const matrix = {
         updatedAt: new Date().toISOString(),
         universe: getAllUniverseData(),
-        monthlyData: {}, // [stockist][month] -> { cy: {...}, ly: {...} }
-        ssfData: {}      // [stockist][month] -> array of SSF objects
+        monthlyData: {},
+        ssfData: {}
       };
 
       stockistKeys.forEach(stk => {
@@ -757,7 +748,6 @@
         const stNameClean = stk.toLowerCase();
 
         MONTH_ORDER.forEach(m => {
-          // --- CY Single Month & Cumulative Span ---
           const spanMonths = getMonthSpan(m);
           
           const cySpanRows = rowsCY.filter(r => {
@@ -770,7 +760,6 @@
             return sName.includes(stNameClean) && parseInt(r['Month']) === m;
           });
 
-          // --- LY Single Month & Cumulative Span with Rules ---
           const filterLY = (row, targetMonths) => {
             const sName = String(row['Stockist Name'] || '').toLowerCase();
             const rowMonth = parseInt(row['Month']);
@@ -793,7 +782,6 @@
           const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths));
           const lyMonthRows = rowsLY.filter(r => filterLY(r, [m]));
 
-          // Aggregate Channel Breakdown
           const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
           const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
           const custSets = { nonKsk: new Set(), ksk: new Set(), nayara: new Set(), bazaar: new Set(), oem: new Set(), fleet: new Set() };
@@ -834,7 +822,6 @@
             }
           };
 
-          // Aggregate SSF Matrix for this Month
           const ssfMap = {};
           cySpanRows.forEach(r => {
             const ssfName = String(r['SSF Name'] || 'Unassigned').trim();
@@ -878,7 +865,6 @@
       return matrix;
     }
 
-    // --- File Upload Handler ---
     function handleFileUpload(event, type) {
       const file = event.target.files[0];
       if (!file) return;
@@ -902,7 +888,6 @@
             statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
           }
 
-          // Compile immediately into active memory
           portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
           localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
 
@@ -912,7 +897,6 @@
           runAnalysis();
           renderSSFAnalysis();
 
-          // Push to GitHub if token exists
           if (document.getElementById('gh-token').value.trim()) {
             pushDataToGithub();
           } else {
@@ -927,7 +911,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // --- Tab 1 Analysis Renderer ---
     function runAnalysis() {
       const stockist = document.getElementById('sel-stockist').value;
       const month = parseInt(document.getElementById('sel-month').value);
@@ -943,7 +926,6 @@
       document.getElementById('disp-cum-range').textContent = periodLabel;
       document.getElementById('disp-channel-period').textContent = periodLabel;
 
-      // Potential Calculation
       const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
       let mPotential = (month === 3) ? basePot * 2 : basePot;
       let cumPotential = basePot * numMonths;
@@ -954,7 +936,6 @@
 
       applyUniverseToActiveView();
 
-      // Read from compiled data
       if (portalCompiledData && portalCompiledData.monthlyData && portalCompiledData.monthlyData[stockist] && portalCompiledData.monthlyData[stockist][month]) {
         const d = portalCompiledData.monthlyData[stockist][month];
 
@@ -1018,7 +999,6 @@
       });
     }
 
-    // --- Tab 2 SSF Analysis Renderer ---
     function renderSSFAnalysis() {
       const stockist = document.getElementById('sel-ssf-stockist').value;
       const month = parseInt(document.getElementById('sel-ssf-month').value);
@@ -1036,8 +1016,6 @@
 
       if (portalCompiledData && portalCompiledData.ssfData && portalCompiledData.ssfData[stockist] && portalCompiledData.ssfData[stockist][month]) {
         ssfList = portalCompiledData.ssfData[stockist][month];
-      } else if (stockist === "Takshvi Co") {
-        ssfList = DEFAULT_SSF_TAKSHVI;
       }
 
       const grandTotalSales = ssfList.reduce((acc, x) => acc + x.total, 0);
@@ -1093,7 +1071,6 @@
       `;
     }
 
-    // --- PDF Export ---
     function exportToPDF(elementId, baseName) {
       const stockist = document.getElementById('sel-stockist').value;
       const month = document.getElementById('sel-month').options[document.getElementById('sel-month').selectedIndex].text;
@@ -1110,12 +1087,33 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // --- GitHub Cloud Synchronization Engine ---
+    // Helper: Fetch accurate SHA with cache-busting
+    async function getLatestFileSha(token) {
+      const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          return json.sha || null;
+        }
+      } catch (e) {
+        console.warn("Could not query SHA:", e);
+      }
+      return null;
+    }
+
     function saveGithubToken() {
       const token = document.getElementById('gh-token').value.trim();
       if (token) {
         localStorage.setItem('ghp_token', token);
-        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser.";
+        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser storage.";
         document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-emerald-600";
         pullDataFromGithub(false);
       }
@@ -1148,50 +1146,55 @@
       badge.textContent = "Sync: Pushing to Cloud...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
-      // Include current universe settings in the sync payload
       portalCompiledData.universe = getAllUniverseData();
       portalCompiledData.updatedAt = new Date().toISOString();
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
       try {
-        // Query latest SHA to prevent 409 Conflict
-        const metaRes = await fetch(apiUrl, {
-          headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-        if (metaRes.ok) {
-          const metaJson = await metaRes.json();
-          currentGithubSha = metaJson.sha;
-        }
+        // Step 1: Force fetch live uncached SHA from GitHub
+        let sha = await getLatestFileSha(token);
 
         const jsonStr = JSON.stringify(portalCompiledData);
-        // UTF-8 safe browser-native base64
         const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
 
         const bodyData = {
-          message: `Update sales data [${new Date().toLocaleDateString()}]`,
+          message: `Update sales data and universe [${new Date().toLocaleDateString()}]`,
           content: encodedContent
         };
-        if (currentGithubSha) {
-          bodyData.sha = currentGithubSha;
+        if (sha) {
+          bodyData.sha = sha;
         }
 
-        const putRes = await fetch(apiUrl, {
+        // Step 2: PUT request to GitHub Contents API
+        let putRes = await fetch(apiUrl, {
           method: 'PUT',
           headers: {
-            'Authorization': `token ${token}`,
+            'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github.v3+json',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(bodyData)
         });
 
+        // Step 3: Auto-recovery if SHA was mismatched (422 or 409)
+        if (!putRes.ok && (putRes.status === 422 || putRes.status === 409)) {
+          sha = await getLatestFileSha(token);
+          if (sha) {
+            bodyData.sha = sha;
+            putRes = await fetch(apiUrl, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(bodyData)
+            });
+          }
+        }
+
         if (putRes.ok) {
-          const putJson = await putRes.json();
-          currentGithubSha = putJson.content.sha;
           badge.textContent = "Sync: Up to date";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
           feedback.textContent = `✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} (~${Math.round(jsonStr.length/1024)} KB) at ${new Date().toLocaleTimeString()}`;
@@ -1217,12 +1220,20 @@
       badge.textContent = "Sync: Fetching Cloud Data...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
-      const headers = { 'Accept': 'application/vnd.github.v3.raw' };
-      if (token) headers['Authorization'] = `token ${token}`;
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
+      const headers = { 
+        'Accept': 'application/vnd.github.v3.raw',
+        'Cache-Control': 'no-cache'
+      };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
       try {
-        const res = await fetch(apiUrl, { headers });
+        const res = await fetch(apiUrl, { 
+          method: 'GET',
+          cache: 'no-store',
+          headers 
+        });
+
         if (res.ok) {
           portalCompiledData = await res.json();
           localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
@@ -1264,7 +1275,7 @@
       }
     }
 
-    // App Boot
+    // App Initialization
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
