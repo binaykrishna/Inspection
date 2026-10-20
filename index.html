@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secondary Sales & SSF Performance Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS CDN for parsing Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- html2pdf.js CDN for direct PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .sheet-table th, .sheet-table td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+    }
+    .sheet-header-dark {
+      background-color: #1e3a8a;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .sheet-subheader {
+      background-color: #e2e8f0;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .sheet-accent {
+      background-color: #f8fafc;
+    }
+    .sheet-total-row {
+      background-color: #f1f5f9;
+      font-weight: 700;
+    }
+    .input-cell {
+      background-color: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 4px;
+      padding: 3px 6px;
+      width: 100%;
+      text-align: right;
+      font-size: 0.85rem;
+    }
+    .input-cell:focus {
+      outline: 2px solid #2563eb;
+      background-color: #eff6ff;
+    }
+    .input-universe {
+      width: 75px;
+      text-align: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 3px 5px;
+      font-weight: 600;
+      color: #1e293b;
+      background-color: #ffffff;
+    }
+    .input-universe:focus {
+      outline: 2px solid #2563eb;
+      background-color: #eff6ff;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="bg-blue-900 text-white shadow-md print:hidden">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold tracking-wide">Secondary Sales & SSF Performance Portal</h1>
+        <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix</p>
+      </div>
+      
+      <!-- Navigation Tabs (3 Tabs) -->
+      <div class="flex items-center space-x-2 bg-blue-950 p-1 rounded-lg">
+        <button id="tab-btn-analysis" onclick="switchTab('analysis')" 
+          class="px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
+          📊 Sales Analysis
+        </button>
+        <button id="tab-btn-ssf" onclick="switchTab('ssf')" 
+          class="px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          👥 SSF Wise Analysis
+        </button>
+        <button id="tab-btn-upload" onclick="switchTab('upload')" 
+          class="px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          📁 Upload & Settings
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: SALES ANALYSIS SPREADSHEET VIEW    -->
+    <!-- ========================================== -->
+    <div id="tab-analysis" class="space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 print:hidden">
+        <div class="flex flex-wrap items-center gap-6">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Stockist Name</label>
+            <select id="sel-stockist" onchange="syncStockist(this.value); runAnalysis();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="Takshvi Co">Takshvi Co</option>
+              <option value="Nalateswari Lubricants">Nalateswari Lubricants</option>
+              <option value="Bihariji Auto Service Station">Bihariji Auto Service Station</option>
+              <option value="SMG Trades">SMG Trades</option>
+              <option value="Swastik Automobiles">Swastik Automobiles</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Select Month</label>
+            <select id="sel-month" onchange="syncMonth(this.value); runAnalysis();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="4">Apr'26</option>
+              <option value="5">May'26</option>
+              <option value="6">Jun'26</option>
+              <option value="7">Jul'26</option>
+              <option value="8" selected>Aug'26</option>
+              <option value="9">Sep'26</option>
+              <option value="10">Oct'26</option>
+              <option value="11">Nov'26</option>
+              <option value="12">Dec'26</option>
+              <option value="1">Jan'27</option>
+              <option value="2">Feb'27</option>
+              <option value="3">Mar'27</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+            Default Data Active
+          </span>
+          <button onclick="exportToPDF('pdf-report-content', 'Sales_Analysis')" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            📄 Export to PDF
+          </button>
+          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            🖨️ Print
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Analysis View -->
+      <div id="pdf-report-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
+        <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">* 2 - Sales Analysis</h2>
+            <p class="text-xs text-slate-500 font-medium">LUBES RESELLER GROUP — SECONDARY PERFORMANCE MATRIX</p>
+          </div>
+          <div class="text-right text-xs text-slate-600">
+            <div><span class="font-bold">Stockist:</span> <span id="disp-stockist-title" class="font-semibold text-blue-900">Takshvi Co</span></div>
+            <div><span class="font-bold">Period:</span> <span id="disp-period-title" class="font-semibold text-blue-900">Apr'26- Aug'26</span></div>
+          </div>
+        </div>
+
+        <table class="w-full border-collapse sheet-table text-left" id="analysis-table">
+          <thead>
+            <tr class="sheet-accent">
+              <th class="w-1/4 font-bold text-slate-700">Name of the Stockist</th>
+              <th colspan="6" id="disp-stockist-name" class="font-bold text-blue-900 text-base">Takshvi Co</th>
+            </tr>
+            <tr class="sheet-accent">
+              <th class="font-bold text-slate-700">Month</th>
+              <th colspan="6" id="disp-month-label" class="font-semibold text-slate-800">Aug'26</th>
+            </tr>
+            
+            <tr class="sheet-subheader text-center">
+              <th class="text-left">Potential (KL)</th>
+              <th>Target (KL)</th>
+              <th>Sales CY (KL)</th>
+              <th>Sales LY (KL)</th>
+              <th>(+/-)</th>
+              <th colspan="2">Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="text-right">
+              <td><input type="number" step="0.1" id="input-m-pot" class="input-cell font-semibold text-left" value="80.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="32.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="36.4" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="31.2" oninput="updateCalculations()"></td>
+              <td class="font-bold" id="cell-m-diff">+5.2</td>
+              <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
+            </tr>
+
+            <tr class="sheet-accent">
+              <th class="font-bold text-slate-700">Cumulative</th>
+              <th colspan="6" id="disp-cum-range" class="font-semibold text-slate-800">Apr'26- Aug'26</th>
+            </tr>
+
+            <tr class="sheet-subheader text-center">
+              <th class="text-left">Potential (KL)</th>
+              <th>Target (KL)</th>
+              <th>Sales CY (KL)</th>
+              <th>Sales LY (KL)</th>
+              <th>(+/-)</th>
+              <th colspan="2">Remarks</th>
+            </tr>
+
+            <tr class="text-right">
+              <td><input type="number" step="0.1" id="input-cum-pot" class="input-cell font-semibold text-left" value="400.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="176.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="155.5" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="149.9" oninput="updateCalculations()"></td>
+              <td class="font-bold" id="cell-cum-diff">+5.6</td>
+              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" value="INCL. ADHOC BANKURA"></td>
+            </tr>
+
+            <tr class="bg-slate-200">
+              <td colspan="7" class="py-1"></td>
+            </tr>
+
+            <tr class="sheet-header-dark text-center">
+              <th colspan="7" class="py-2 tracking-wider uppercase">LUBES RESELLER GROUP — Analysis of Secondary Sales</th>
+            </tr>
+            <tr class="sheet-accent">
+              <th class="font-bold text-slate-700">Period</th>
+              <th colspan="6" id="disp-channel-period" class="font-semibold text-slate-800">Apr'26- Aug'26</th>
+            </tr>
+
+            <tr class="sheet-subheader text-center">
+              <th class="text-left">Channel</th>
+              <th>Total No.</th>
+              <th>Cum. No. Supplied</th>
+              <th>Sales CY</th>
+              <th>Sales LY</th>
+              <th>% of Total Sales CY</th>
+              <th>% of Total Sales LY</th>
+            </tr>
+
+            <tr id="row-non-ksk" class="text-right">
+              <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
+              <td id="tot-non-ksk">100</td>
+              <td id="sup-non-ksk">100</td>
+              <td class="font-semibold" id="cy-non-ksk">53.3</td>
+              <td class="font-semibold" id="ly-non-ksk">54.3</td>
+              <td id="pct-cy-non-ksk">34.3%</td>
+              <td id="pct-ly-non-ksk">36.2%</td>
+            </tr>
+
+            <tr id="row-ksk" class="text-right">
+              <td class="text-left font-medium">Retail Outlets - KSK RO</td>
+              <td id="tot-ksk">41</td>
+              <td id="sup-ksk">41</td>
+              <td class="font-semibold" id="cy-ksk">25.3</td>
+              <td class="font-semibold" id="ly-ksk">20.4</td>
+              <td id="pct-cy-ksk">16.3%</td>
+              <td id="pct-ly-ksk">13.6%</td>
+            </tr>
+
+            <tr id="row-nayara" class="text-right">
+              <td class="text-left font-medium">Retail Outlets - Nayara Energy</td>
+              <td id="tot-nayara">4</td>
+              <td id="sup-nayara">0</td>
+              <td class="font-semibold" id="cy-nayara">0.0</td>
+              <td class="font-semibold" id="ly-nayara">0.1</td>
+              <td id="pct-cy-nayara">0.0%</td>
+              <td id="pct-ly-nayara">0.1%</td>
+            </tr>
+
+            <tr id="row-bazaar" class="text-right">
+              <td class="text-left font-medium">Bazaar Shop</td>
+              <td id="tot-bazaar">550</td>
+              <td id="sup-bazaar">314</td>
+              <td class="font-semibold" id="cy-bazaar">66.4</td>
+              <td class="font-semibold" id="ly-bazaar">64.5</td>
+              <td id="pct-cy-bazaar">42.7%</td>
+              <td id="pct-ly-bazaar">43.0%</td>
+            </tr>
+
+            <tr id="row-oem" class="text-right">
+              <td class="text-left font-medium">OE Dealers</td>
+              <td id="tot-oem">4</td>
+              <td id="sup-oem">1</td>
+              <td class="font-semibold" id="cy-oem">10.5</td>
+              <td class="font-semibold" id="ly-oem">10.7</td>
+              <td id="pct-cy-oem">6.8%</td>
+              <td id="pct-ly-oem">7.1%</td>
+            </tr>
+
+            <tr id="row-fleet" class="text-right">
+              <td class="text-left font-medium">Fleet</td>
+              <td id="tot-fleet">4</td>
+              <td id="sup-fleet">0</td>
+              <td class="font-semibold" id="cy-fleet">0.0</td>
+              <td class="font-semibold" id="ly-fleet">0.0</td>
+              <td id="pct-cy-fleet">0.0%</td>
+              <td id="pct-ly-fleet">0.0%</td>
+            </tr>
+
+            <tr class="sheet-total-row text-right text-blue-950">
+              <td class="text-left font-bold uppercase">Total</td>
+              <td id="tot-total">703</td>
+              <td id="sup-total">456</td>
+              <td class="font-bold text-blue-900" id="cy-total">155.5</td>
+              <td class="font-bold" id="ly-total">150.0</td>
+              <td id="pct-cy-total">100.0%</td>
+              <td id="pct-ly-total">100.0%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 2: SSF WISE SALES ANALYSIS (CURRENT FY)-->
+    <!-- ========================================== -->
+    <div id="tab-ssf" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 print:hidden">
+        <div class="flex flex-wrap items-center gap-6">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Stockist Name</label>
+            <select id="sel-ssf-stockist" onchange="syncStockist(this.value); renderSSFAnalysis();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="Takshvi Co">Takshvi Co</option>
+              <option value="Nalateswari Lubricants">Nalateswari Lubricants</option>
+              <option value="Bihariji Auto Service Station">Bihariji Auto Service Station</option>
+              <option value="SMG Trades">SMG Trades</option>
+              <option value="Swastik Automobiles">Swastik Automobiles</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Select Month (Cumulative Till)</label>
+            <select id="sel-ssf-month" onchange="syncMonth(this.value); renderSSFAnalysis();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="4">Apr'26</option>
+              <option value="5">May'26</option>
+              <option value="6">Jun'26</option>
+              <option value="7">Jul'26</option>
+              <option value="8" selected>Aug'26</option>
+              <option value="9">Sep'26</option>
+              <option value="10">Oct'26</option>
+              <option value="11">Nov'26</option>
+              <option value="12">Dec'26</option>
+              <option value="1">Jan'27</option>
+              <option value="2">Feb'27</option>
+              <option value="3">Mar'27</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            🖨️ Print
+          </button>
+        </div>
+      </div>
+
+      <div id="pdf-ssf-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
+        <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">SSF Wise Cumulative Sales Analysis (FY 2026-27)</h2>
+            <p class="text-xs text-slate-500 font-medium">SECONDARY SALES FORCE PERFORMANCE BREAKDOWN & CHANNEL CONTRIBUTION</p>
+          </div>
+          <div class="text-right text-xs text-slate-600">
+            <div><span class="font-bold">Stockist:</span> <span id="disp-ssf-stockist-title" class="font-semibold text-blue-900">Takshvi Co</span></div>
+            <div><span class="font-bold">Period:</span> <span id="disp-ssf-period-title" class="font-semibold text-blue-900">Apr'26 - Aug'26</span></div>
+          </div>
+        </div>
+
+        <!-- Summary KPIs -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <div class="text-xs font-bold text-slate-500 uppercase">Total SSF Count</div>
+            <div id="kpi-ssf-count" class="text-2xl font-black text-blue-900 mt-1">3</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <div class="text-xs font-bold text-slate-500 uppercase">Cumulative Sales CY (KL)</div>
+            <div id="kpi-ssf-sales" class="text-2xl font-black text-emerald-700 mt-1">157.5 KL</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <div class="text-xs font-bold text-slate-500 uppercase">Total Outlets Supplied</div>
+            <div id="kpi-ssf-outlets" class="text-2xl font-black text-indigo-900 mt-1">456</div>
+          </div>
+        </div>
+
+        <!-- SSF Table (Cum. Sales CY directly after SSF Name) -->
+        <table class="w-full border-collapse sheet-table text-left" id="table-ssf">
+          <thead>
+            <tr class="sheet-header-dark text-center">
+              <th rowspan="2" class="text-left py-3">SSF Name</th>
+              <th rowspan="2" class="bg-blue-800 text-amber-200">Cum. Sales CY (KL)</th>
+              <th rowspan="2">SSF Code</th>
+              <th rowspan="2">Supplied Outlets</th>
+              <th colspan="6">Channel Breakdown (Sales in KL)</th>
+              <th rowspan="2">% Share</th>
+            </tr>
+            <tr class="sheet-subheader text-center text-xs">
+              <th>Non-KSK</th>
+              <th>KSK</th>
+              <th>Nayara</th>
+              <th>Bazaar</th>
+              <th>OEM</th>
+              <th>Fleet</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-ssf"></tbody>
+          <tfoot id="tfoot-ssf" class="sheet-total-row text-right text-blue-950"></tfoot>
+        </table>
+      </div>
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 3: COMBINED UPLOAD CATALOG, GITHUB SYNC & UNIVERSE  -->
+    <!-- ======================================================= -->
+    <div id="tab-upload" class="hidden space-y-6">
+      
+      <!-- Section 1: File Uploaders -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
+        <p class="text-sm text-slate-500 mb-6">Upload raw secondary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- LY File Upload Box -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl">📄</div>
+                <div>
+                  <h3 class="font-bold text-slate-800">Secondary Sales LY (FY 25-26)</h3>
+                  <p class="text-xs text-slate-500">File: S FY 25-26.xlsx</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 mb-4">Stockist secondary sales, invoices, customer IDs, and quantities for prior financial year.</p>
+            </div>
+            <div>
+              <input type="file" id="file-ly" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'LY')" class="hidden">
+              <label for="file-ly" class="cursor-pointer block text-center w-full py-2.5 px-4 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+                Choose LY File
+              </label>
+              <div id="status-ly" class="mt-2 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+            </div>
+          </div>
+
+          <!-- CY File Upload Box -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl">📊</div>
+                <div>
+                  <h3 class="font-bold text-slate-800">Secondary Sales CY (FY 26-27)</h3>
+                  <p class="text-xs text-slate-500">File: S FY 26-27.xlsx</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 mb-4">Secondary sales invoices, quantities, and channel categorizations for current financial year.</p>
+            </div>
+            <div>
+              <input type="file" id="file-cy" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'CY')" class="hidden">
+              <label for="file-cy" class="cursor-pointer block text-center w-full py-2.5 px-4 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+                Choose CY File
+              </label>
+              <div id="status-cy" class="mt-2 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: GitHub Cloud Multi-Device Sync -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span>🐙</span> GitHub Multi-Device Synchronization
+            </h2>
+            <p class="text-sm text-slate-500">Sync uploaded datasets and custom universe configuration across all devices using your repository.</p>
+          </div>
+          <span id="sync-status-indicator" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
+            Sync: Idle
+          </span>
+        </div>
+
+        <!-- Token Input Only (Username and Repo are hardcoded) -->
+        <div class="max-w-xl mb-4">
+          <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Personal Access Token (ghp_...)</label>
+          <div class="flex gap-2">
+            <input type="password" id="gh-token" placeholder="Enter ghp_ token" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" onchange="saveGithubToken()">
+            <button onclick="clearSavedToken()" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+              Clear
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Once saved, your device will auto-sync with the latest repository dataset on startup.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="pushDataToGithub()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            ⬆️ Push Latest Data to GitHub
+          </button>
+          <button onclick="pullDataFromGithub(true)" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            ⬇️ Pull & Sync Now
+          </button>
+        </div>
+        <p id="gh-feedback" class="text-xs font-semibold mt-3 text-slate-500"></p>
+      </div>
+
+      <!-- Section 3: Static Universe (Total No. of Outlets / Stockist) -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Static Universe (Total No. of Outlets / Stockist)</h2>
+            <p class="text-xs text-slate-500">Editable baseline outlet numbers as configured in Rules.xlsx (Rows 27–34). Changes reflect across all tabs.</p>
+          </div>
+          <button onclick="resetUniverseDefaults()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+            ↺ Reset Defaults
+          </button>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-xs sheet-table" id="table-universe">
+            <thead>
+              <tr class="sheet-subheader text-center">
+                <th class="text-left py-2.5">Channel</th>
+                <th>Takshvi Co</th>
+                <th>Bihariji</th>
+                <th>Nalateswari</th>
+                <th>Swastik</th>
+                <th>SMG Trades</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
+                <td><input type="number" id="u-nonKsk-tak" class="input-universe" value="100" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-bih" class="input-universe" value="56" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-nal" class="input-universe" value="118" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-swa" class="input-universe" value="30" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-smg" class="input-universe" value="50" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - KSK RO</td>
+                <td><input type="number" id="u-ksk-tak" class="input-universe" value="41" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-bih" class="input-universe" value="17" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-nal" class="input-universe" value="78" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-swa" class="input-universe" value="16" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-smg" class="input-universe" value="20" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - Nayara Energy</td>
+                <td><input type="number" id="u-nayara-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-bih" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-nal" class="input-universe" value="6" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-smg" class="input-universe" value="2" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Bazaar Shop</td>
+                <td><input type="number" id="u-bazaar-tak" class="input-universe" value="550" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-bih" class="input-universe" value="400" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-nal" class="input-universe" value="800" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-swa" class="input-universe" value="200" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-smg" class="input-universe" value="350" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">OE Dealers</td>
+                <td><input type="number" id="u-oem-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-bih" class="input-universe" value="8" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-nal" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-smg" class="input-universe" value="3" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Fleet</td>
+                <td><input type="number" id="u-fleet-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-bih" class="input-universe" value="10" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-nal" class="input-universe" value="100" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-swa" class="input-universe" value="2" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-smg" class="input-universe" value="5" oninput="onUniverseChange()"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Application Logic -->
+  <script>
+    // Fixed GitHub credentials
+    const GITHUB_USERNAME = "binaykrishna";
+    const GITHUB_REPO = "inspection";
+
+    function switchTab(tab) {
+      const tabAnalysis = document.getElementById('tab-analysis');
+      const tabSsf = document.getElementById('tab-ssf');
+      const tabUpload = document.getElementById('tab-upload');
+      
+      const btnAnalysis = document.getElementById('tab-btn-analysis');
+      const btnSsf = document.getElementById('tab-btn-ssf');
+      const btnUpload = document.getElementById('tab-btn-upload');
+
+      tabAnalysis.classList.add('hidden');
+      tabSsf.classList.add('hidden');
+      tabUpload.classList.add('hidden');
+
+      btnAnalysis.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
+      btnSsf.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
+      btnUpload.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
+
+      if (tab === 'analysis') {
+        tabAnalysis.classList.remove('hidden');
+        btnAnalysis.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
+      } else if (tab === 'ssf') {
+        tabSsf.classList.remove('hidden');
+        btnSsf.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
+        renderSSFAnalysis();
+      } else {
+        tabUpload.classList.remove('hidden');
+        btnUpload.className = "px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
+      }
+    }
+
+    function syncStockist(val) {
+      document.getElementById('sel-stockist').value = val;
+      document.getElementById('sel-ssf-stockist').value = val;
+    }
+    function syncMonth(val) {
+      document.getElementById('sel-month').value = val;
+      document.getElementById('sel-ssf-month').value = val;
+    }
+
+    const STOCKIST_BASE_POTENTIAL = {
+      "Takshvi Co": 80,
+      "Nalateswari Lubricants": 200,
+      "Bihariji Auto Service Station": 100,
+      "SMG Trades": 70,
+      "Swastik Automobiles": 30
+    };
+
+    const STOCKIST_KEY_MAP = {
+      "Takshvi Co": "tak",
+      "Bihariji Auto Service Station": "bih",
+      "Nalateswari Lubricants": "nal",
+      "Swastik Automobiles": "swa",
+      "SMG Trades": "smg"
+    };
+
+    const MONTH_ORDER = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3];
+    const MONTH_NAMES = {
+      4: "Apr'26", 5: "May'26", 6: "Jun'26", 7: "Jul'26", 8: "Aug'26", 9: "Sep'26",
+      10: "Oct'26", 11: "Nov'26", 12: "Dec'26", 1: "Jan'27", 2: "Feb'27", 3: "Mar'27"
+    };
+
+    const DEFAULT_SSF_TAKSHVI = [
+      { name: "SAM,SUDIPTA", code: "0000379540_6", outlets: 181, nonKsk: 26.6, ksk: 14.1, nayara: 0.0, bazaar: 32.4, oem: 0.0, fleet: 0.0, total: 73.1 },
+      { name: "MONDAL,SUDAM", code: "0000379540_2", outlets: 160, nonKsk: 18.5, ksk: 6.4, nayara: 0.0, bazaar: 18.1, oem: 10.5, fleet: 0.0, total: 53.5 },
+      { name: "DAS,SOUMITRA", code: "0000379540_5", outlets: 115, nonKsk: 10.2, ksk: 4.9, nayara: 0.0, bazaar: 15.9, oem: 0.0, fleet: 0.0, total: 31.0 }
+    ];
+
+    let datasetLY = [];
+    let datasetCY = [];
+    let currentGithubSha = null;
+
+    // --- Universe Handling ---
+    function getStockistUniverse(stockist) {
+      const key = STOCKIST_KEY_MAP[stockist] || "tak";
+      return {
+        nonKsk: parseInt(document.getElementById(`u-nonKsk-${key}`).value) || 0,
+        ksk: parseInt(document.getElementById(`u-ksk-${key}`).value) || 0,
+        nayara: parseInt(document.getElementById(`u-nayara-${key}`).value) || 0,
+        bazaar: parseInt(document.getElementById(`u-bazaar-${key}`).value) || 0,
+        oem: parseInt(document.getElementById(`u-oem-${key}`).value) || 0,
+        fleet: parseInt(document.getElementById(`u-fleet-${key}`).value) || 0
+      };
+    }
+
+    function getAllUniverseData() {
+      const keys = ['tak', 'bih', 'nal', 'swa', 'smg'];
+      const data = {};
+      keys.forEach(k => {
+        data[k] = {
+          nonKsk: parseInt(document.getElementById(`u-nonKsk-${k}`).value) || 0,
+          ksk: parseInt(document.getElementById(`u-ksk-${k}`).value) || 0,
+          nayara: parseInt(document.getElementById(`u-nayara-${k}`).value) || 0,
+          bazaar: parseInt(document.getElementById(`u-bazaar-${k}`).value) || 0,
+          oem: parseInt(document.getElementById(`u-oem-${k}`).value) || 0,
+          fleet: parseInt(document.getElementById(`u-fleet-${k}`).value) || 0
+        };
+      });
+      return data;
+    }
+
+    function setAllUniverseData(data) {
+      if (!data) return;
+      Object.keys(data).forEach(k => {
+        if (data[k]) {
+          if (document.getElementById(`u-nonKsk-${k}`)) document.getElementById(`u-nonKsk-${k}`).value = data[k].nonKsk;
+          if (document.getElementById(`u-ksk-${k}`)) document.getElementById(`u-ksk-${k}`).value = data[k].ksk;
+          if (document.getElementById(`u-nayara-${k}`)) document.getElementById(`u-nayara-${k}`).value = data[k].nayara;
+          if (document.getElementById(`u-bazaar-${k}`)) document.getElementById(`u-bazaar-${k}`).value = data[k].bazaar;
+          if (document.getElementById(`u-oem-${k}`)) document.getElementById(`u-oem-${k}`).value = data[k].oem;
+          if (document.getElementById(`u-fleet-${k}`)) document.getElementById(`u-fleet-${k}`).value = data[k].fleet;
+        }
+      });
+      applyUniverseToActiveView();
+      updateCalculations();
+    }
+
+    function resetUniverseDefaults() {
+      const defaults = {
+        tak: { nonKsk: 100, ksk: 41, nayara: 4, bazaar: 550, oem: 4, fleet: 4 },
+        bih: { nonKsk: 56, ksk: 17, nayara: 1, bazaar: 400, oem: 8, fleet: 10 },
+        nal: { nonKsk: 118, ksk: 78, nayara: 6, bazaar: 800, oem: 4, fleet: 100 },
+        swa: { nonKsk: 30, ksk: 16, nayara: 1, bazaar: 200, oem: 1, fleet: 2 },
+        smg: { nonKsk: 50, ksk: 20, nayara: 2, bazaar: 350, oem: 3, fleet: 5 }
+      };
+      setAllUniverseData(defaults);
+      localStorage.setItem('universe_data', JSON.stringify(defaults));
+    }
+
+    function onUniverseChange() {
+      applyUniverseToActiveView();
+      updateCalculations();
+      localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
+    }
+
+    function applyUniverseToActiveView() {
+      const stockist = document.getElementById('sel-stockist').value;
+      const u = getStockistUniverse(stockist);
+
+      document.getElementById('tot-non-ksk').textContent = u.nonKsk;
+      document.getElementById('tot-ksk').textContent = u.ksk;
+      document.getElementById('tot-nayara').textContent = u.nayara;
+      document.getElementById('tot-bazaar').textContent = u.bazaar;
+      document.getElementById('tot-oem').textContent = u.oem;
+      document.getElementById('tot-fleet').textContent = u.fleet;
+
+      const totalU = u.nonKsk + u.ksk + u.nayara + u.bazaar + u.oem + u.fleet;
+      document.getElementById('tot-total').textContent = totalU;
+    }
+
+    // --- File Uploads ---
+    function handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      const statusEl = document.getElementById(type === 'LY' ? 'status-ly' : 'status-cy');
+      statusEl.textContent = `Reading ${file.name}...`;
+
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.SheetNames[0];
+          const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+          
+          if (type === 'LY') {
+            datasetLY = jsonData;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${jsonData.length.toLocaleString()} rows</span> (${file.name})`;
+          } else {
+            datasetCY = jsonData;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${jsonData.length.toLocaleString()} rows</span> (${file.name})`;
+          }
+
+          document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          document.getElementById('data-status-badge').textContent = "Uploaded Catalog Active";
+
+          runAnalysis();
+          renderSSFAnalysis();
+        } catch (err) {
+          console.error(err);
+          statusEl.innerHTML = `<span class="text-rose-600 font-bold">✕ Error loading file</span>`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- Accurate Channel Categorizer ---
+    function categorizeChannel(custGroup, custSubGroup) {
+      const cg = String(custGroup || '').trim().toUpperCase();
+      const csg = String(custSubGroup || '').trim().toUpperCase();
+
+      if (cg === 'OEM') return 'oem';
+      if (cg === 'FLEET') return 'fleet';
+      if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
+      if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
+
+      // KSK only if contains KSK and NOT NON (protects IOC-NON KSK)
+      const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
+      if (isKsk) return 'ksk';
+
+      // Non-KSK contains all other subgroups and blanks
+      return 'nonKsk';
+    }
+
+    function getMonthSpan(targetMonth) {
+      const idx = MONTH_ORDER.indexOf(parseInt(targetMonth));
+      return MONTH_ORDER.slice(0, idx + 1);
+    }
+
+    // --- SSF Wise Analysis ---
+    function renderSSFAnalysis() {
+      const stockist = document.getElementById('sel-ssf-stockist').value;
+      const month = parseInt(document.getElementById('sel-ssf-month').value);
+      const spanMonths = getMonthSpan(month);
+
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      document.getElementById('disp-ssf-stockist-title').textContent = stockist;
+      document.getElementById('disp-ssf-period-title').textContent = periodLabel;
+
+      const tbody = document.getElementById('tbody-ssf');
+      const tfoot = document.getElementById('tfoot-ssf');
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+
+      let ssfList = [];
+
+      if (datasetCY.length > 0) {
+        const stNameClean = stockist.toLowerCase();
+        const cyRowsSpan = datasetCY.filter(r => {
+          const sName = String(r['Stockist Name'] || '').toLowerCase();
+          const m = parseInt(r['Month']);
+          return sName.includes(stNameClean) && spanMonths.includes(m);
+        });
+
+        const ssfMap = {};
+        cyRowsSpan.forEach(r => {
+          const ssfName = String(r['SSF Name'] || 'Unassigned').trim();
+          const ssfCode = String(r['SSF Code'] || '-').trim();
+          const key = ssfName + '___' + ssfCode;
+
+          if (!ssfMap[key]) {
+            ssfMap[key] = {
+              name: ssfName,
+              code: ssfCode,
+              custIds: new Set(),
+              nonKsk: 0,
+              ksk: 0,
+              nayara: 0,
+              bazaar: 0,
+              oem: 0,
+              fleet: 0,
+              total: 0
+            };
+          }
+
+          const qtyKL = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+          const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+          const custId = r['Customer Id'];
+
+          if (qtyKL > 0 && custId) ssfMap[key].custIds.add(custId);
+          ssfMap[key][ch] = (ssfMap[key][ch] || 0) + qtyKL;
+          ssfMap[key].total += qtyKL;
+        });
+
+        ssfList = Object.values(ssfMap).map(item => ({
+          name: item.name,
+          code: item.code,
+          outlets: item.custIds.size,
+          nonKsk: item.nonKsk,
+          ksk: item.ksk,
+          nayara: item.nayara,
+          bazaar: item.bazaar,
+          oem: item.oem,
+          fleet: item.fleet,
+          total: item.total
+        }));
+
+        ssfList.sort((a, b) => b.total - a.total);
+      } else {
+        if (stockist === "Takshvi Co") {
+          ssfList = DEFAULT_SSF_TAKSHVI;
+        } else {
+          ssfList = [
+            { name: "PRIMARY SSF 1", code: "001", outlets: 85, nonKsk: 20.0, ksk: 10.0, nayara: 0.0, bazaar: 25.0, oem: 2.0, fleet: 0.0, total: 57.0 },
+            { name: "SECONDARY SSF 2", code: "002", outlets: 60, nonKsk: 15.0, ksk: 5.0, nayara: 0.0, bazaar: 18.0, oem: 1.0, fleet: 0.0, total: 39.0 }
+          ];
+        }
+      }
+
+      const grandTotalSales = ssfList.reduce((acc, x) => acc + x.total, 0);
+      const grandTotalOutlets = ssfList.reduce((acc, x) => acc + x.outlets, 0);
+      let totNonKsk = 0, totKsk = 0, totNayara = 0, totBazaar = 0, totOem = 0, totFleet = 0;
+
+      document.getElementById('kpi-ssf-count').textContent = ssfList.length;
+      document.getElementById('kpi-ssf-sales').textContent = grandTotalSales.toFixed(1) + ' KL';
+      document.getElementById('kpi-ssf-outlets').textContent = grandTotalOutlets;
+
+      ssfList.forEach(item => {
+        totNonKsk += item.nonKsk;
+        totKsk += item.ksk;
+        totNayara += item.nayara;
+        totBazaar += item.bazaar;
+        totOem += item.oem;
+        totFleet += item.fleet;
+
+        const sharePct = grandTotalSales > 0 ? (item.total / grandTotalSales) * 100 : 0;
+
+        const tr = document.createElement('tr');
+        tr.className = "text-right hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="text-left font-bold text-slate-800">${item.name}</td>
+          <td class="font-black text-blue-900 bg-blue-50/70 text-right pr-4">${item.total.toFixed(1)}</td>
+          <td class="text-center text-xs font-mono text-slate-500">${item.code}</td>
+          <td class="text-center font-semibold text-slate-700">${item.outlets}</td>
+          <td class="font-medium">${item.nonKsk.toFixed(1)}</td>
+          <td class="font-medium">${item.ksk.toFixed(1)}</td>
+          <td class="font-medium">${item.nayara.toFixed(1)}</td>
+          <td class="font-medium">${item.bazaar.toFixed(1)}</td>
+          <td class="font-medium">${item.oem.toFixed(1)}</td>
+          <td class="font-medium">${item.fleet.toFixed(1)}</td>
+          <td class="text-center font-bold text-slate-700">${sharePct.toFixed(1)}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tfoot.innerHTML = `
+        <tr class="text-right">
+          <td class="text-left font-bold uppercase py-2.5">Total</td>
+          <td class="font-black text-blue-950 bg-blue-100 text-right pr-4">${grandTotalSales.toFixed(1)}</td>
+          <td class="text-center">-</td>
+          <td class="text-center font-bold">${grandTotalOutlets}</td>
+          <td class="font-bold">${totNonKsk.toFixed(1)}</td>
+          <td class="font-bold">${totKsk.toFixed(1)}</td>
+          <td class="font-bold">${totNayara.toFixed(1)}</td>
+          <td class="font-bold">${totBazaar.toFixed(1)}</td>
+          <td class="font-bold">${totOem.toFixed(1)}</td>
+          <td class="font-bold">${totFleet.toFixed(1)}</td>
+          <td class="text-center font-bold">100.0%</td>
+        </tr>
+      `;
+    }
+
+    // --- Tab 1 Analysis ---
+    function runAnalysis() {
+      const stockist = document.getElementById('sel-stockist').value;
+      const month = parseInt(document.getElementById('sel-month').value);
+      const spanMonths = getMonthSpan(month);
+      const numMonths = spanMonths.length;
+
+      document.getElementById('disp-stockist-title').textContent = stockist;
+      document.getElementById('disp-stockist-name').textContent = stockist;
+      document.getElementById('disp-month-label').textContent = MONTH_NAMES[month];
+      
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      document.getElementById('disp-period-title').textContent = periodLabel;
+      document.getElementById('disp-cum-range').textContent = periodLabel;
+      document.getElementById('disp-channel-period').textContent = periodLabel;
+
+      const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
+      let mPotential = (month === 3) ? basePot * 2 : basePot;
+      
+      let cumPotential = basePot * numMonths;
+      if (spanMonths.includes(3)) cumPotential += basePot;
+
+      document.getElementById('input-m-pot').value = mPotential.toFixed(1);
+      document.getElementById('input-cum-pot').value = cumPotential.toFixed(1);
+
+      applyUniverseToActiveView();
+
+      if (datasetCY.length > 0 || datasetLY.length > 0) {
+        computeDataMetrics(stockist, month, spanMonths);
+      } else {
+        updateCalculations();
+      }
+    }
+
+    function computeDataMetrics(stockist, currentMonth, spanMonths) {
+      const stNameClean = stockist.toLowerCase();
+
+      const cyRowsSpan = datasetCY.filter(r => {
+        const sName = String(r['Stockist Name'] || '').toLowerCase();
+        const m = parseInt(r['Month']);
+        return sName.includes(stNameClean) && spanMonths.includes(m);
+      });
+
+      const cyRowsSingleMonth = datasetCY.filter(r => {
+        const sName = String(r['Stockist Name'] || '').toLowerCase();
+        const m = parseInt(r['Month']);
+        return sName.includes(stNameClean) && m === currentMonth;
+      });
+
+      const lyRowsSpan = datasetLY.filter(r => {
+        let sName = String(r['Stockist Name'] || '').toLowerCase();
+        const m = parseInt(r['Month']);
+        const dist = String(r['District'] || '').toLowerCase();
+
+        if (stockist === "Takshvi Co") {
+          if (sName.includes('takshvi')) return spanMonths.includes(m);
+          if (sName.includes('servo world') && [4,5,6,7,8].includes(m)) return spanMonths.includes(m);
+          return false;
+        }
+
+        if (stockist === "SMG Trades") {
+          if (sName.includes('smg')) return spanMonths.includes(m);
+          if (sName.includes('servo world') && [9,10,11,12,1].includes(m)) return spanMonths.includes(m);
+          if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(m)) return spanMonths.includes(m);
+          return false;
+        }
+
+        return sName.includes(stNameClean) && spanMonths.includes(m);
+      });
+
+      const lyRowsSingleMonth = datasetLY.filter(r => {
+        let sName = String(r['Stockist Name'] || '').toLowerCase();
+        const m = parseInt(r['Month']);
+        const dist = String(r['District'] || '').toLowerCase();
+
+        if (stockist === "Takshvi Co") {
+          if (sName.includes('takshvi') && m === currentMonth) return true;
+          if (sName.includes('servo world') && [4,5,6,7,8].includes(m) && m === currentMonth) return true;
+          return false;
+        }
+
+        if (stockist === "SMG Trades") {
+          if (sName.includes('smg') && m === currentMonth) return true;
+          if (sName.includes('servo world') && [9,10,11,12,1].includes(m) && m === currentMonth) return true;
+          if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(m) && m === currentMonth) return true;
+          return false;
+        }
+
+        return sName.includes(stNameClean) && m === currentMonth;
+      });
+
+      const mCY = cyRowsSingleMonth.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+      const mLY = lyRowsSingleMonth.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+      document.getElementById('input-m-cy').value = mCY.toFixed(1);
+      document.getElementById('input-m-ly').value = mLY.toFixed(1);
+
+      const cumCY = cyRowsSpan.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+      const cumLY = lyRowsSpan.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+      document.getElementById('input-cum-cy').value = cumCY.toFixed(1);
+      document.getElementById('input-cum-ly').value = cumLY.toFixed(1);
+
+      const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
+      const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
+      const suppliedCusts = { nonKsk: new Set(), ksk: new Set(), nayara: new Set(), bazaar: new Set(), oem: new Set(), fleet: new Set() };
+
+      cyRowsSpan.forEach(r => {
+        const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+        const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+        const custId = r['Customer Id'];
+        if (channelCY[ch] !== undefined) {
+          channelCY[ch] += qty;
+          if (qty > 0 && custId) suppliedCusts[ch].add(custId);
+        }
+      });
+
+      lyRowsSpan.forEach(r => {
+        const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+        const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+        if (channelLY[ch] !== undefined) {
+          channelLY[ch] += qty;
+        }
+      });
+
+      const channels = ['nonKsk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+      const domMap = { nonKsk: 'non-ksk', ksk: 'ksk', nayara: 'nayara', bazaar: 'bazaar', oem: 'oem', fleet: 'fleet' };
+
+      channels.forEach(ch => {
+        const tag = domMap[ch];
+        document.getElementById(`sup-${tag}`).textContent = suppliedCusts[ch].size;
+        document.getElementById(`cy-${tag}`).textContent = channelCY[ch].toFixed(1);
+        document.getElementById(`ly-${tag}`).textContent = channelLY[ch].toFixed(1);
+      });
+
+      updateCalculations();
+    }
+
+    function updateCalculations() {
+      const mCY = parseFloat(document.getElementById('input-m-cy').value) || 0;
+      const mLY = parseFloat(document.getElementById('input-m-ly').value) || 0;
+      const mDiff = mCY - mLY;
+      const mDiffEl = document.getElementById('cell-m-diff');
+      mDiffEl.textContent = (mDiff >= 0 ? `+${mDiff.toFixed(1)}` : mDiff.toFixed(1));
+      mDiffEl.className = `font-bold ${mDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+      const cumCY = parseFloat(document.getElementById('input-cum-cy').value) || 0;
+      const cumLY = parseFloat(document.getElementById('input-cum-ly').value) || 0;
+      const cumDiff = cumCY - cumLY;
+      const cumDiffEl = document.getElementById('cell-cum-diff');
+      cumDiffEl.textContent = (cumDiff >= 0 ? `+${cumDiff.toFixed(1)}` : cumDiff.toFixed(1));
+      cumDiffEl.className = `font-bold ${cumDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+      const tags = ['non-ksk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+      let totSup = 0, totCY = 0, totLY = 0;
+
+      tags.forEach(tag => {
+        totSup += parseInt(document.getElementById(`sup-${tag}`).textContent) || 0;
+        totCY += parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
+        totLY += parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
+      });
+
+      document.getElementById('sup-total').textContent = totSup;
+      document.getElementById('cy-total').textContent = totCY.toFixed(1);
+      document.getElementById('ly-total').textContent = totLY.toFixed(1);
+
+      tags.forEach(tag => {
+        const cy = parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
+        const ly = parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
+        const pctCY = totCY > 0 ? (cy / totCY) * 100 : 0;
+        const pctLY = totLY > 0 ? (ly / totLY) * 100 : 0;
+        document.getElementById(`pct-cy-${tag}`).textContent = pctCY.toFixed(1) + '%';
+        document.getElementById(`pct-ly-${tag}`).textContent = pctLY.toFixed(1) + '%';
+      });
+    }
+
+    // --- PDF Export ---
+    function exportToPDF(elementId, baseName) {
+      const stockist = document.getElementById('sel-stockist').value;
+      const month = document.getElementById('sel-month').options[document.getElementById('sel-month').selectedIndex].text;
+      const element = document.getElementById(elementId);
+      
+      const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     `${baseName}_${stockist.replace(/\s+/g, '_')}_${month}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // --- GitHub Cloud Synchronization ---
+    function saveGithubToken() {
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        localStorage.setItem('ghp_token', token);
+        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser.";
+        document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-emerald-600";
+        pullDataFromGithub(false);
+      }
+    }
+
+    function clearSavedToken() {
+      localStorage.removeItem('ghp_token');
+      document.getElementById('gh-token').value = '';
+      document.getElementById('gh-feedback').textContent = "Token removed.";
+      document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-slate-500";
+    }
+
+    async function pushDataToGithub() {
+      const token = document.getElementById('gh-token').value.trim();
+      const feedback = document.getElementById('gh-feedback');
+      const badge = document.getElementById('sync-status-indicator');
+
+      if (!token) {
+        feedback.textContent = "⚠️ Please enter your Personal Access Token (ghp_...) first.";
+        feedback.className = "text-xs font-semibold mt-3 text-rose-600";
+        return;
+      }
+
+      badge.textContent = "Sync: Pushing...";
+      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
+
+      const payload = {
+        updatedAt: new Date().toISOString(),
+        universe: getAllUniverseData(),
+        datasetLY: datasetLY,
+        datasetCY: datasetCY
+      };
+
+      const path = 'data/sales_data.json';
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${path}`;
+
+      try {
+        if (!currentGithubSha) {
+          const getRes = await fetch(apiUrl, {
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          if (getRes.ok) {
+            const getJson = await getRes.json();
+            currentGithubSha = getJson.sha;
+          }
+        }
+
+        const jsonStr = JSON.stringify(payload);
+        const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
+
+        const bodyData = {
+          message: `Update sales data and universe [${new Date().toLocaleDateString()}]`,
+          content: encodedContent
+        };
+        if (currentGithubSha) {
+          bodyData.sha = currentGithubSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(bodyData)
+        });
+
+        if (putRes.ok) {
+          const putJson = await putRes.json();
+          currentGithubSha = putJson.content.sha;
+          badge.textContent = "Sync: Up to date";
+          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          feedback.textContent = `✓ Successfully pushed to ${GITHUB_REPO}/data/sales_data.json at ${new Date().toLocaleTimeString()}`;
+          feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
+        } else {
+          const errData = await putRes.json();
+          throw new Error(errData.message || 'GitHub API error');
+        }
+      } catch (err) {
+        console.error(err);
+        badge.textContent = "Sync: Error";
+        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+        feedback.textContent = `✕ Push failed: ${err.message}`;
+        feedback.className = "text-xs font-semibold mt-3 text-rose-600";
+      }
+    }
+
+    async function pullDataFromGithub(userTriggered) {
+      const token = document.getElementById('gh-token').value.trim();
+      const feedback = document.getElementById('gh-feedback');
+      const badge = document.getElementById('sync-status-indicator');
+
+      badge.textContent = "Sync: Checking...";
+      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
+
+      const path = 'data/sales_data.json';
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${path}`;
+
+      const headers = { 'Accept': 'application/vnd.github.v3+json' };
+      if (token) headers['Authorization'] = `token ${token}`;
+
+      try {
+        const res = await fetch(apiUrl, { headers });
+        if (res.ok) {
+          const data = await res.json();
+          currentGithubSha = data.sha;
+          const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+          const parsed = JSON.parse(decoded);
+
+          if (parsed.universe) {
+            setAllUniverseData(parsed.universe);
+            localStorage.setItem('universe_data', JSON.stringify(parsed.universe));
+          }
+
+          if (parsed.datasetLY && parsed.datasetLY.length > 0) {
+            datasetLY = parsed.datasetLY;
+            document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced ${datasetLY.length.toLocaleString()} rows</span> (Cloud)`;
+          }
+
+          if (parsed.datasetCY && parsed.datasetCY.length > 0) {
+            datasetCY = parsed.datasetCY;
+            document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced ${datasetCY.length.toLocaleString()} rows</span> (Cloud)`;
+          }
+
+          if (datasetCY.length > 0 || datasetLY.length > 0) {
+            document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+            document.getElementById('data-status-badge').textContent = "Cloud Synced Data Active";
+          }
+
+          runAnalysis();
+          renderSSFAnalysis();
+
+          badge.textContent = "Sync: Synced";
+          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          if (userTriggered) {
+            feedback.textContent = `✓ Synced latest cloud data from ${GITHUB_REPO} at ${new Date().toLocaleTimeString()}`;
+            feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
+          }
+        } else if (res.status === 404) {
+          badge.textContent = "Sync: No remote file";
+          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300";
+          if (userTriggered) {
+            feedback.textContent = `Remote data file (data/sales_data.json) does not exist yet in ${GITHUB_REPO}. Push your first upload to create it.`;
+            feedback.className = "text-xs font-semibold mt-3 text-slate-600";
+          }
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } catch (err) {
+        badge.textContent = "Sync: Offline / Failed";
+        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+        if (userTriggered) {
+          feedback.textContent = `Sync warning: ${err.message}`;
+          feedback.className = "text-xs font-semibold mt-3 text-amber-600";
+        }
+      }
+    }
+
+    // --- App Initialization ---
+    window.onload = function() {
+      const savedToken = localStorage.getItem('ghp_token');
+      if (savedToken) {
+        document.getElementById('gh-token').value = savedToken;
+      }
+
+      const savedUniverse = localStorage.getItem('universe_data');
+      if (savedUniverse) {
+        try {
+          setAllUniverseData(JSON.parse(savedUniverse));
+        } catch(e) {}
+      }
+
+      runAnalysis();
+      pullDataFromGithub(false);
+    };
+  </script>
+</body>
+</html>
