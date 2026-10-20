@@ -4,11 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Secondary Sales & SSF Performance Portal</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SheetJS CDN for parsing Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- html2pdf.js CDN for direct PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     .sheet-table th, .sheet-table td {
@@ -64,7 +61,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navbar -->
+  <!-- Top Navigation Header -->
   <header class="bg-blue-900 text-white shadow-md print:hidden">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -72,7 +69,6 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix</p>
       </div>
       
-      <!-- Navigation Tabs (3 Tabs) -->
       <div class="flex items-center space-x-2 bg-blue-950 p-1 rounded-lg">
         <button id="tab-btn-analysis" onclick="switchTab('analysis')" 
           class="px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
@@ -93,7 +89,7 @@
   <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full">
 
     <!-- ========================================== -->
-    <!-- TAB 1: SALES ANALYSIS SPREADSHEET VIEW    -->
+    <!-- TAB 1: SALES ANALYSIS                      -->
     <!-- ========================================== -->
     <div id="tab-analysis" class="space-y-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 print:hidden">
@@ -143,7 +139,6 @@
         </div>
       </div>
 
-      <!-- Printable Analysis View -->
       <div id="pdf-report-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
         <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
           <div>
@@ -166,7 +161,6 @@
               <th class="font-bold text-slate-700">Month</th>
               <th colspan="6" id="disp-month-label" class="font-semibold text-slate-800">Aug'26</th>
             </tr>
-            
             <tr class="sheet-subheader text-center">
               <th class="text-left">Potential (KL)</th>
               <th>Target (KL)</th>
@@ -305,9 +299,8 @@
       </div>
     </div>
 
-
     <!-- ========================================== -->
-    <!-- TAB 2: SSF WISE SALES ANALYSIS (CURRENT FY)-->
+    <!-- TAB 2: SSF WISE SALES ANALYSIS             -->
     <!-- ========================================== -->
     <div id="tab-ssf" class="hidden space-y-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 print:hidden">
@@ -363,7 +356,6 @@
           </div>
         </div>
 
-        <!-- Summary KPIs -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
             <div class="text-xs font-bold text-slate-500 uppercase">Total SSF Count</div>
@@ -379,7 +371,6 @@
           </div>
         </div>
 
-        <!-- SSF Table (Cum. Sales CY directly after SSF Name) -->
         <table class="w-full border-collapse sheet-table text-left" id="table-ssf">
           <thead>
             <tr class="sheet-header-dark text-center">
@@ -405,19 +396,17 @@
       </div>
     </div>
 
-
     <!-- ======================================================= -->
-    <!-- TAB 3: COMBINED UPLOAD CATALOG, GITHUB SYNC & UNIVERSE  -->
+    <!-- TAB 3: UPLOADS, GITHUB SYNC (DATA FOLDER) & UNIVERSE     -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
-      <!-- Section 1: File Uploaders -->
+      <!-- Upload Excels -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
         <p class="text-sm text-slate-500 mb-6">Upload raw secondary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- LY File Upload Box -->
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-3 mb-3">
@@ -438,7 +427,6 @@
             </div>
           </div>
 
-          <!-- CY File Upload Box -->
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-3 mb-3">
@@ -461,21 +449,20 @@
         </div>
       </div>
 
-      <!-- Section 2: GitHub Cloud Multi-Device Sync -->
+      <!-- GitHub Multi-Device Sync Card -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <span>🐙</span> GitHub Multi-Device Synchronization
+              <span>🐙</span> GitHub Multi-Device Cloud Sync
             </h2>
-            <p class="text-sm text-slate-500">Sync uploaded datasets and custom universe configuration across all devices using your repository.</p>
+            <p class="text-sm text-slate-500">Repository target: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
           </div>
           <span id="sync-status-indicator" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
             Sync: Idle
           </span>
         </div>
 
-        <!-- Token Input Only (Username and Repo are hardcoded) -->
         <div class="max-w-xl mb-4">
           <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Personal Access Token (ghp_...)</label>
           <div class="flex gap-2">
@@ -484,7 +471,7 @@
               Clear
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 mt-1">Once saved, your device will auto-sync with the latest repository dataset on startup.</p>
+          <p class="text-[11px] text-slate-400 mt-1">Requires <code>repo</code> access. Saved locally in browser storage.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -498,7 +485,7 @@
         <p id="gh-feedback" class="text-xs font-semibold mt-3 text-slate-500"></p>
       </div>
 
-      <!-- Section 3: Static Universe (Total No. of Outlets / Stockist) -->
+      <!-- Static Universe Configuration -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center justify-between mb-2">
           <div>
@@ -579,11 +566,12 @@
     </div>
   </main>
 
-  <!-- Application Logic -->
+  <!-- Portal Engine -->
   <script>
-    // Fixed GitHub credentials
+    // GitHub Repository Configuration
     const GITHUB_USERNAME = "binaykrishna";
     const GITHUB_REPO = "inspection";
+    const GITHUB_DATA_PATH = "data/portal_data.json";
 
     function switchTab(tab) {
       const tabAnalysis = document.getElementById('tab-analysis');
@@ -656,7 +644,34 @@
     let datasetCY = [];
     let currentGithubSha = null;
 
-    // --- Universe Handling ---
+    // Prune dataset to only required analytical columns
+    function pruneRowData(row) {
+      return {
+        'Stockist Name': row['Stockist Name'],
+        'Month': row['Month'],
+        'District': row['District'],
+        'Product Quantity(L/Kg)': row['Product Quantity(L/Kg)'],
+        'Customer Group': row['Customer Group'],
+        'Customer Sub Group': row['Customer Sub Group'],
+        'Customer Id': row['Customer Id'],
+        'SSF Name': row['SSF Name'],
+        'SSF Code': row['SSF Code']
+      };
+    }
+
+    // Helper: Safely convert string/blob to Base64 in browser without call stack overflows
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
     function getStockistUniverse(stockist) {
       const key = STOCKIST_KEY_MAP[stockist] || "tak";
       return {
@@ -734,28 +749,29 @@
       document.getElementById('tot-total').textContent = totalU;
     }
 
-    // --- File Uploads ---
     function handleFileUpload(event, type) {
       const file = event.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       const statusEl = document.getElementById(type === 'LY' ? 'status-ly' : 'status-cy');
-      statusEl.textContent = `Reading ${file.name}...`;
+      statusEl.textContent = `Reading & optimizing ${file.name}...`;
 
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.SheetNames[0];
-          const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+          const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
           
+          const cleanedRows = rawRows.map(pruneRowData);
+
           if (type === 'LY') {
-            datasetLY = jsonData;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${jsonData.length.toLocaleString()} rows</span> (${file.name})`;
+            datasetLY = cleanedRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${cleanedRows.length.toLocaleString()} rows</span> (${file.name})`;
           } else {
-            datasetCY = jsonData;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${jsonData.length.toLocaleString()} rows</span> (${file.name})`;
+            datasetCY = cleanedRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${cleanedRows.length.toLocaleString()} rows</span> (${file.name})`;
           }
 
           document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
@@ -763,15 +779,21 @@
 
           runAnalysis();
           renderSSFAnalysis();
+
+          if (document.getElementById('gh-token').value.trim()) {
+            pushDataToGithub();
+          } else {
+            document.getElementById('gh-feedback').textContent = "Loaded locally. Enter your ghp_ token below to push data to all devices.";
+            document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-amber-600";
+          }
         } catch (err) {
           console.error(err);
-          statusEl.innerHTML = `<span class="text-rose-600 font-bold">✕ Error loading file</span>`;
+          statusEl.innerHTML = `<span class="text-rose-600 font-bold">✕ Error loading file: ${err.message}</span>`;
         }
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // --- Accurate Channel Categorizer ---
     function categorizeChannel(custGroup, custSubGroup) {
       const cg = String(custGroup || '').trim().toUpperCase();
       const csg = String(custSubGroup || '').trim().toUpperCase();
@@ -781,11 +803,9 @@
       if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
       if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
 
-      // KSK only if contains KSK and NOT NON (protects IOC-NON KSK)
       const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
       if (isKsk) return 'ksk';
 
-      // Non-KSK contains all other subgroups and blanks
       return 'nonKsk';
     }
 
@@ -794,7 +814,6 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // --- SSF Wise Analysis ---
     function renderSSFAnalysis() {
       const stockist = document.getElementById('sel-ssf-stockist').value;
       const month = parseInt(document.getElementById('sel-ssf-month').value);
@@ -927,7 +946,6 @@
       `;
     }
 
-    // --- Tab 1 Analysis ---
     function runAnalysis() {
       const stockist = document.getElementById('sel-stockist').value;
       const month = parseInt(document.getElementById('sel-month').value);
@@ -1101,7 +1119,6 @@
       });
     }
 
-    // --- PDF Export ---
     function exportToPDF(elementId, baseName) {
       const stockist = document.getElementById('sel-stockist').value;
       const month = document.getElementById('sel-month').options[document.getElementById('sel-month').selectedIndex].text;
@@ -1118,12 +1135,12 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // --- GitHub Cloud Synchronization ---
+    // --- High-Performance GitHub Sync with Direct Raw Stream & Blob Base64 ---
     function saveGithubToken() {
       const token = document.getElementById('gh-token').value.trim();
       if (token) {
         localStorage.setItem('ghp_token', token);
-        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser.";
+        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser storage.";
         document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-emerald-600";
         pullDataFromGithub(false);
       }
@@ -1147,7 +1164,7 @@
         return;
       }
 
-      badge.textContent = "Sync: Pushing...";
+      badge.textContent = "Sync: Pushing to Cloud...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
       const payload = {
@@ -1157,25 +1174,25 @@
         datasetCY: datasetCY
       };
 
-      const path = 'data/sales_data.json';
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${path}`;
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
       try {
-        if (!currentGithubSha) {
-          const getRes = await fetch(apiUrl, {
-            headers: {
-              'Authorization': `token ${token}`,
-              'Accept': 'application/vnd.github.v3+json'
-            }
-          });
-          if (getRes.ok) {
-            const getJson = await getRes.json();
-            currentGithubSha = getJson.sha;
+        // Step 1: Always query metadata to obtain latest SHA for data/portal_data.json
+        const metaRes = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
           }
+        });
+        if (metaRes.ok) {
+          const metaJson = await metaRes.json();
+          currentGithubSha = metaJson.sha;
         }
 
+        // Step 2: Safe memory-efficient Base64 encoding via Blob
         const jsonStr = JSON.stringify(payload);
-        const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const encodedContent = await blobToBase64(blob);
 
         const bodyData = {
           message: `Update sales data and universe [${new Date().toLocaleDateString()}]`,
@@ -1185,6 +1202,7 @@
           bodyData.sha = currentGithubSha;
         }
 
+        // Step 3: PUT request to GitHub Contents API
         const putRes = await fetch(apiUrl, {
           method: 'PUT',
           headers: {
@@ -1200,11 +1218,11 @@
           currentGithubSha = putJson.content.sha;
           badge.textContent = "Sync: Up to date";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          feedback.textContent = `✓ Successfully pushed to ${GITHUB_REPO}/data/sales_data.json at ${new Date().toLocaleTimeString()}`;
+          feedback.textContent = `✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} at ${new Date().toLocaleTimeString()}`;
           feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
         } else {
           const errData = await putRes.json();
-          throw new Error(errData.message || 'GitHub API error');
+          throw new Error(`(${putRes.status}) ${errData.message || 'GitHub API error'}`);
         }
       } catch (err) {
         console.error(err);
@@ -1220,22 +1238,19 @@
       const feedback = document.getElementById('gh-feedback');
       const badge = document.getElementById('sync-status-indicator');
 
-      badge.textContent = "Sync: Checking...";
+      badge.textContent = "Sync: Fetching Cloud Data...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
-      const path = 'data/sales_data.json';
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${path}`;
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
-      const headers = { 'Accept': 'application/vnd.github.v3+json' };
+      // Use raw header to stream raw JSON directly, avoiding Base64 size truncation
+      const headers = { 'Accept': 'application/vnd.github.v3.raw' };
       if (token) headers['Authorization'] = `token ${token}`;
 
       try {
         const res = await fetch(apiUrl, { headers });
         if (res.ok) {
-          const data = await res.json();
-          currentGithubSha = data.sha;
-          const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-          const parsed = JSON.parse(decoded);
+          const parsed = await res.json();
 
           if (parsed.universe) {
             setAllUniverseData(parsed.universe);
@@ -1263,30 +1278,31 @@
           badge.textContent = "Sync: Synced";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
           if (userTriggered) {
-            feedback.textContent = `✓ Synced latest cloud data from ${GITHUB_REPO} at ${new Date().toLocaleTimeString()}`;
+            feedback.textContent = `✓ Synced latest cloud data from ${GITHUB_REPO}/${GITHUB_DATA_PATH} at ${new Date().toLocaleTimeString()}`;
             feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
           }
         } else if (res.status === 404) {
           badge.textContent = "Sync: No remote file";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300";
           if (userTriggered) {
-            feedback.textContent = `Remote data file (data/sales_data.json) does not exist yet in ${GITHUB_REPO}. Push your first upload to create it.`;
+            feedback.textContent = `File (${GITHUB_DATA_PATH}) does not exist yet. Push your first file upload to create it.`;
             feedback.className = "text-xs font-semibold mt-3 text-slate-600";
           }
         } else {
-          throw new Error(`HTTP ${res.status}`);
+          throw new Error(`(${res.status}) ${res.statusText}`);
         }
       } catch (err) {
+        console.error(err);
         badge.textContent = "Sync: Offline / Failed";
         badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
         if (userTriggered) {
-          feedback.textContent = `Sync warning: ${err.message}`;
+          feedback.textContent = `Sync warning: ${err.message}. If the repository is private, ensure your token is entered on this device.`;
           feedback.className = "text-xs font-semibold mt-3 text-amber-600";
         }
       }
     }
 
-    // --- App Initialization ---
+    // Initialize portal on load
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
