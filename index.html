@@ -57,9 +57,8 @@
       outline: 2px solid #2563eb;
       background-color: #eff6ff;
     }
-    /* Yellow editable cells matching Stockist details sheet */
     .editable-yellow {
-      background-color: #fef08a !important; /* Tailwind yellow-200 */
+      background-color: #fef08a !important;
       border: 1px solid #eab308 !important;
       font-weight: 600;
       color: #713f12;
@@ -68,6 +67,20 @@
       width: 100%;
     }
     .editable-yellow:focus {
+      outline: 2px solid #ca8a04;
+      background-color: #fef9c3 !important;
+    }
+    .date-picker-yellow {
+      background-color: #fef08a !important;
+      border: 1px solid #eab308 !important;
+      font-weight: 600;
+      color: #713f12;
+      border-radius: 4px;
+      padding: 2px 4px;
+      width: 100%;
+      font-size: 0.78rem;
+    }
+    .date-picker-yellow:focus {
       outline: 2px solid #ca8a04;
       background-color: #fef9c3 !important;
     }
@@ -80,7 +93,7 @@
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
         <h1 class="text-xl font-bold tracking-wide">Secondary Sales & SSF Performance Portal</h1>
-        <p class="text-xs text-blue-200">Lubes Reseller Group — Divisional Performance & Inspection Matrix</p>
+        <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
       <!-- 5 Navigation Tabs -->
@@ -420,14 +433,14 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 3: STOCKIST DETAILS (From SSA-Inspection.xlsx)      -->
+    <!-- TAB 3: STOCKIST DETAILS (Auto-Receipt + Calendar Date)  -->
     <!-- ======================================================= -->
     <div id="tab-stockist" class="hidden space-y-6">
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-5">
           <div>
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
-            <p class="text-xs text-slate-500 font-medium">Comprehensive details from the Stockist Details sheet. Highlighted yellow fields are fully editable and persist in cloud sync.</p>
+            <p class="text-xs text-slate-500 font-medium">Highlighted yellow cells are editable. Select the calendar date for inspection to automatically compute the primary sales receipt volume (KL).</p>
           </div>
           <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition">
             🖨️ Print Details
@@ -652,50 +665,76 @@
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
+      <!-- Upload Excels Box: 3 uploads -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
-        <p class="text-sm text-slate-500 mb-6">Upload raw secondary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
+        <p class="text-sm text-slate-500 mb-6">Upload raw secondary and primary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Secondary LY -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl">📄</div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">📄</div>
                 <div>
-                  <h3 class="font-bold text-slate-800">Secondary Sales LY (FY 25-26)</h3>
-                  <p class="text-xs text-slate-500">File: S FY 25-26.xlsx</p>
+                  <h3 class="font-bold text-slate-800 text-sm">Secondary Sales LY (25-26)</h3>
+                  <p class="text-[11px] text-slate-500">File: S FY 25-26.xlsx</p>
                 </div>
               </div>
-              <p class="text-xs text-slate-600 mb-4">Prior FY secondary sales invoices and channel categorizations.</p>
+              <p class="text-xs text-slate-600 mb-3">Prior FY secondary sales invoices and channel categorizations.</p>
             </div>
             <div>
               <input type="file" id="file-ly" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'LY')" class="hidden">
-              <label for="file-ly" class="cursor-pointer block text-center w-full py-2.5 px-4 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+              <label for="file-ly" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
                 Choose LY File
               </label>
-              <div id="status-ly" class="mt-2 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+              <div id="status-ly" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
             </div>
           </div>
 
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+          <!-- Secondary CY -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl">📊</div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">📊</div>
                 <div>
-                  <h3 class="font-bold text-slate-800">Secondary Sales CY (FY 26-27)</h3>
-                  <p class="text-xs text-slate-500">File: S FY 26-27.xlsx</p>
+                  <h3 class="font-bold text-slate-800 text-sm">Secondary Sales CY (26-27)</h3>
+                  <p class="text-[11px] text-slate-500">File: S FY 26-27.xlsx</p>
                 </div>
               </div>
-              <p class="text-xs text-slate-600 mb-4">Current FY secondary sales invoices and channel categorizations.</p>
+              <p class="text-xs text-slate-600 mb-3">Current FY secondary sales invoices and channel categorizations.</p>
             </div>
             <div>
               <input type="file" id="file-cy" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'CY')" class="hidden">
-              <label for="file-cy" class="cursor-pointer block text-center w-full py-2.5 px-4 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+              <label for="file-cy" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
                 Choose CY File
               </label>
-              <div id="status-cy" class="mt-2 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+              <div id="status-cy" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
             </div>
           </div>
+
+          <!-- Primary CY (NEW) -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">🚛</div>
+                <div>
+                  <h3 class="font-bold text-slate-800 text-sm">Primary Sales CY (26-27)</h3>
+                  <p class="text-[11px] text-slate-500">File: Primary FY 26-27.xlsx</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 mb-3">Stockist primary supplies and invoice dates used to calculate Receipt in KL.</p>
+            </div>
+            <div>
+              <input type="file" id="file-primary" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'PRIMARY')" class="hidden">
+              <label for="file-primary" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+                Choose Primary File
+              </label>
+              <div id="status-primary" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -871,15 +910,24 @@
       10: "Oct'26", 11: "Nov'26", 12: "Dec'26", 1: "Jan'27", 2: "Feb'27", 3: "Mar'27"
     };
 
+    const STOCKIST_NAMES = [
+      "Takshvi Co",
+      "Bihariji Auto Service Station",
+      "Nalateswari Lubricants",
+      "SMG Trades",
+      "Swastik Automobiles"
+    ];
+
     let rawDatasetLY = [];
     let rawDatasetCY = [];
+    let rawDatasetPrimary = []; // Primary CY Sales records
     let portalCompiledData = null;
 
     // Default Stockist Details from SSA-Inspection.xlsx
     const DEFAULT_STOCKIST_DETAILS = {
       type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
       location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
-      lastInspection: ["09/09/2026", "28/09/2026", "16/09/2026", "20/01/2026", "18/09/2026"], // Yellow
+      lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"], // Standard ISO YYYY-MM-DD
       commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "03/09/2013", "30/11/2023"],
       officeAddress: [
         "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
@@ -911,10 +959,9 @@
       bgNo: ["0570425BG0B00021", "0618825BG0B00010", "0757IGFIN000124", "-", "04750ILG000423"],
       bgValidity: ["11.09.2028", "09.07.2028", "22.01.2028", "-", "16.11.2027"],
       agreementValidity: ["29.04.2028", "02.03.2028", "22.01.2028", "14.09.2029", "29.11.2026"],
-      annualTargetKL: [360, 619, 1107, 300, 150], // Yellow
-      stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881], // Yellow
-      receiptKL: ["-", "-", "-", "-", "-"], // Yellow
-      currentInspectionDate: ["-", "-", "-", "-", "-"], // Yellow
+      annualTargetKL: [360, 619, 1107, 300, 150],
+      stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881],
+      currentInspectionDate: ["", "", "", "", ""], // Calendar date (YYYY-MM-DD)
       giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
       resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
       coreMeets: ["1 Core", "11 Core", "6 Core", "3 Core", "1 Core Mechanic"],
@@ -926,11 +973,98 @@
 
     let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
 
-    // Dynamic Minimum Working Capital Formula: ROUNDUP((Target/12)*1.18*1.75*276/100, 0)
+    // Calculate Minimum Working Capital: ROUNDUP((Target/12)*1.18*1.75*276/100, 0)
     function calcMinWorkingCapital(targetKL) {
       const t = parseFloat(targetKL) || 0;
       const raw = (t / 12) * 1.18 * 1.75 * 2.76;
       return "Rs. " + Math.ceil(raw) + " L";
+    }
+
+    // Standardize dates to YYYY-MM-DD format
+    function normalizeDateStr(val) {
+      if (!val) return '';
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        // check if dd/mm/yyyy or dd.mm.yyyy
+        const parts = trimmed.split(/[/.-]/);
+        if (parts.length === 3) {
+          if (parts[2].length === 4) { // dd/mm/yyyy
+            const d = parts[0].padStart(2, '0');
+            const m = parts[1].padStart(2, '0');
+            const y = parts[2];
+            return `${y}-${m}-${d}`;
+          } else if (parts[0].length === 4) { // yyyy-mm-dd
+            return trimmed;
+          }
+        }
+      }
+      try {
+        const dt = new Date(val);
+        if (!isNaN(dt.getTime())) {
+          return dt.toISOString().split('T')[0];
+        }
+      } catch(e) {}
+      return '';
+    }
+
+    // Auto-calculate Receipt in KL using Primary Sales
+    // Logic: Stock received from last date of inspection to current date - 1 in KL
+    function calculateStockistReceipt(stockistIndex) {
+      const stockistName = STOCKIST_NAMES[stockistIndex];
+      const lastDate = normalizeDateStr(activeStockistDetails.lastInspection[stockistIndex]);
+      const curDate = normalizeDateStr(activeStockistDetails.currentInspectionDate[stockistIndex]);
+
+      if (!curDate) {
+        return { kl: 0, text: "Select Current Date" };
+      }
+
+      // Calculate curDate - 1 day
+      const curDtObj = new Date(curDate);
+      curDtObj.setDate(curDtObj.getDate() - 1);
+      const curMinusOne = curDtObj.toISOString().split('T')[0];
+
+      if (lastDate && curMinusOne < lastDate) {
+        return { kl: 0, text: "Current Date must be > Last Date" };
+      }
+
+      // Filter Primary Sales data
+      // Check both local rawDatasetPrimary and compiled portalCompiledData.primaryData
+      const primaryRows = rawDatasetPrimary.length > 0 
+        ? rawDatasetPrimary 
+        : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
+
+      if (!primaryRows || primaryRows.length === 0) {
+        return { kl: 0, text: "Upload Primary Sales File" };
+      }
+
+      const stClean = stockistName.toLowerCase();
+      let totalKL = 0;
+      let countInv = 0;
+
+      primaryRows.forEach(row => {
+        const rowName = String(row['Name'] || '').trim().toLowerCase();
+        if (rowName.includes(stClean) || stClean.includes(rowName)) {
+          const invDateStr = normalizeDateStr(row['Inv.Date']);
+          if (invDateStr) {
+            // Check if lastDate <= invDateStr <= curMinusOne
+            const afterOrOnLast = !lastDate || (invDateStr >= lastDate);
+            const beforeCurMinusOne = invDateStr <= curMinusOne;
+
+            if (afterOrOnLast && beforeCurMinusOne) {
+              const kl = parseFloat(row['KL']) || 0;
+              totalKL += kl;
+              countInv++;
+            }
+          }
+        }
+      });
+
+      return {
+        kl: totalKL,
+        count: countInv,
+        text: totalKL > 0 ? `${totalKL.toFixed(3)} KL` : "0.000 KL",
+        subtext: `From ${lastDate || 'Start'} to ${curMinusOne} (${countInv} items)`
+      };
     }
 
     function renderStockistDetailsTable() {
@@ -941,7 +1075,7 @@
       const rows = [
         { label: "Type of Stockist", key: "type", isYellow: false },
         { label: "Location", key: "location", isYellow: false },
-        { label: "Date of Last Inspection", key: "lastInspection", isYellow: true },
+        { label: "Date of Last Inspection (Calendar)", key: "lastInspection", isDate: true },
         { label: "Date of Commissioning", key: "commissioning", isYellow: false },
         { label: "Office Address", key: "officeAddress", isYellow: false },
         { label: "Office Tel No & Mobile No:", key: "telNo", isYellow: false },
@@ -963,8 +1097,8 @@
         { label: "Agreement Validity", key: "agreementValidity", isYellow: false },
         { label: "Annual Sales Target for Current FY (KL)", key: "annualTargetKL", isYellow: true, isNumber: true },
         { label: "Stock During Last Inspection (KL)", key: "stockLastInspection", isYellow: true, isNumber: true },
-        { label: "Receipt (KL)", key: "receiptKL", isYellow: true },
-        { label: "Current Inspection Date", key: "currentInspectionDate", isYellow: true },
+        { label: "Current Inspection Date (Select Calendar)", key: "currentInspectionDate", isDate: true },
+        { label: "Receipt (KL) - Auto Computed from Primary", key: "receiptKL", isReceiptAuto: true },
         { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
         { label: "Giveaway Amount", key: "giveaway", isYellow: false },
         { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: false },
@@ -983,6 +1117,16 @@
           if (r.isFormula) {
             const tgt = activeStockistDetails.annualTargetKL[idx];
             html += `<td class="text-center font-bold text-blue-900 bg-blue-50" id="wc-col-${idx}">${calcMinWorkingCapital(tgt)}</td>`;
+          } else if (r.isReceiptAuto) {
+            const receiptRes = calculateStockistReceipt(idx);
+            html += `
+              <td class="text-center font-bold text-emerald-800 bg-emerald-50/70 p-2" id="receipt-col-${idx}">
+                <div class="text-sm">${receiptRes.text}</div>
+                ${receiptRes.subtext ? `<div class="text-[10px] text-emerald-600 font-medium">${receiptRes.subtext}</div>` : ''}
+              </td>`;
+          } else if (r.isDate) {
+            const dateVal = normalizeDateStr(activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '');
+            html += `<td class="p-1.5"><input type="date" class="date-picker-yellow text-center" value="${dateVal}" onchange="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
           } else if (r.isYellow) {
             const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '';
             html += `<td class="p-1"><input type="${r.isNumber ? 'number' : 'text'}" step="0.01" class="editable-yellow text-center" value="${val}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
@@ -1003,6 +1147,18 @@
       if (key === 'annualTargetKL') {
         const wcEl = document.getElementById(`wc-col-${idx}`);
         if (wcEl) wcEl.textContent = calcMinWorkingCapital(val);
+      }
+
+      // If inspection dates changed, refresh the auto Receipt column
+      if (key === 'lastInspection' || key === 'currentInspectionDate') {
+        const receiptCol = document.getElementById(`receipt-col-${idx}`);
+        if (receiptCol) {
+          const res = calculateStockistReceipt(idx);
+          receiptCol.innerHTML = `
+            <div class="text-sm">${res.text}</div>
+            ${res.subtext ? `<div class="text-[10px] text-emerald-600 font-medium">${res.subtext}</div>` : ''}
+          `;
+        }
       }
 
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
@@ -1111,6 +1267,12 @@
         updatedAt: new Date().toISOString(),
         universe: getAllUniverseData(),
         stockistDetails: activeStockistDetails,
+        primaryData: rawDatasetPrimary.map(r => ({
+          'Name': r['Name'],
+          'Inv.Date': normalizeDateStr(r['Inv.Date']),
+          'Invoice No': r['Invoice No'],
+          'KL': parseFloat(r['KL']) || 0
+        })),
         monthlyData: {},
         ssfData: {}
       };
@@ -1243,7 +1405,8 @@
       if (!file) return;
 
       const reader = new FileReader();
-      const statusEl = document.getElementById(type === 'LY' ? 'status-ly' : 'status-cy');
+      const statusId = type === 'LY' ? 'status-ly' : (type === 'CY' ? 'status-cy' : 'status-primary');
+      const statusEl = document.getElementById(statusId);
       statusEl.textContent = `Reading ${file.name}...`;
 
       reader.onload = function(e) {
@@ -1256,9 +1419,13 @@
           if (type === 'LY') {
             rawDatasetLY = rawRows;
             statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
-          } else {
+          } else if (type === 'CY') {
             rawDatasetCY = rawRows;
             statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
+          } else if (type === 'PRIMARY') {
+            rawDatasetPrimary = rawRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
+            renderStockistDetailsTable();
           }
 
           portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
@@ -1531,7 +1698,7 @@
         const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
 
         const bodyData = {
-          message: `Update sales data and inspection profiles [${new Date().toLocaleDateString()}]`,
+          message: `Update sales data and primary receipts [${new Date().toLocaleDateString()}]`,
           content: encodedContent
         };
         if (sha) {
@@ -1616,9 +1783,14 @@
           if (portalCompiledData.stockistDetails) {
             activeStockistDetails = portalCompiledData.stockistDetails;
             localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-            renderStockistDetailsTable();
           }
 
+          if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
+            rawDatasetPrimary = portalCompiledData.primaryData;
+            document.getElementById('status-primary').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary Data (${rawDatasetPrimary.length} rows)</span>`;
+          }
+
+          renderStockistDetailsTable();
           document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
           document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
 
@@ -1678,6 +1850,9 @@
           portalCompiledData = JSON.parse(cachedData);
           if (portalCompiledData.stockistDetails) {
             activeStockistDetails = portalCompiledData.stockistDetails;
+          }
+          if (portalCompiledData.primaryData) {
+            rawDatasetPrimary = portalCompiledData.primaryData;
           }
         } catch(e) {}
       }
