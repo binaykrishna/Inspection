@@ -61,7 +61,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Header -->
+  <!-- Top Navbar -->
   <header class="bg-blue-900 text-white shadow-md print:hidden">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -127,8 +127,8 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-            Default Data Active
+          <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
+            Awaiting Data
           </span>
           <button onclick="exportToPDF('pdf-report-content', 'Sales_Analysis')" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
             📄 Export to PDF
@@ -173,10 +173,10 @@
           <tbody>
             <tr class="text-right">
               <td><input type="number" step="0.1" id="input-m-pot" class="input-cell font-semibold text-left" value="80.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="32.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="36.4" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="31.2" oninput="updateCalculations()"></td>
-              <td class="font-bold" id="cell-m-diff">+5.2</td>
+              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td class="font-bold" id="cell-m-diff">0.0</td>
               <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
             </tr>
 
@@ -196,11 +196,11 @@
 
             <tr class="text-right">
               <td><input type="number" step="0.1" id="input-cum-pot" class="input-cell font-semibold text-left" value="400.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="176.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="155.5" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="149.9" oninput="updateCalculations()"></td>
-              <td class="font-bold" id="cell-cum-diff">+5.6</td>
-              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" value="INCL. ADHOC BANKURA"></td>
+              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td class="font-bold" id="cell-cum-diff">0.0</td>
+              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
             </tr>
 
             <tr class="bg-slate-200">
@@ -228,21 +228,21 @@
             <tr id="row-non-ksk" class="text-right">
               <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
               <td id="tot-non-ksk">100</td>
-              <td id="sup-non-ksk">100</td>
-              <td class="font-semibold" id="cy-non-ksk">53.3</td>
-              <td class="font-semibold" id="ly-non-ksk">54.3</td>
-              <td id="pct-cy-non-ksk">34.3%</td>
-              <td id="pct-ly-non-ksk">36.2%</td>
+              <td id="sup-non-ksk">0</td>
+              <td class="font-semibold" id="cy-non-ksk">0.0</td>
+              <td class="font-semibold" id="ly-non-ksk">0.0</td>
+              <td id="pct-cy-non-ksk">0.0%</td>
+              <td id="pct-ly-non-ksk">0.0%</td>
             </tr>
 
             <tr id="row-ksk" class="text-right">
               <td class="text-left font-medium">Retail Outlets - KSK RO</td>
               <td id="tot-ksk">41</td>
-              <td id="sup-ksk">41</td>
-              <td class="font-semibold" id="cy-ksk">25.3</td>
-              <td class="font-semibold" id="ly-ksk">20.4</td>
-              <td id="pct-cy-ksk">16.3%</td>
-              <td id="pct-ly-ksk">13.6%</td>
+              <td id="sup-ksk">0</td>
+              <td class="font-semibold" id="cy-ksk">0.0</td>
+              <td class="font-semibold" id="ly-ksk">0.0</td>
+              <td id="pct-cy-ksk">0.0%</td>
+              <td id="pct-ly-ksk">0.0%</td>
             </tr>
 
             <tr id="row-nayara" class="text-right">
@@ -250,29 +250,29 @@
               <td id="tot-nayara">4</td>
               <td id="sup-nayara">0</td>
               <td class="font-semibold" id="cy-nayara">0.0</td>
-              <td class="font-semibold" id="ly-nayara">0.1</td>
+              <td class="font-semibold" id="ly-nayara">0.0</td>
               <td id="pct-cy-nayara">0.0%</td>
-              <td id="pct-ly-nayara">0.1%</td>
+              <td id="pct-ly-nayara">0.0%</td>
             </tr>
 
             <tr id="row-bazaar" class="text-right">
               <td class="text-left font-medium">Bazaar Shop</td>
               <td id="tot-bazaar">550</td>
-              <td id="sup-bazaar">314</td>
-              <td class="font-semibold" id="cy-bazaar">66.4</td>
-              <td class="font-semibold" id="ly-bazaar">64.5</td>
-              <td id="pct-cy-bazaar">42.7%</td>
-              <td id="pct-ly-bazaar">43.0%</td>
+              <td id="sup-bazaar">0</td>
+              <td class="font-semibold" id="cy-bazaar">0.0</td>
+              <td class="font-semibold" id="ly-bazaar">0.0</td>
+              <td id="pct-cy-bazaar">0.0%</td>
+              <td id="pct-ly-bazaar">0.0%</td>
             </tr>
 
             <tr id="row-oem" class="text-right">
               <td class="text-left font-medium">OE Dealers</td>
               <td id="tot-oem">4</td>
-              <td id="sup-oem">1</td>
-              <td class="font-semibold" id="cy-oem">10.5</td>
-              <td class="font-semibold" id="ly-oem">10.7</td>
-              <td id="pct-cy-oem">6.8%</td>
-              <td id="pct-ly-oem">7.1%</td>
+              <td id="sup-oem">0</td>
+              <td class="font-semibold" id="cy-oem">0.0</td>
+              <td class="font-semibold" id="ly-oem">0.0</td>
+              <td id="pct-cy-oem">0.0%</td>
+              <td id="pct-ly-oem">0.0%</td>
             </tr>
 
             <tr id="row-fleet" class="text-right">
@@ -288,9 +288,9 @@
             <tr class="sheet-total-row text-right text-blue-950">
               <td class="text-left font-bold uppercase">Total</td>
               <td id="tot-total">703</td>
-              <td id="sup-total">456</td>
-              <td class="font-bold text-blue-900" id="cy-total">155.5</td>
-              <td class="font-bold" id="ly-total">150.0</td>
+              <td id="sup-total">0</td>
+              <td class="font-bold text-blue-900" id="cy-total">0.0</td>
+              <td class="font-bold" id="ly-total">0.0</td>
               <td id="pct-cy-total">100.0%</td>
               <td id="pct-ly-total">100.0%</td>
             </tr>
@@ -359,15 +359,15 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
             <div class="text-xs font-bold text-slate-500 uppercase">Total SSF Count</div>
-            <div id="kpi-ssf-count" class="text-2xl font-black text-blue-900 mt-1">3</div>
+            <div id="kpi-ssf-count" class="text-2xl font-black text-blue-900 mt-1">0</div>
           </div>
           <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
             <div class="text-xs font-bold text-slate-500 uppercase">Cumulative Sales CY (KL)</div>
-            <div id="kpi-ssf-sales" class="text-2xl font-black text-emerald-700 mt-1">157.5 KL</div>
+            <div id="kpi-ssf-sales" class="text-2xl font-black text-emerald-700 mt-1">0.0 KL</div>
           </div>
           <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
             <div class="text-xs font-bold text-slate-500 uppercase">Total Outlets Supplied</div>
-            <div id="kpi-ssf-outlets" class="text-2xl font-black text-indigo-900 mt-1">456</div>
+            <div id="kpi-ssf-outlets" class="text-2xl font-black text-indigo-900 mt-1">0</div>
           </div>
         </div>
 
@@ -397,11 +397,10 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 3: UPLOADS, GITHUB SYNC (DATA FOLDER) & UNIVERSE     -->
+    <!-- TAB 3: UPLOADS & GITHUB SYNC (data/portal_data.json)     -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
-      <!-- Upload Excels -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
         <p class="text-sm text-slate-500 mb-6">Upload raw secondary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
@@ -416,7 +415,7 @@
                   <p class="text-xs text-slate-500">File: S FY 25-26.xlsx</p>
                 </div>
               </div>
-              <p class="text-xs text-slate-600 mb-4">Stockist secondary sales, invoices, customer IDs, and quantities for prior financial year.</p>
+              <p class="text-xs text-slate-600 mb-4">Prior FY secondary sales invoices and channel categorizations.</p>
             </div>
             <div>
               <input type="file" id="file-ly" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'LY')" class="hidden">
@@ -436,7 +435,7 @@
                   <p class="text-xs text-slate-500">File: S FY 26-27.xlsx</p>
                 </div>
               </div>
-              <p class="text-xs text-slate-600 mb-4">Secondary sales invoices, quantities, and channel categorizations for current financial year.</p>
+              <p class="text-xs text-slate-600 mb-4">Current FY secondary sales invoices and channel categorizations.</p>
             </div>
             <div>
               <input type="file" id="file-cy" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'CY')" class="hidden">
@@ -449,14 +448,14 @@
         </div>
       </div>
 
-      <!-- GitHub Multi-Device Sync Card -->
+      <!-- Cloud Sync Box -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div>
             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
               <span>🐙</span> GitHub Multi-Device Cloud Sync
             </h2>
-            <p class="text-sm text-slate-500">Repository target: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
+            <p class="text-sm text-slate-500">Target path: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
           </div>
           <span id="sync-status-indicator" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
             Sync: Idle
@@ -471,7 +470,7 @@
               Clear
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 mt-1">Requires <code>repo</code> access. Saved locally in browser storage.</p>
+          <p class="text-[11px] text-slate-400 mt-1">Requires <code>repo</code> access. Stored locally in your browser cache.</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -566,9 +565,8 @@
     </div>
   </main>
 
-  <!-- Portal Engine -->
+  <!-- Application Logic -->
   <script>
-    // GitHub Repository Configuration
     const GITHUB_USERNAME = "binaykrishna";
     const GITHUB_REPO = "inspection";
     const GITHUB_DATA_PATH = "data/portal_data.json";
@@ -634,43 +632,13 @@
       10: "Oct'26", 11: "Nov'26", 12: "Dec'26", 1: "Jan'27", 2: "Feb'27", 3: "Mar'27"
     };
 
-    const DEFAULT_SSF_TAKSHVI = [
-      { name: "SAM,SUDIPTA", code: "0000379540_6", outlets: 181, nonKsk: 26.6, ksk: 14.1, nayara: 0.0, bazaar: 32.4, oem: 0.0, fleet: 0.0, total: 73.1 },
-      { name: "MONDAL,SUDAM", code: "0000379540_2", outlets: 160, nonKsk: 18.5, ksk: 6.4, nayara: 0.0, bazaar: 18.1, oem: 10.5, fleet: 0.0, total: 53.5 },
-      { name: "DAS,SOUMITRA", code: "0000379540_5", outlets: 115, nonKsk: 10.2, ksk: 4.9, nayara: 0.0, bazaar: 15.9, oem: 0.0, fleet: 0.0, total: 31.0 }
-    ];
+    // Store in-memory raw datasets for local uploads
+    let rawDatasetLY = [];
+    let rawDatasetCY = [];
 
-    let datasetLY = [];
-    let datasetCY = [];
+    // Master compiled payload loaded from data/portal_data.json
+    let portalCompiledData = null;
     let currentGithubSha = null;
-
-    // Prune dataset to only required analytical columns
-    function pruneRowData(row) {
-      return {
-        'Stockist Name': row['Stockist Name'],
-        'Month': row['Month'],
-        'District': row['District'],
-        'Product Quantity(L/Kg)': row['Product Quantity(L/Kg)'],
-        'Customer Group': row['Customer Group'],
-        'Customer Sub Group': row['Customer Sub Group'],
-        'Customer Id': row['Customer Id'],
-        'SSF Name': row['SSF Name'],
-        'SSF Code': row['SSF Code']
-      };
-    }
-
-    // Helper: Safely convert string/blob to Base64 in browser without call stack overflows
-    function blobToBase64(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    }
 
     function getStockistUniverse(stockist) {
       const key = STOCKIST_KEY_MAP[stockist] || "tak";
@@ -749,13 +717,175 @@
       document.getElementById('tot-total').textContent = totalU;
     }
 
+    // Precise Channel Identification Rule
+    function categorizeChannel(custGroup, custSubGroup) {
+      const cg = String(custGroup || '').trim().toUpperCase();
+      const csg = String(custSubGroup || '').trim().toUpperCase();
+
+      if (cg === 'OEM') return 'oem';
+      if (cg === 'FLEET') return 'fleet';
+      if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
+      if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
+
+      // KSK only if contains KSK and NOT NON
+      const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
+      if (isKsk) return 'ksk';
+
+      // Non-KSK contains all other subgroups and blanks
+      return 'nonKsk';
+    }
+
+    function getMonthSpan(targetMonth) {
+      const idx = MONTH_ORDER.indexOf(parseInt(targetMonth));
+      return MONTH_ORDER.slice(0, idx + 1);
+    }
+
+    // --- High-Performance Aggregation Compiler ---
+    // Takes raw rows and compiles them into a 35KB structured matrix for instant GitHub syncing
+    function compilePortalMatrix(rowsCY, rowsLY) {
+      const stockistKeys = ["Takshvi Co", "Nalateswari Lubricants", "Bihariji Auto Service Station", "SMG Trades", "Swastik Automobiles"];
+      const matrix = {
+        updatedAt: new Date().toISOString(),
+        universe: getAllUniverseData(),
+        monthlyData: {}, // [stockist][month] -> { cy: {...}, ly: {...} }
+        ssfData: {}      // [stockist][month] -> array of SSF objects
+      };
+
+      stockistKeys.forEach(stk => {
+        matrix.monthlyData[stk] = {};
+        matrix.ssfData[stk] = {};
+        const stNameClean = stk.toLowerCase();
+
+        MONTH_ORDER.forEach(m => {
+          // --- CY Single Month & Cumulative Span ---
+          const spanMonths = getMonthSpan(m);
+          
+          const cySpanRows = rowsCY.filter(r => {
+            const sName = String(r['Stockist Name'] || '').toLowerCase();
+            return sName.includes(stNameClean) && spanMonths.includes(parseInt(r['Month']));
+          });
+
+          const cyMonthRows = rowsCY.filter(r => {
+            const sName = String(r['Stockist Name'] || '').toLowerCase();
+            return sName.includes(stNameClean) && parseInt(r['Month']) === m;
+          });
+
+          // --- LY Single Month & Cumulative Span with Rules ---
+          const filterLY = (row, targetMonths) => {
+            const sName = String(row['Stockist Name'] || '').toLowerCase();
+            const rowMonth = parseInt(row['Month']);
+            const dist = String(row['District'] || '').toLowerCase();
+
+            if (stk === "Takshvi Co") {
+              if (sName.includes('takshvi')) return targetMonths.includes(rowMonth);
+              if (sName.includes('servo world') && [4,5,6,7,8].includes(rowMonth)) return targetMonths.includes(rowMonth);
+              return false;
+            }
+            if (stk === "SMG Trades") {
+              if (sName.includes('smg')) return targetMonths.includes(rowMonth);
+              if (sName.includes('servo world') && [9,10,11,12,1].includes(rowMonth)) return targetMonths.includes(rowMonth);
+              if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(rowMonth)) return targetMonths.includes(rowMonth);
+              return false;
+            }
+            return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
+          };
+
+          const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths));
+          const lyMonthRows = rowsLY.filter(r => filterLY(r, [m]));
+
+          // Aggregate Channel Breakdown
+          const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
+          const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
+          const custSets = { nonKsk: new Set(), ksk: new Set(), nayara: new Set(), bazaar: new Set(), oem: new Set(), fleet: new Set() };
+
+          cySpanRows.forEach(r => {
+            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+            const custId = r['Customer Id'];
+            if (channelCY[ch] !== undefined) {
+              channelCY[ch] += qty;
+              if (qty > 0 && custId) custSets[ch].add(custId);
+            }
+          });
+
+          lySpanRows.forEach(r => {
+            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+            if (channelLY[ch] !== undefined) {
+              channelLY[ch] += qty;
+            }
+          });
+
+          const mCY = cyMonthRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+          const mLY = lyMonthRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+          const cumCY = cySpanRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+          const cumLY = lySpanRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+
+          matrix.monthlyData[stk][m] = {
+            mCY, mLY, cumCY, cumLY,
+            channelCY, channelLY,
+            suppliedOutlets: {
+              nonKsk: custSets.nonKsk.size,
+              ksk: custSets.ksk.size,
+              nayara: custSets.nayara.size,
+              bazaar: custSets.bazaar.size,
+              oem: custSets.oem.size,
+              fleet: custSets.fleet.size
+            }
+          };
+
+          // Aggregate SSF Matrix for this Month
+          const ssfMap = {};
+          cySpanRows.forEach(r => {
+            const ssfName = String(r['SSF Name'] || 'Unassigned').trim();
+            const ssfCode = String(r['SSF Code'] || '-').trim();
+            const key = ssfName + '___' + ssfCode;
+
+            if (!ssfMap[key]) {
+              ssfMap[key] = {
+                name: ssfName,
+                code: ssfCode,
+                custIds: new Set(),
+                nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0, total: 0
+              };
+            }
+
+            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+            const custId = r['Customer Id'];
+
+            if (qty > 0 && custId) ssfMap[key].custIds.add(custId);
+            ssfMap[key][ch] = (ssfMap[key][ch] || 0) + qty;
+            ssfMap[key].total += qty;
+          });
+
+          matrix.ssfData[stk][m] = Object.values(ssfMap).map(item => ({
+            name: item.name,
+            code: item.code,
+            outlets: item.custIds.size,
+            nonKsk: item.nonKsk,
+            ksk: item.ksk,
+            nayara: item.nayara,
+            bazaar: item.bazaar,
+            oem: item.oem,
+            fleet: item.fleet,
+            total: item.total
+          })).sort((a, b) => b.total - a.total);
+
+        });
+      });
+
+      return matrix;
+    }
+
+    // --- File Upload Handler ---
     function handleFileUpload(event, type) {
       const file = event.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       const statusEl = document.getElementById(type === 'LY' ? 'status-ly' : 'status-cy');
-      statusEl.textContent = `Reading & optimizing ${file.name}...`;
+      statusEl.textContent = `Reading ${file.name}...`;
 
       reader.onload = function(e) {
         try {
@@ -764,26 +894,29 @@
           const firstSheet = workbook.SheetNames[0];
           const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
           
-          const cleanedRows = rawRows.map(pruneRowData);
-
           if (type === 'LY') {
-            datasetLY = cleanedRows;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${cleanedRows.length.toLocaleString()} rows</span> (${file.name})`;
+            rawDatasetLY = rawRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
           } else {
-            datasetCY = cleanedRows;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${cleanedRows.length.toLocaleString()} rows</span> (${file.name})`;
+            rawDatasetCY = rawRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
           }
 
+          // Compile immediately into active memory
+          portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
+          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
           document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          document.getElementById('data-status-badge').textContent = "Uploaded Catalog Active";
+          document.getElementById('data-status-badge').textContent = "Local Excel Data Active";
 
           runAnalysis();
           renderSSFAnalysis();
 
+          // Push to GitHub if token exists
           if (document.getElementById('gh-token').value.trim()) {
             pushDataToGithub();
           } else {
-            document.getElementById('gh-feedback').textContent = "Loaded locally. Enter your ghp_ token below to push data to all devices.";
+            document.getElementById('gh-feedback').textContent = "Data compiled. Enter your ghp_ token below to push across other devices.";
             document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-amber-600";
           }
         } catch (err) {
@@ -794,30 +927,101 @@
       reader.readAsArrayBuffer(file);
     }
 
-    function categorizeChannel(custGroup, custSubGroup) {
-      const cg = String(custGroup || '').trim().toUpperCase();
-      const csg = String(custSubGroup || '').trim().toUpperCase();
+    // --- Tab 1 Analysis Renderer ---
+    function runAnalysis() {
+      const stockist = document.getElementById('sel-stockist').value;
+      const month = parseInt(document.getElementById('sel-month').value);
+      const spanMonths = getMonthSpan(month);
+      const numMonths = spanMonths.length;
 
-      if (cg === 'OEM') return 'oem';
-      if (cg === 'FLEET') return 'fleet';
-      if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
-      if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
+      document.getElementById('disp-stockist-title').textContent = stockist;
+      document.getElementById('disp-stockist-name').textContent = stockist;
+      document.getElementById('disp-month-label').textContent = MONTH_NAMES[month];
+      
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      document.getElementById('disp-period-title').textContent = periodLabel;
+      document.getElementById('disp-cum-range').textContent = periodLabel;
+      document.getElementById('disp-channel-period').textContent = periodLabel;
 
-      const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
-      if (isKsk) return 'ksk';
+      // Potential Calculation
+      const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
+      let mPotential = (month === 3) ? basePot * 2 : basePot;
+      let cumPotential = basePot * numMonths;
+      if (spanMonths.includes(3)) cumPotential += basePot;
 
-      return 'nonKsk';
+      document.getElementById('input-m-pot').value = mPotential.toFixed(1);
+      document.getElementById('input-cum-pot').value = cumPotential.toFixed(1);
+
+      applyUniverseToActiveView();
+
+      // Read from compiled data
+      if (portalCompiledData && portalCompiledData.monthlyData && portalCompiledData.monthlyData[stockist] && portalCompiledData.monthlyData[stockist][month]) {
+        const d = portalCompiledData.monthlyData[stockist][month];
+
+        document.getElementById('input-m-cy').value = d.mCY.toFixed(1);
+        document.getElementById('input-m-ly').value = d.mLY.toFixed(1);
+        document.getElementById('input-cum-cy').value = d.cumCY.toFixed(1);
+        document.getElementById('input-cum-ly').value = d.cumLY.toFixed(1);
+
+        const channels = ['nonKsk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+        const domMap = { nonKsk: 'non-ksk', ksk: 'ksk', nayara: 'nayara', bazaar: 'bazaar', oem: 'oem', fleet: 'fleet' };
+
+        channels.forEach(ch => {
+          const tag = domMap[ch];
+          document.getElementById(`sup-${tag}`).textContent = d.suppliedOutlets[ch];
+          document.getElementById(`cy-${tag}`).textContent = d.channelCY[ch].toFixed(1);
+          document.getElementById(`ly-${tag}`).textContent = d.channelLY[ch].toFixed(1);
+        });
+
+        document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        document.getElementById('data-status-badge').textContent = "Live Synced Data Active";
+      }
+
+      updateCalculations();
     }
 
-    function getMonthSpan(targetMonth) {
-      const idx = MONTH_ORDER.indexOf(parseInt(targetMonth));
-      return MONTH_ORDER.slice(0, idx + 1);
+    function updateCalculations() {
+      const mCY = parseFloat(document.getElementById('input-m-cy').value) || 0;
+      const mLY = parseFloat(document.getElementById('input-m-ly').value) || 0;
+      const mDiff = mCY - mLY;
+      const mDiffEl = document.getElementById('cell-m-diff');
+      mDiffEl.textContent = (mDiff >= 0 ? `+${mDiff.toFixed(1)}` : mDiff.toFixed(1));
+      mDiffEl.className = `font-bold ${mDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+      const cumCY = parseFloat(document.getElementById('input-cum-cy').value) || 0;
+      const cumLY = parseFloat(document.getElementById('input-cum-ly').value) || 0;
+      const cumDiff = cumCY - cumLY;
+      const cumDiffEl = document.getElementById('cell-cum-diff');
+      cumDiffEl.textContent = (cumDiff >= 0 ? `+${cumDiff.toFixed(1)}` : cumDiff.toFixed(1));
+      cumDiffEl.className = `font-bold ${cumDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+      const tags = ['non-ksk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+      let totSup = 0, totCY = 0, totLY = 0;
+
+      tags.forEach(tag => {
+        totSup += parseInt(document.getElementById(`sup-${tag}`).textContent) || 0;
+        totCY += parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
+        totLY += parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
+      });
+
+      document.getElementById('sup-total').textContent = totSup;
+      document.getElementById('cy-total').textContent = totCY.toFixed(1);
+      document.getElementById('ly-total').textContent = totLY.toFixed(1);
+
+      tags.forEach(tag => {
+        const cy = parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
+        const ly = parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
+        const pctCY = totCY > 0 ? (cy / totCY) * 100 : 0;
+        const pctLY = totLY > 0 ? (ly / totLY) * 100 : 0;
+        document.getElementById(`pct-cy-${tag}`).textContent = pctCY.toFixed(1) + '%';
+        document.getElementById(`pct-ly-${tag}`).textContent = pctLY.toFixed(1) + '%';
+      });
     }
 
+    // --- Tab 2 SSF Analysis Renderer ---
     function renderSSFAnalysis() {
       const stockist = document.getElementById('sel-ssf-stockist').value;
       const month = parseInt(document.getElementById('sel-ssf-month').value);
-      const spanMonths = getMonthSpan(month);
 
       const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
       document.getElementById('disp-ssf-stockist-title').textContent = stockist;
@@ -830,67 +1034,10 @@
 
       let ssfList = [];
 
-      if (datasetCY.length > 0) {
-        const stNameClean = stockist.toLowerCase();
-        const cyRowsSpan = datasetCY.filter(r => {
-          const sName = String(r['Stockist Name'] || '').toLowerCase();
-          const m = parseInt(r['Month']);
-          return sName.includes(stNameClean) && spanMonths.includes(m);
-        });
-
-        const ssfMap = {};
-        cyRowsSpan.forEach(r => {
-          const ssfName = String(r['SSF Name'] || 'Unassigned').trim();
-          const ssfCode = String(r['SSF Code'] || '-').trim();
-          const key = ssfName + '___' + ssfCode;
-
-          if (!ssfMap[key]) {
-            ssfMap[key] = {
-              name: ssfName,
-              code: ssfCode,
-              custIds: new Set(),
-              nonKsk: 0,
-              ksk: 0,
-              nayara: 0,
-              bazaar: 0,
-              oem: 0,
-              fleet: 0,
-              total: 0
-            };
-          }
-
-          const qtyKL = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
-          const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
-          const custId = r['Customer Id'];
-
-          if (qtyKL > 0 && custId) ssfMap[key].custIds.add(custId);
-          ssfMap[key][ch] = (ssfMap[key][ch] || 0) + qtyKL;
-          ssfMap[key].total += qtyKL;
-        });
-
-        ssfList = Object.values(ssfMap).map(item => ({
-          name: item.name,
-          code: item.code,
-          outlets: item.custIds.size,
-          nonKsk: item.nonKsk,
-          ksk: item.ksk,
-          nayara: item.nayara,
-          bazaar: item.bazaar,
-          oem: item.oem,
-          fleet: item.fleet,
-          total: item.total
-        }));
-
-        ssfList.sort((a, b) => b.total - a.total);
-      } else {
-        if (stockist === "Takshvi Co") {
-          ssfList = DEFAULT_SSF_TAKSHVI;
-        } else {
-          ssfList = [
-            { name: "PRIMARY SSF 1", code: "001", outlets: 85, nonKsk: 20.0, ksk: 10.0, nayara: 0.0, bazaar: 25.0, oem: 2.0, fleet: 0.0, total: 57.0 },
-            { name: "SECONDARY SSF 2", code: "002", outlets: 60, nonKsk: 15.0, ksk: 5.0, nayara: 0.0, bazaar: 18.0, oem: 1.0, fleet: 0.0, total: 39.0 }
-          ];
-        }
+      if (portalCompiledData && portalCompiledData.ssfData && portalCompiledData.ssfData[stockist] && portalCompiledData.ssfData[stockist][month]) {
+        ssfList = portalCompiledData.ssfData[stockist][month];
+      } else if (stockist === "Takshvi Co") {
+        ssfList = DEFAULT_SSF_TAKSHVI;
       }
 
       const grandTotalSales = ssfList.reduce((acc, x) => acc + x.total, 0);
@@ -946,179 +1093,7 @@
       `;
     }
 
-    function runAnalysis() {
-      const stockist = document.getElementById('sel-stockist').value;
-      const month = parseInt(document.getElementById('sel-month').value);
-      const spanMonths = getMonthSpan(month);
-      const numMonths = spanMonths.length;
-
-      document.getElementById('disp-stockist-title').textContent = stockist;
-      document.getElementById('disp-stockist-name').textContent = stockist;
-      document.getElementById('disp-month-label').textContent = MONTH_NAMES[month];
-      
-      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
-      document.getElementById('disp-period-title').textContent = periodLabel;
-      document.getElementById('disp-cum-range').textContent = periodLabel;
-      document.getElementById('disp-channel-period').textContent = periodLabel;
-
-      const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
-      let mPotential = (month === 3) ? basePot * 2 : basePot;
-      
-      let cumPotential = basePot * numMonths;
-      if (spanMonths.includes(3)) cumPotential += basePot;
-
-      document.getElementById('input-m-pot').value = mPotential.toFixed(1);
-      document.getElementById('input-cum-pot').value = cumPotential.toFixed(1);
-
-      applyUniverseToActiveView();
-
-      if (datasetCY.length > 0 || datasetLY.length > 0) {
-        computeDataMetrics(stockist, month, spanMonths);
-      } else {
-        updateCalculations();
-      }
-    }
-
-    function computeDataMetrics(stockist, currentMonth, spanMonths) {
-      const stNameClean = stockist.toLowerCase();
-
-      const cyRowsSpan = datasetCY.filter(r => {
-        const sName = String(r['Stockist Name'] || '').toLowerCase();
-        const m = parseInt(r['Month']);
-        return sName.includes(stNameClean) && spanMonths.includes(m);
-      });
-
-      const cyRowsSingleMonth = datasetCY.filter(r => {
-        const sName = String(r['Stockist Name'] || '').toLowerCase();
-        const m = parseInt(r['Month']);
-        return sName.includes(stNameClean) && m === currentMonth;
-      });
-
-      const lyRowsSpan = datasetLY.filter(r => {
-        let sName = String(r['Stockist Name'] || '').toLowerCase();
-        const m = parseInt(r['Month']);
-        const dist = String(r['District'] || '').toLowerCase();
-
-        if (stockist === "Takshvi Co") {
-          if (sName.includes('takshvi')) return spanMonths.includes(m);
-          if (sName.includes('servo world') && [4,5,6,7,8].includes(m)) return spanMonths.includes(m);
-          return false;
-        }
-
-        if (stockist === "SMG Trades") {
-          if (sName.includes('smg')) return spanMonths.includes(m);
-          if (sName.includes('servo world') && [9,10,11,12,1].includes(m)) return spanMonths.includes(m);
-          if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(m)) return spanMonths.includes(m);
-          return false;
-        }
-
-        return sName.includes(stNameClean) && spanMonths.includes(m);
-      });
-
-      const lyRowsSingleMonth = datasetLY.filter(r => {
-        let sName = String(r['Stockist Name'] || '').toLowerCase();
-        const m = parseInt(r['Month']);
-        const dist = String(r['District'] || '').toLowerCase();
-
-        if (stockist === "Takshvi Co") {
-          if (sName.includes('takshvi') && m === currentMonth) return true;
-          if (sName.includes('servo world') && [4,5,6,7,8].includes(m) && m === currentMonth) return true;
-          return false;
-        }
-
-        if (stockist === "SMG Trades") {
-          if (sName.includes('smg') && m === currentMonth) return true;
-          if (sName.includes('servo world') && [9,10,11,12,1].includes(m) && m === currentMonth) return true;
-          if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(m) && m === currentMonth) return true;
-          return false;
-        }
-
-        return sName.includes(stNameClean) && m === currentMonth;
-      });
-
-      const mCY = cyRowsSingleMonth.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-      const mLY = lyRowsSingleMonth.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-      document.getElementById('input-m-cy').value = mCY.toFixed(1);
-      document.getElementById('input-m-ly').value = mLY.toFixed(1);
-
-      const cumCY = cyRowsSpan.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-      const cumLY = lyRowsSpan.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-      document.getElementById('input-cum-cy').value = cumCY.toFixed(1);
-      document.getElementById('input-cum-ly').value = cumLY.toFixed(1);
-
-      const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
-      const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
-      const suppliedCusts = { nonKsk: new Set(), ksk: new Set(), nayara: new Set(), bazaar: new Set(), oem: new Set(), fleet: new Set() };
-
-      cyRowsSpan.forEach(r => {
-        const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
-        const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
-        const custId = r['Customer Id'];
-        if (channelCY[ch] !== undefined) {
-          channelCY[ch] += qty;
-          if (qty > 0 && custId) suppliedCusts[ch].add(custId);
-        }
-      });
-
-      lyRowsSpan.forEach(r => {
-        const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
-        const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
-        if (channelLY[ch] !== undefined) {
-          channelLY[ch] += qty;
-        }
-      });
-
-      const channels = ['nonKsk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
-      const domMap = { nonKsk: 'non-ksk', ksk: 'ksk', nayara: 'nayara', bazaar: 'bazaar', oem: 'oem', fleet: 'fleet' };
-
-      channels.forEach(ch => {
-        const tag = domMap[ch];
-        document.getElementById(`sup-${tag}`).textContent = suppliedCusts[ch].size;
-        document.getElementById(`cy-${tag}`).textContent = channelCY[ch].toFixed(1);
-        document.getElementById(`ly-${tag}`).textContent = channelLY[ch].toFixed(1);
-      });
-
-      updateCalculations();
-    }
-
-    function updateCalculations() {
-      const mCY = parseFloat(document.getElementById('input-m-cy').value) || 0;
-      const mLY = parseFloat(document.getElementById('input-m-ly').value) || 0;
-      const mDiff = mCY - mLY;
-      const mDiffEl = document.getElementById('cell-m-diff');
-      mDiffEl.textContent = (mDiff >= 0 ? `+${mDiff.toFixed(1)}` : mDiff.toFixed(1));
-      mDiffEl.className = `font-bold ${mDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
-
-      const cumCY = parseFloat(document.getElementById('input-cum-cy').value) || 0;
-      const cumLY = parseFloat(document.getElementById('input-cum-ly').value) || 0;
-      const cumDiff = cumCY - cumLY;
-      const cumDiffEl = document.getElementById('cell-cum-diff');
-      cumDiffEl.textContent = (cumDiff >= 0 ? `+${cumDiff.toFixed(1)}` : cumDiff.toFixed(1));
-      cumDiffEl.className = `font-bold ${cumDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
-
-      const tags = ['non-ksk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
-      let totSup = 0, totCY = 0, totLY = 0;
-
-      tags.forEach(tag => {
-        totSup += parseInt(document.getElementById(`sup-${tag}`).textContent) || 0;
-        totCY += parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
-        totLY += parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
-      });
-
-      document.getElementById('sup-total').textContent = totSup;
-      document.getElementById('cy-total').textContent = totCY.toFixed(1);
-      document.getElementById('ly-total').textContent = totLY.toFixed(1);
-
-      tags.forEach(tag => {
-        const cy = parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
-        const ly = parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
-        const pctCY = totCY > 0 ? (cy / totCY) * 100 : 0;
-        const pctLY = totLY > 0 ? (ly / totLY) * 100 : 0;
-        document.getElementById(`pct-cy-${tag}`).textContent = pctCY.toFixed(1) + '%';
-        document.getElementById(`pct-ly-${tag}`).textContent = pctLY.toFixed(1) + '%';
-      });
-    }
-
+    // --- PDF Export ---
     function exportToPDF(elementId, baseName) {
       const stockist = document.getElementById('sel-stockist').value;
       const month = document.getElementById('sel-month').options[document.getElementById('sel-month').selectedIndex].text;
@@ -1135,12 +1110,12 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // --- High-Performance GitHub Sync with Direct Raw Stream & Blob Base64 ---
+    // --- GitHub Cloud Synchronization Engine ---
     function saveGithubToken() {
       const token = document.getElementById('gh-token').value.trim();
       if (token) {
         localStorage.setItem('ghp_token', token);
-        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser storage.";
+        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser.";
         document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-emerald-600";
         pullDataFromGithub(false);
       }
@@ -1164,20 +1139,23 @@
         return;
       }
 
+      if (!portalCompiledData) {
+        feedback.textContent = "⚠️ Please upload the Excel files first before pushing.";
+        feedback.className = "text-xs font-semibold mt-3 text-amber-600";
+        return;
+      }
+
       badge.textContent = "Sync: Pushing to Cloud...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
-      const payload = {
-        updatedAt: new Date().toISOString(),
-        universe: getAllUniverseData(),
-        datasetLY: datasetLY,
-        datasetCY: datasetCY
-      };
+      // Include current universe settings in the sync payload
+      portalCompiledData.universe = getAllUniverseData();
+      portalCompiledData.updatedAt = new Date().toISOString();
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
       try {
-        // Step 1: Always query metadata to obtain latest SHA for data/portal_data.json
+        // Query latest SHA to prevent 409 Conflict
         const metaRes = await fetch(apiUrl, {
           headers: {
             'Authorization': `token ${token}`,
@@ -1189,20 +1167,18 @@
           currentGithubSha = metaJson.sha;
         }
 
-        // Step 2: Safe memory-efficient Base64 encoding via Blob
-        const jsonStr = JSON.stringify(payload);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const encodedContent = await blobToBase64(blob);
+        const jsonStr = JSON.stringify(portalCompiledData);
+        // UTF-8 safe browser-native base64
+        const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
 
         const bodyData = {
-          message: `Update sales data and universe [${new Date().toLocaleDateString()}]`,
+          message: `Update sales data [${new Date().toLocaleDateString()}]`,
           content: encodedContent
         };
         if (currentGithubSha) {
           bodyData.sha = currentGithubSha;
         }
 
-        // Step 3: PUT request to GitHub Contents API
         const putRes = await fetch(apiUrl, {
           method: 'PUT',
           headers: {
@@ -1218,11 +1194,11 @@
           currentGithubSha = putJson.content.sha;
           badge.textContent = "Sync: Up to date";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          feedback.textContent = `✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} at ${new Date().toLocaleTimeString()}`;
+          feedback.textContent = `✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} (~${Math.round(jsonStr.length/1024)} KB) at ${new Date().toLocaleTimeString()}`;
           feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
         } else {
           const errData = await putRes.json();
-          throw new Error(`(${putRes.status}) ${errData.message || 'GitHub API error'}`);
+          throw new Error(`(${putRes.status}) ${errData.message || 'GitHub error'}`);
         }
       } catch (err) {
         console.error(err);
@@ -1242,35 +1218,22 @@
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
-
-      // Use raw header to stream raw JSON directly, avoiding Base64 size truncation
       const headers = { 'Accept': 'application/vnd.github.v3.raw' };
       if (token) headers['Authorization'] = `token ${token}`;
 
       try {
         const res = await fetch(apiUrl, { headers });
         if (res.ok) {
-          const parsed = await res.json();
+          portalCompiledData = await res.json();
+          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
 
-          if (parsed.universe) {
-            setAllUniverseData(parsed.universe);
-            localStorage.setItem('universe_data', JSON.stringify(parsed.universe));
+          if (portalCompiledData.universe) {
+            setAllUniverseData(portalCompiledData.universe);
+            localStorage.setItem('universe_data', JSON.stringify(portalCompiledData.universe));
           }
 
-          if (parsed.datasetLY && parsed.datasetLY.length > 0) {
-            datasetLY = parsed.datasetLY;
-            document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced ${datasetLY.length.toLocaleString()} rows</span> (Cloud)`;
-          }
-
-          if (parsed.datasetCY && parsed.datasetCY.length > 0) {
-            datasetCY = parsed.datasetCY;
-            document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced ${datasetCY.length.toLocaleString()} rows</span> (Cloud)`;
-          }
-
-          if (datasetCY.length > 0 || datasetLY.length > 0) {
-            document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-            document.getElementById('data-status-badge').textContent = "Cloud Synced Data Active";
-          }
+          document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
+          document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
 
           runAnalysis();
           renderSSFAnalysis();
@@ -1285,24 +1248,23 @@
           badge.textContent = "Sync: No remote file";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300";
           if (userTriggered) {
-            feedback.textContent = `File (${GITHUB_DATA_PATH}) does not exist yet. Push your first file upload to create it.`;
+            feedback.textContent = `Remote file (${GITHUB_DATA_PATH}) not found yet. Upload Excels on Device 1 and click Push.`;
             feedback.className = "text-xs font-semibold mt-3 text-slate-600";
           }
         } else {
           throw new Error(`(${res.status}) ${res.statusText}`);
         }
       } catch (err) {
-        console.error(err);
         badge.textContent = "Sync: Offline / Failed";
         badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
         if (userTriggered) {
-          feedback.textContent = `Sync warning: ${err.message}. If the repository is private, ensure your token is entered on this device.`;
+          feedback.textContent = `Sync notice: ${err.message}. If the repository is private, ensure your token is entered on this device.`;
           feedback.className = "text-xs font-semibold mt-3 text-amber-600";
         }
       }
     }
 
-    // Initialize portal on load
+    // App Boot
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
@@ -1313,6 +1275,13 @@
       if (savedUniverse) {
         try {
           setAllUniverseData(JSON.parse(savedUniverse));
+        } catch(e) {}
+      }
+
+      const cachedData = localStorage.getItem('compiled_portal_data');
+      if (cachedData) {
+        try {
+          portalCompiledData = JSON.parse(cachedData);
         } catch(e) {}
       }
 
