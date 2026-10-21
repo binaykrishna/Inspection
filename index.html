@@ -88,7 +88,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Header -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -96,7 +95,6 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
-      <!-- 5 Navigation Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
         <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
@@ -669,7 +667,7 @@
               <span class="text-xl">📊</span>
               <h2 class="text-lg font-bold text-blue-950">Google Sheets Live Data Auto-Sync</h2>
             </div>
-            <p class="text-xs text-slate-500 mt-0.5">Directly connected to spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report (1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE)</span></p>
+            <p class="text-xs text-slate-500 mt-0.5">Directly connected to published spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report</span></p>
           </div>
           <button onclick="syncAllFromGoogleSheets()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
             🔄 Fetch & Auto-Sync from Google Sheets
@@ -828,9 +826,12 @@
     const GITHUB_USERNAME = "binaykrishna";
     const GITHUB_REPO = "inspection";
     const GITHUB_DATA_PATH = "data/portal_data.json";
+
+    // Google Sheets Published Base URL
+    const GOOGLE_PUB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLDk7To-avyWgA59TQZqZqfYQ7dpkeaSxm6i254YMnVf9gUsNSOFv_cKoipTi-2Uap81SjyjPidFfP/pub";
     const GOOGLE_SHEET_ID = "1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE";
 
-    // Explicit GIDs for RCL Report tabs
+    // Explicit GIDs verified from RCL Report
     const SHEET_GIDS = {
       "S_FY 25-26": "14886667",
       "S_FY 26-27": "1106362987",
@@ -912,6 +913,7 @@
       type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
       location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
       lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"],
+      // Fixed commissioning date for SMG Trades to 15.09.2026
       commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "15.09.2026", "30/11/2023"],
       officeAddress: [
         "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
@@ -1289,7 +1291,6 @@
       const diff = Math.max(0, mNum - aprVal);
       const superSatCount = 2 * diff;
 
-      // Point 2
       const p2 = document.getElementById('camp-item-2');
       if (p2 && !p2.dataset.manualOverride) {
         p2.value = `${superSatCount} Super Saturday campaigns`;
@@ -1297,11 +1298,9 @@
       const f2 = document.getElementById('camp-item-2-formula');
       if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
 
-      // BTL Meets
       const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
       const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
 
-      // Point 4
       const p4 = document.getElementById('camp-item-4');
       const btlCumulativeParts = [];
       if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
@@ -1314,7 +1313,6 @@
       const f4 = document.getElementById('camp-item-4-formula');
       if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
 
-      // Point 3
       const p3 = document.getElementById('camp-item-3');
       const note3 = document.getElementById('camp-item-3-note');
 
@@ -1689,20 +1687,22 @@
       return matrix;
     }
 
-    // Google Sheets Direct Fetcher via exact GIDs
+    // Direct Google Sheets CSV Fetcher using the Published Web Endpoint
     async function fetchGoogleSheetCsv(sheetKey) {
       const gid = SHEET_GIDS[sheetKey];
-      const primaryUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=${gid}&t=${Date.now()}`;
+      // 1. Primary: Published to Web CSV endpoint (Zero CORS restrictions)
+      const pubUrl = `${GOOGLE_PUB_URL}?output=csv&gid=${gid}&t=${Date.now()}`;
       
       try {
-        const res = await fetch(primaryUrl);
+        const res = await fetch(pubUrl);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const csvText = await res.text();
         const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
         return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
       } catch (err) {
-        const fallbackUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}&t=${Date.now()}`;
-        const resFallback = await fetch(fallbackUrl);
+        // 2. Fallback: Direct export endpoint
+        const directUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=${gid}&t=${Date.now()}`;
+        const resFallback = await fetch(directUrl);
         if (!resFallback.ok) throw new Error(`Failed to fetch ${sheetKey} (HTTP ${resFallback.status})`);
         const csvText = await resFallback.text();
         const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
@@ -1751,7 +1751,7 @@
         alert("✓ Successfully fetched and synchronized S_FY 25-26, S_FY 26-27, and P_FY 26-27 from Google Sheets!");
       } catch (err) {
         console.error(err);
-        alert("Google Sheet Fetch Error: " + err.message + "\n\nPlease ensure you completed:\nFile -> Share -> Publish to web in Google Sheets.");
+        alert("Google Sheet Fetch Error: " + err.message);
         if (statusLy) statusLy.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
         if (statusCy) statusCy.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
         if (statusPri) statusPri.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
