@@ -814,11 +814,9 @@
 
   <!-- Application Logic -->
   <script>
-    // Published Google Sheet Base URL & IDs
     const GOOGLE_PUB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLDk7To-avyWgA59TQZqZqfYQ7dpkeaSxm6i254YMnVf9gUsNSOFv_cKoipTi-2Uap81SjyjPidFfP/pub";
     const GOOGLE_SHEET_ID = "1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE";
 
-    // Verified GIDs from spreadsheet (kept in background script, not displayed on UI)
     const SHEET_GIDS = {
       "S_FY 25-26": "14886667",
       "S_FY 26-27": "1106362987",
@@ -1581,6 +1579,39 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
+    // Exact Sales LY Logic for Takshvi Co and SMG Trades
+    const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
+      const sName = String(row['Stockist Name'] || row['Stockist'] || '').toLowerCase();
+      const rowMonth = parseInt(row['Month']);
+      const dist = String(row['District'] || row['Customer District'] || '').toLowerCase();
+
+      // SMG Trades Rule
+      if (stk === "SMG Trades") {
+        if ([4, 5, 6, 7, 8, 9].includes(currentSelectedMonth)) return false;
+        const octOnwards = [10, 11, 12, 1, 2, 3];
+        if (octOnwards.includes(rowMonth) && targetMonths.includes(rowMonth)) {
+          return dist.includes('bankura');
+        }
+        return false;
+      }
+
+      // Takshvi Co Rule
+      if (stk === "Takshvi Co") {
+        if (!targetMonths.includes(rowMonth)) return false;
+        if ([4, 5, 6, 7, 8, 9].includes(rowMonth)) {
+          return sName.includes('takshvi') || sName.includes('servo world');
+        }
+        if ([10, 11, 12, 1, 2, 3].includes(rowMonth)) {
+          return sName.includes('takshvi') && !dist.includes('bankura');
+        }
+        return false;
+      }
+
+      // Other Stockists
+      const stNameClean = stk.toLowerCase();
+      return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
+    };
+
     function compilePortalMatrix(rowsCY, rowsLY) {
       const stockistKeys = ["Takshvi Co", "Nalateswari Lubricants", "Bihariji Auto Service Station", "SMG Trades", "Swastik Automobiles"];
       const matrix = {
@@ -1617,27 +1648,8 @@
             return sName.includes(stNameClean) && parseInt(r['Month']) === m;
           });
 
-          const filterLY = (row, targetMonths) => {
-            const sName = String(row['Stockist Name'] || '').toLowerCase();
-            const rowMonth = parseInt(row['Month']);
-            const dist = String(row['District'] || '').toLowerCase();
-
-            if (stk === "Takshvi Co") {
-              if (sName.includes('takshvi')) return targetMonths.includes(rowMonth);
-              if (sName.includes('servo world') && [4,5,6,7,8].includes(rowMonth)) return targetMonths.includes(rowMonth);
-              return false;
-            }
-            if (stk === "SMG Trades") {
-              if (sName.includes('smg')) return targetMonths.includes(rowMonth);
-              if (sName.includes('servo world') && [9,10,11,12,1].includes(rowMonth)) return targetMonths.includes(rowMonth);
-              if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(rowMonth)) return targetMonths.includes(rowMonth);
-              return false;
-            }
-            return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
-          };
-
-          const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths));
-          const lyMonthRows = rowsLY.filter(r => filterLY(r, [m]));
+          const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths, m, stk));
+          const lyMonthRows = rowsLY.filter(r => filterLY(r, [m], m, stk));
 
           const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
           const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
