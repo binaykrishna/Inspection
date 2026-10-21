@@ -88,6 +88,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
+  <!-- Top Navigation Header -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -95,6 +96,7 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
+      <!-- 5 Navigation Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
         <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
@@ -823,1184 +825,203 @@
 
   <!-- Application Logic -->
   <script>
-    const GITHUB_USERNAME = "binaykrishna";
-    const GITHUB_REPO = "inspection";
-    const GITHUB_DATA_PATH = "data/portal_data.json";
+    // --- HOISTED CORE ANALYSIS AND RENDER FUNCTIONS (PREVENTS "NOT DEFINED" ERRORS) ---
+    function runAnalysis() {
+      const stockist = document.getElementById('sel-stockist')?.value || "Takshvi Co";
+      const month = parseInt(document.getElementById('sel-month')?.value || "8");
+      const spanMonths = getMonthSpan(month);
+      const numMonths = spanMonths.length;
 
-    // Google Sheets Published Base URL
-    const GOOGLE_PUB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLDk7To-avyWgA59TQZqZqfYQ7dpkeaSxm6i254YMnVf9gUsNSOFv_cKoipTi-2Uap81SjyjPidFfP/pub";
-    const GOOGLE_SHEET_ID = "1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE";
+      const titleEl = document.getElementById('disp-stockist-title');
+      const nameEl = document.getElementById('disp-stockist-name');
+      const mLabelEl = document.getElementById('disp-month-label');
+      const pTitleEl = document.getElementById('disp-period-title');
+      const cRangeEl = document.getElementById('disp-cum-range');
+      const cPeriodEl = document.getElementById('disp-channel-period');
 
-    // Explicit GIDs verified from RCL Report
-    const SHEET_GIDS = {
-      "S_FY 25-26": "14886667",
-      "S_FY 26-27": "1106362987",
-      "P_FY 26-27": "1856894261"
-    };
+      if (titleEl) titleEl.textContent = stockist;
+      if (nameEl) nameEl.textContent = stockist;
+      if (mLabelEl) mLabelEl.textContent = MONTH_NAMES[month];
+      
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      if (pTitleEl) pTitleEl.textContent = periodLabel;
+      if (cRangeEl) cRangeEl.textContent = periodLabel;
+      if (cPeriodEl) cPeriodEl.textContent = periodLabel;
 
-    function switchTab(tab) {
-      const tabs = ['stockist', 'analysis', 'ssf', 'other', 'upload'];
-      tabs.forEach(t => {
-        const el = document.getElementById(`tab-${t}`);
-        const btn = document.getElementById(`tab-btn-${t}`);
-        if (el) el.classList.add('hidden');
-        if (btn) btn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
-      });
+      const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
+      let mPotential = (month === 3) ? basePot * 2 : basePot;
+      let cumPotential = basePot * numMonths;
+      if (spanMonths.includes(3)) cumPotential += basePot;
 
-      const activeEl = document.getElementById(`tab-${tab}`);
-      const activeBtn = document.getElementById(`tab-btn-${tab}`);
-      if (activeEl) activeEl.classList.remove('hidden');
-      if (activeBtn) activeBtn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
+      const inMPot = document.getElementById('input-m-pot');
+      const inCPot = document.getElementById('input-cum-pot');
+      if (inMPot) inMPot.value = mPotential.toFixed(1);
+      if (inCPot) inCPot.value = cumPotential.toFixed(1);
 
-      if (tab === 'stockist') renderStockistDetailsTable();
-      if (tab === 'analysis') runAnalysis();
-      if (tab === 'ssf') renderSSFAnalysis();
-      if (tab === 'other') {
-        renderFinancialsWorkingCapital();
-        updateCampaignsFormula();
-        renderMarketInfoTable();
+      applyUniverseToActiveView();
+
+      if (portalCompiledData && portalCompiledData.monthlyData && portalCompiledData.monthlyData[stockist] && portalCompiledData.monthlyData[stockist][month]) {
+        const d = portalCompiledData.monthlyData[stockist][month];
+
+        const inMCY = document.getElementById('input-m-cy');
+        const inMLY = document.getElementById('input-m-ly');
+        const inCCY = document.getElementById('input-cum-cy');
+        const inCLY = document.getElementById('input-cum-ly');
+
+        if (inMCY) inMCY.value = d.mCY.toFixed(1);
+        if (inMLY) inMLY.value = d.mLY.toFixed(1);
+        if (inCCY) inCCY.value = d.cumCY.toFixed(1);
+        if (inCLY) inCLY.value = d.cumLY.toFixed(1);
+
+        const channels = ['nonKsk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+        const domMap = { nonKsk: 'non-ksk', ksk: 'ksk', nayara: 'nayara', bazaar: 'bazaar', oem: 'oem', fleet: 'fleet' };
+
+        channels.forEach(ch => {
+          const tag = domMap[ch];
+          const supEl = document.getElementById(`sup-${tag}`);
+          const cyEl = document.getElementById(`cy-${tag}`);
+          const lyEl = document.getElementById(`ly-${tag}`);
+
+          if (supEl) supEl.textContent = d.suppliedOutlets[ch];
+          if (cyEl) cyEl.textContent = d.channelCY[ch].toFixed(1);
+          if (lyEl) lyEl.textContent = d.channelLY[ch].toFixed(1);
+        });
+
+        const badge = document.getElementById('data-status-badge');
+        if (badge) {
+          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          badge.textContent = "Data Active";
+        }
       }
-    }
 
-    function syncStockist(val) {
-      document.getElementById('sel-stockist').value = val;
-      document.getElementById('sel-ssf-stockist').value = val;
+      updateCalculations();
       renderFinancialsWorkingCapital();
-      updateCampaignsFormula();
-    }
-    function syncMonth(val) {
-      document.getElementById('sel-month').value = val;
-      document.getElementById('sel-ssf-month').value = val;
-      updateCampaignsFormula();
     }
 
-    const STOCKIST_BASE_POTENTIAL = {
-      "Takshvi Co": 80,
-      "Nalateswari Lubricants": 200,
-      "Bihariji Auto Service Station": 100,
-      "SMG Trades": 70,
-      "Swastik Automobiles": 30
-    };
-
-    const STOCKIST_KEY_MAP = {
-      "Takshvi Co": "tak",
-      "Bihariji Auto Service Station": "bih",
-      "Nalateswari Lubricants": "nal",
-      "Swastik Automobiles": "swa",
-      "SMG Trades": "smg"
-    };
-
-    const MONTH_ORDER = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3];
-    const MONTH_NAMES = {
-      4: "Apr'26", 5: "May'26", 6: "Jun'26", 7: "Jul'26", 8: "Aug'26", 9: "Sep'26",
-      10: "Oct'26", 11: "Nov'26", 12: "Dec'26", 1: "Jan'27", 2: "Feb'27", 3: "Mar'27"
-    };
-
-    const STOCKIST_NAMES = [
-      "Takshvi Co",
-      "Bihariji Auto Service Station",
-      "Nalateswari Lubricants",
-      "SMG Trades",
-      "Swastik Automobiles"
-    ];
-
-    let rawDatasetLY = [];
-    let rawDatasetCY = [];
-    let rawDatasetPrimary = [];
-    let portalCompiledData = null;
-
-    const DEFAULT_STOCKIST_DETAILS = {
-      type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
-      location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
-      lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"],
-      // Fixed commissioning date for SMG Trades to 15.09.2026
-      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "15.09.2026", "30/11/2023"],
-      officeAddress: [
-        "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
-        "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
-        "NALHATI, PAIKPARA, BIRBHUM",
-        "HOLDING NO 29, KUCHKUCHIA ROAD, BANKURA",
-        "BARAKAR ROAD, SADAR PARA, PURULIA"
-      ],
-      telNo: ["9332329077", "9434008309", "9434001479 / 9641191381", "9332329077", "9434029800"],
-      godownAddress: [
-        "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
-        "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
-        "NALHATI, PAIKPARA, BIRBHUM",
-        "HOLDING NO 29, KUCHKUCHIA ROAD, BANKURA",
-        "BARAKAR ROAD, SADAR PARA, PURULIA"
-      ],
-      godownTel: ["9332329077", "7001516052", "9932470623", "9332329077", "9434029800"],
-      constitution: ["Proprietorship", "Proprietorship", "PARTNERSHIP", "PROPRIETORSHIP", "PROPRIETORSHIP"],
-      proprietor: ["MANOJ GUPTA", "AJAY KUMAR KHAITAN", "RANJANA AGARWALA / RAKESH SINGH", "MANOJ GUPTA", "SUMIT SULTANIA"],
-      vanCount: [1, 1, 3, 1, 1],
-      vanMake: ["MAHINDRA BOLERO PICKUP", "TATA ACE, 2015", "MAHINDRA BOLERO PICKUP (3 Nos)", "MAHINDRA VEERO PICK UP", "TATA ACE"],
-      vanCapacity: ["1.28 TON", "1.5 TON", "3 TON", "1.435 TON", "WB56K2090 (3 T)"],
-      vanOwnership: ["RENT", "RENT", "OWN", "OWN", "OWN"],
-      documentation: ["SDMS", "SDMS", "SDMS", "SDMS", "SDMS"],
-      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "-", "19AQLPS8030K1Z7"],
-      areaOperation: ["PURBA BARDHAMAN", "PASCHIM BARDHAMAN", "BIRBHUM, MURSHIDABAD", "BANKURA", "PURULIA"],
-      bgBank: ["SBI", "STATE BANK OF INDIA", "UCO", "SBI", "PNB"],
-      bgAmount: ["6.0 LACS", "6.0 LACS", "12 Lacs", "6.0 LACS", "1.0 LACS"],
-      bgNo: ["0570425BG0B00021", "0618825BG0B00010", "0757IGFIN000124", "-", "04750ILG000423"],
-      bgValidity: ["11.09.2028", "09.07.2028", "22.01.2028", "-", "16.11.2027"],
-      agreementValidity: ["29.04.2028", "02.03.2028", "22.01.2028", "14.09.2029", "29.11.2026"],
-      annualTargetKL: [360, 619, 1107, 300, 150],
-      stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881],
-      currentInspectionDate: ["", "", "", "", ""],
-      giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
-      resellerMeets: [
-        "2 Reseller Meets", 
-        "5 Reseller Meets (1: Durgapur- Jun'26)", 
-        "1 Reseller Meet", 
-        "1 Reseller Meet", 
-        "1 Reseller Meet (1: Purulia- Mar'27)"
-      ],
-      mechanicMeets: [
-        "2 Mechanic Meets (2: Katwa- Jul'26, Bardhaman- Jul'26)", 
-        "11 Mechanic Meets (1: Durgapur- Jun'26)", 
-        "6 Mechanic Meets", 
-        "3 Mechanic Meets", 
-        "1 Mechanic Meet (2: Purulia- Nov'26, Raghunathpur- Mar'27)"
-      ]
-    };
-
-    let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
-
-    const DEFAULT_MARKET_INFO = [
-      { text: "CASTROL overstretching in 4T & multigrades with aggressive lower pricing products.", region: "All Areas" },
-      { text: "Gulf DEO coupons available in the market with double redeem value.", region: "Bazaar & Commercial" },
-      { text: "Gel-based RED Grease is in high demand for the retail market.", region: "Retail Trade" },
-      { text: "Servo Chakkada is urgently required in 2.2 L pack size.", region: "3-Wheeler / Rural" },
-      { text: "Motul 7100 launched in API SP specification with attractive packaging and aggressive rates.", region: "Premium 2W" },
-      { text: "MAK and Castrol have launched API SP Products for PCMO category.", region: "Passenger Car Segment" },
-      { text: "MAK has launched scooter gear oil in small convenience pouches.", region: "Bazaar Trade" },
-      { text: "Less than 20% market share of Servo in the area.", region: "Swastik Automobiles & SMG Trades" }
-    ];
-
-    let activeMarketInfo = JSON.parse(JSON.stringify(DEFAULT_MARKET_INFO));
-
-    function calcMinWorkingCapital(targetKL) {
-      const t = parseFloat(targetKL) || 0;
-      const raw = (t / 12) * 1.18 * 1.75 * 2.76;
-      return "Rs. " + Math.ceil(raw) + " L";
-    }
-
-    function normalizeDateStr(val) {
-      if (val === null || val === undefined || val === '') return '';
-
-      if (typeof val === 'number') {
-        if (isNaN(val) || val <= 0) return '';
-        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
-        const jsDate = new Date(excelEpoch.getTime() + val * 86400000);
-        return jsDate.toISOString().split('T')[0];
+    function updateCalculations() {
+      const mCY = parseFloat(document.getElementById('input-m-cy')?.value) || 0;
+      const mLY = parseFloat(document.getElementById('input-m-ly')?.value) || 0;
+      const mDiff = mCY - mLY;
+      const mDiffEl = document.getElementById('cell-m-diff');
+      if (mDiffEl) {
+        mDiffEl.textContent = (mDiff >= 0 ? `+${mDiff.toFixed(1)}` : mDiff.toFixed(1));
+        mDiffEl.className = `font-bold ${mDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
       }
 
-      if (typeof val === 'string') {
-        const trimmed = val.trim();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-          return trimmed;
-        }
-        if (/^\d{5}$/.test(trimmed)) {
-          const num = parseFloat(trimmed);
-          const excelEpoch = new Date(Date.UTC(1899, 11, 30));
-          const jsDate = new Date(excelEpoch.getTime() + num * 86400000);
-          return jsDate.toISOString().split('T')[0];
-        }
-        const parts = trimmed.split(/[/.-]/);
-        if (parts.length === 3) {
-          if (parts[2].length === 4) {
-            const d = parts[0].padStart(2, '0');
-            const m = parts[1].padStart(2, '0');
-            const y = parts[2];
-            return `${y}-${m}-${d}`;
-          } else if (parts[2].length === 2) {
-            const d = parts[0].padStart(2, '0');
-            const m = parts[1].padStart(2, '0');
-            const y = "20" + parts[2];
-            return `${y}-${m}-${d}`;
-          }
-        }
+      const cumCY = parseFloat(document.getElementById('input-cum-cy')?.value) || 0;
+      const cumLY = parseFloat(document.getElementById('input-cum-ly')?.value) || 0;
+      const cumDiff = cumCY - cumLY;
+      const cumDiffEl = document.getElementById('cell-cum-diff');
+      if (cumDiffEl) {
+        cumDiffEl.textContent = (cumDiff >= 0 ? `+${cumDiff.toFixed(1)}` : cumDiff.toFixed(1));
+        cumDiffEl.className = `font-bold ${cumDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
       }
 
-      try {
-        const dt = new Date(val);
-        if (!isNaN(dt.getTime())) {
-          const y = dt.getUTCFullYear();
-          const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
-          const d = String(dt.getUTCDate()).padStart(2, '0');
-          return `${y}-${m}-${d}`;
-        }
-      } catch(e) {}
-      return '';
-    }
+      const tags = ['non-ksk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+      let totSup = 0, totCY = 0, totLY = 0;
 
-    function subtractOneDay(dateStr) {
-      if (!dateStr || dateStr.length < 10) return null;
-      const parts = dateStr.split('-');
-      if (parts.length !== 3) return null;
-      const y = parseInt(parts[0], 10);
-      const m = parseInt(parts[1], 10) - 1;
-      const d = parseInt(parts[2], 10);
-      if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
-      const dt = new Date(Date.UTC(y, m, d));
-      dt.setUTCDate(dt.getUTCDate() - 1);
-      return dt.toISOString().split('T')[0];
-    }
-
-    function calculateStockistReceipt(stockistIndex) {
-      const stockistName = STOCKIST_NAMES[stockistIndex];
-
-      const domCurInput = document.getElementById(`cur-insp-date-${stockistIndex}`);
-      const curDateSelected = domCurInput && domCurInput.value ? domCurInput.value.trim() : (activeStockistDetails.currentInspectionDate[stockistIndex] || '').trim();
-
-      const domLastInput = document.getElementById(`last-insp-date-${stockistIndex}`);
-      const lastDateSelected = domLastInput && domLastInput.value ? domLastInput.value.trim() : (activeStockistDetails.lastInspection[stockistIndex] || '').trim();
-
-      const lastInspectionDateRaw = normalizeDateStr(lastDateSelected);
-      const currentInspectionDateRaw = normalizeDateStr(curDateSelected);
-
-      if (!currentInspectionDateRaw) {
-        return { kl: 0, text: "Select Current Date", subtext: "Pick inspection date in calendar" };
-      }
-
-      const targetEndDate = subtractOneDay(currentInspectionDateRaw);
-      if (!targetEndDate) {
-        return { kl: 0, text: "Invalid Current Date", subtext: "Please re-select date" };
-      }
-
-      const primaryRows = rawDatasetPrimary.length > 0 
-        ? rawDatasetPrimary 
-        : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
-
-      if (!primaryRows || primaryRows.length === 0) {
-        return { kl: 0, text: "0.000 KL", subtext: "Sync Google Sheets in Settings" };
-      }
-
-      const stClean = stockistName.toLowerCase();
-      const stockistRows = primaryRows.filter(row => {
-        const rowName = String(row['Name'] || row['Stockist Name'] || '').trim().toLowerCase();
-        return rowName.includes(stClean) || stClean.includes(rowName);
+      tags.forEach(tag => {
+        totSup += parseInt(document.getElementById(`sup-${tag}`)?.textContent) || 0;
+        totCY += parseFloat(document.getElementById(`cy-${tag}`)?.textContent) || 0;
+        totLY += parseFloat(document.getElementById(`ly-${tag}`)?.textContent) || 0;
       });
 
-      if (stockistRows.length === 0) {
-        return { kl: 0, text: "0.000 KL", subtext: "No primary billing records for stockist" };
-      }
+      const supTotEl = document.getElementById('sup-total');
+      const cyTotEl = document.getElementById('cy-total');
+      const lyTotEl = document.getElementById('ly-total');
+      if (supTotEl) supTotEl.textContent = totSup;
+      if (cyTotEl) cyTotEl.textContent = totCY.toFixed(1);
+      if (lyTotEl) lyTotEl.textContent = totLY.toFixed(1);
 
-      const upliftmentDatesSet = new Set();
-      stockistRows.forEach(r => {
-        const d = normalizeDateStr(r['Inv.Date']);
-        if (d && d.length === 10 && !d.startsWith('1970')) {
-          upliftmentDatesSet.add(d);
-        }
+      tags.forEach(tag => {
+        const cy = parseFloat(document.getElementById(`cy-${tag}`)?.textContent) || 0;
+        const ly = parseFloat(document.getElementById(`ly-${tag}`)?.textContent) || 0;
+        const pctCY = totCY > 0 ? (cy / totCY) * 100 : 0;
+        const pctLY = totLY > 0 ? (ly / totLY) * 100 : 0;
+        const pctCYEl = document.getElementById(`pct-cy-${tag}`);
+        const pctLYEl = document.getElementById(`pct-ly-${tag}`);
+        if (pctCYEl) pctCYEl.textContent = pctCY.toFixed(1) + '%';
+        if (pctLYEl) pctLYEl.textContent = pctLY.toFixed(1) + '%';
       });
-      const sortedUpliftmentDates = Array.from(upliftmentDatesSet).sort();
-
-      if (sortedUpliftmentDates.length === 0) {
-        return { kl: 0, text: "0.000 KL", subtext: "No valid invoice dates found" };
-      }
-
-      let effectiveEndDate = null;
-      if (upliftmentDatesSet.has(targetEndDate)) {
-        effectiveEndDate = targetEndDate;
-      } else {
-        for (let i = sortedUpliftmentDates.length - 1; i >= 0; i--) {
-          if (sortedUpliftmentDates[i] <= targetEndDate) {
-            effectiveEndDate = sortedUpliftmentDates[i];
-            break;
-          }
-        }
-      }
-
-      let effectiveStartDate = null;
-      if (lastInspectionDateRaw) {
-        if (upliftmentDatesSet.has(lastInspectionDateRaw)) {
-          effectiveStartDate = lastInspectionDateRaw;
-        } else {
-          for (let i = 0; i < sortedUpliftmentDates.length; i++) {
-            if (sortedUpliftmentDates[i] >= lastInspectionDateRaw) {
-              effectiveStartDate = sortedUpliftmentDates[i];
-              break;
-            }
-          }
-        }
-      } else {
-        effectiveStartDate = sortedUpliftmentDates[0];
-      }
-
-      if (!effectiveStartDate || !effectiveEndDate || effectiveStartDate > effectiveEndDate) {
-        return { 
-          kl: 0, 
-          text: "0.000 KL", 
-          subtext: `No upliftments found between ${effectiveStartDate || lastInspectionDateRaw} and ${effectiveEndDate || targetEndDate}` 
-        };
-      }
-
-      let totalKL = 0;
-      let countInv = 0;
-
-      stockistRows.forEach(row => {
-        const invDateStr = normalizeDateStr(row['Inv.Date']);
-        if (invDateStr && invDateStr >= effectiveStartDate && invDateStr <= effectiveEndDate) {
-          const kl = parseFloat(row['KL']) || 0;
-          totalKL += kl;
-          countInv++;
-        }
-      });
-
-      return {
-        kl: totalKL,
-        count: countInv,
-        text: `${totalKL.toFixed(3)} KL`,
-        subtext: `From ${effectiveStartDate} to ${effectiveEndDate} (${countInv} bills)`
-      };
     }
 
-    function renderStockistDetailsTable() {
-      const tbody = document.getElementById('tbody-stockist-details');
-      if (!tbody) return;
+    function renderSSFAnalysis() {
+      const stockist = document.getElementById('sel-ssf-stockist')?.value || "Takshvi Co";
+      const month = parseInt(document.getElementById('sel-ssf-month')?.value || "8");
+
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      const titleEl = document.getElementById('disp-ssf-stockist-title');
+      const pTitleEl = document.getElementById('disp-ssf-period-title');
+      if (titleEl) titleEl.textContent = stockist;
+      if (pTitleEl) pTitleEl.textContent = periodLabel;
+
+      const tbody = document.getElementById('tbody-ssf');
+      const tfoot = document.getElementById('tfoot-ssf');
+      if (!tbody || !tfoot) return;
       tbody.innerHTML = '';
+      tfoot.innerHTML = '';
 
-      const rows = [
-        { label: "Type of Stockist", key: "type", isYellow: false },
-        { label: "Location", key: "location", isYellow: false },
-        { label: "Date of Last Inspection", key: "lastInspection", isDate: true, inputIdPrefix: "last-insp-date" },
-        { label: "Date of Commissioning", key: "commissioning", isYellow: false },
-        { label: "Office Address", key: "officeAddress", isYellow: false },
-        { label: "Office Tel No & Mobile No:", key: "telNo", isYellow: false },
-        { label: "Godown Address", key: "godownAddress", isYellow: false },
-        { label: "Godown Tel. No.", key: "godownTel", isYellow: false },
-        { label: "Constitution of Firm", key: "constitution", isYellow: false },
-        { label: "Proprietor / Partners / Person in Charge", key: "proprietor", isYellow: false },
-        { label: "Delivery Van - Number of Delivery Vans", key: "vanCount", isYellow: false },
-        { label: "Delivery Van - Make & Year of Manufacture", key: "vanMake", isYellow: false },
-        { label: "Delivery Van - Capacity", key: "vanCapacity", isYellow: false },
-        { label: "Delivery Van - Ownership", key: "vanOwnership", isYellow: false },
-        { label: "Documentation using Standard Software", key: "documentation", isYellow: false },
-        { label: "GST Number of the Stockist", key: "gstNumber", isYellow: false },
-        { label: "Area of operation of the Stockist", key: "areaOperation", isYellow: false },
-        { label: "Performance BG - Bank Name", key: "bgBank", isYellow: false },
-        { label: "Performance BG - Amount", key: "bgAmount", isYellow: false },
-        { label: "Performance BG - BG Number", key: "bgNo", isYellow: false },
-        { label: "Performance BG - Validity", key: "bgValidity", isYellow: false },
-        { label: "Agreement Validity", key: "agreementValidity", isYellow: false },
-        { label: "Annual Sales Target for Current FY (KL)", key: "annualTargetKL", isYellow: true, isNumber: true },
-        { label: "Stock During Last Inspection (KL)", key: "stockLastInspection", isYellow: true, isNumber: true },
-        { label: "Current Inspection Date", key: "currentInspectionDate", isDate: true, inputIdPrefix: "cur-insp-date" },
-        { label: "Receipt (KL) - Auto Computed from Primary", key: "receiptKL", isReceiptAuto: true },
-        { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
-        { label: "Giveaway Amount", key: "giveaway", isYellow: false },
-        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true },
-        { label: "BTL - Mechanic Meets", key: "mechanicMeets", isYellow: true }
-      ];
+      let ssfList = [];
 
-      rows.forEach(r => {
+      if (portalCompiledData && portalCompiledData.ssfData && portalCompiledData.ssfData[stockist] && portalCompiledData.ssfData[stockist][month]) {
+        ssfList = portalCompiledData.ssfData[stockist][month];
+      }
+
+      const grandTotalSales = ssfList.reduce((acc, x) => acc + x.total, 0);
+      const grandTotalOutlets = ssfList.reduce((acc, x) => acc + x.outlets, 0);
+      let totNonKsk = 0, totKsk = 0, totNayara = 0, totBazaar = 0, totOem = 0, totFleet = 0;
+
+      const kpiCount = document.getElementById('kpi-ssf-count');
+      const kpiSales = document.getElementById('kpi-ssf-sales');
+      const kpiOutlets = document.getElementById('kpi-ssf-outlets');
+      if (kpiCount) kpiCount.textContent = ssfList.length;
+      if (kpiSales) kpiSales.textContent = grandTotalSales.toFixed(1) + ' KL';
+      if (kpiOutlets) kpiOutlets.textContent = grandTotalOutlets;
+
+      ssfList.forEach(item => {
+        totNonKsk += item.nonKsk;
+        totKsk += item.ksk;
+        totNayara += item.nayara;
+        totBazaar += item.bazaar;
+        totOem += item.oem;
+        totFleet += item.fleet;
+
+        const sharePct = grandTotalSales > 0 ? (item.total / grandTotalSales) * 100 : 0;
+
         const tr = document.createElement('tr');
-        let html = `<td class="font-bold text-slate-800 bg-slate-50">${r.label}</td>`;
-
-        for (let idx = 0; idx < 5; idx++) {
-          if (r.isFormula) {
-            const tgt = activeStockistDetails.annualTargetKL[idx];
-            html += `<td class="text-center font-bold text-blue-900 bg-blue-50" id="wc-col-${idx}">${calcMinWorkingCapital(tgt)}</td>`;
-          } else if (r.isReceiptAuto) {
-            const receiptRes = calculateStockistReceipt(idx);
-            html += `
-              <td class="text-center font-bold text-emerald-800 bg-emerald-50/70 p-2" id="receipt-col-${idx}">
-                <div class="text-sm">${receiptRes.text}</div>
-                ${receiptRes.subtext ? `<div class="text-[10px] text-emerald-600 font-medium">${receiptRes.subtext}</div>` : ''}
-              </td>`;
-          } else if (r.isDate) {
-            const dateVal = normalizeDateStr(activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '');
-            const inputId = `${r.inputIdPrefix}-${idx}`;
-            html += `<td class="p-1.5"><input type="date" id="${inputId}" class="date-picker-yellow text-center" value="${dateVal}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)" onchange="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
-          } else if (r.isYellow) {
-            const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '';
-            html += `<td class="p-1"><input type="${r.isNumber ? 'number' : 'text'}" step="0.01" class="editable-yellow text-center" value="${val}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
-          } else {
-            const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '-';
-            html += `<td class="text-center font-medium">${val}</td>`;
-          }
-        }
-        tr.innerHTML = html;
+        tr.className = "text-right hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="text-left font-bold text-slate-800">${item.name}</td>
+          <td class="font-black text-blue-900 bg-blue-50/70 text-right pr-4">${item.total.toFixed(1)}</td>
+          <td class="text-center text-xs font-mono text-slate-500">${item.code}</td>
+          <td class="text-center font-semibold text-slate-700">${item.outlets}</td>
+          <td class="font-medium">${item.nonKsk.toFixed(1)}</td>
+          <td class="font-medium">${item.ksk.toFixed(1)}</td>
+          <td class="font-medium">${item.nayara.toFixed(1)}</td>
+          <td class="font-medium">${item.bazaar.toFixed(1)}</td>
+          <td class="font-medium">${item.oem.toFixed(1)}</td>
+          <td class="font-medium">${item.fleet.toFixed(1)}</td>
+          <td class="text-center font-bold text-slate-700">${sharePct.toFixed(1)}%</td>
+        `;
         tbody.appendChild(tr);
       });
-    }
 
-    function onStockistYellowChange(key, idx, val) {
-      if (!activeStockistDetails[key]) activeStockistDetails[key] = [];
-      activeStockistDetails[key][idx] = val;
-
-      if (key === 'annualTargetKL') {
-        const wcEl = document.getElementById(`wc-col-${idx}`);
-        if (wcEl) wcEl.textContent = calcMinWorkingCapital(val);
-        renderFinancialsWorkingCapital();
-      }
-
-      if (key === 'lastInspection' || key === 'currentInspectionDate') {
-        const receiptCol = document.getElementById(`receipt-col-${idx}`);
-        if (receiptCol) {
-          const res = calculateStockistReceipt(idx);
-          receiptCol.innerHTML = `
-            <div class="text-sm">${res.text}</div>
-            ${res.subtext ? `<div class="text-[10px] text-emerald-600 font-medium">${res.subtext}</div>` : ''}
-          `;
-        }
-      }
-
-      if (key === 'resellerMeets' || key === 'mechanicMeets') {
-        updateCampaignsFormula();
-      }
-
-      localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-      saveCloudData();
-    }
-
-    async function saveAndUpdateStockistDetails() {
-      localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-      saveCloudData();
-    }
-
-    function renderFinancialsWorkingCapital() {
-      const finEl = document.getElementById('fin-wc-display');
-      if (!finEl) return;
-      
-      const currentStockist = document.getElementById('sel-stockist').value;
-      const idx = STOCKIST_NAMES.indexOf(currentStockist);
-      const target = idx >= 0 ? activeStockistDetails.annualTargetKL[idx] : 360;
-      const wcVal = calcMinWorkingCapital(target);
-
-      finEl.innerHTML = `
-        <span class="text-sm text-blue-950 font-bold">${wcVal}</span> 
-        <span class="text-[11px] text-slate-500 font-normal ml-2">(${currentStockist} - Auto-derived from Stockist Details)</span>
+      tfoot.innerHTML = `
+        <tr class="text-right">
+          <td class="text-left font-bold uppercase py-2.5">Total</td>
+          <td class="font-black text-blue-950 bg-blue-100 text-right pr-4">${grandTotalSales.toFixed(1)}</td>
+          <td class="text-center">-</td>
+          <td class="text-center font-bold">${grandTotalOutlets}</td>
+          <td class="font-bold">${totNonKsk.toFixed(1)}</td>
+          <td class="font-bold">${totKsk.toFixed(1)}</td>
+          <td class="font-bold">${totNayara.toFixed(1)}</td>
+          <td class="font-bold">${totBazaar.toFixed(1)}</td>
+          <td class="font-bold">${totOem.toFixed(1)}</td>
+          <td class="font-bold">${totFleet.toFixed(1)}</td>
+          <td class="text-center font-bold">100.0%</td>
+        </tr>
       `;
     }
-
-    function updateCampaignsFormula() {
-      const selectedMonthVal = parseInt(document.getElementById('sel-month').value);
-      const selectedMonthName = MONTH_NAMES[selectedMonthVal] || "Aug'26";
-      const monthPrefix = selectedMonthName.split("'")[0];
-
-      const currentStockist = document.getElementById('sel-stockist').value;
-      const sIdx = Math.max(0, STOCKIST_NAMES.indexOf(currentStockist));
-
-      const aprVal = 4;
-      let mNum = selectedMonthVal;
-      if (selectedMonthVal < 4) {
-        mNum = selectedMonthVal === 3 ? 12 : (selectedMonthVal + 12);
-      }
-      const diff = Math.max(0, mNum - aprVal);
-      const superSatCount = 2 * diff;
-
-      const p2 = document.getElementById('camp-item-2');
-      if (p2 && !p2.dataset.manualOverride) {
-        p2.value = `${superSatCount} Super Saturday campaigns`;
-      }
-      const f2 = document.getElementById('camp-item-2-formula');
-      if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
-
-      const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
-      const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
-
-      const p4 = document.getElementById('camp-item-4');
-      const btlCumulativeParts = [];
-      if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
-      if (mechStr && mechStr !== "-") btlCumulativeParts.push(`Mechanic: ${mechStr}`);
-      const btlCombinedText = btlCumulativeParts.length > 0 ? " + BTL Meets (" + btlCumulativeParts.join(" | ") + ")" : "";
-
-      if (p4 && !p4.dataset.manualOverride) {
-        p4.value = `${superSatCount} Super Saturday campaigns${btlCombinedText}`;
-      }
-      const f4 = document.getElementById('camp-item-4-formula');
-      if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
-
-      const p3 = document.getElementById('camp-item-3');
-      const note3 = document.getElementById('camp-item-3-note');
-
-      const matchingMeets = [];
-      const monthRegex = new RegExp(`\\b${monthPrefix}\\b`, 'i');
-      if (resStr && monthRegex.test(resStr)) {
-        matchingMeets.push(`Reseller: ${resStr}`);
-      }
-      if (mechStr && monthRegex.test(mechStr)) {
-        matchingMeets.push(`Mechanic: ${mechStr}`);
-      }
-
-      if (p3 && !p3.dataset.manualOverride) {
-        if (matchingMeets.length > 0) {
-          p3.value = `2 Super Saturday campaigns + ${matchingMeets.join(", ")}`;
-          if (note3) note3.textContent = `✓ Auto-updated: Detected BTL meet conducted in ${selectedMonthName}`;
-        } else {
-          p3.value = `2 Super Saturday campaigns`;
-          if (note3) note3.textContent = `Standard 2 Super Saturday campaigns (No BTL meet in ${selectedMonthName})`;
-        }
-      }
-    }
-
-    function markCampaignDirty() {
-      const p2 = document.getElementById('camp-item-2');
-      const p3 = document.getElementById('camp-item-3');
-      const p4 = document.getElementById('camp-item-4');
-      if (p2) p2.dataset.manualOverride = "true";
-      if (p3) p3.dataset.manualOverride = "true";
-      if (p4) p4.dataset.manualOverride = "true";
-    }
-
-    function getCampaignsObject() {
-      return {
-        item1: document.getElementById('camp-item-1')?.value || "2 Super Saturday campaigns",
-        item2: document.getElementById('camp-item-2')?.value || "8 Super Saturday campaigns",
-        item3: document.getElementById('camp-item-3')?.value || "2 Super Saturday campaigns",
-        item4: document.getElementById('camp-item-4')?.value || "8 Super Saturday campaigns",
-        item5: document.getElementById('camp-item-5')?.value || "0",
-        item6: document.getElementById('camp-item-6')?.value || "0",
-        manualOverride: document.getElementById('camp-item-2')?.dataset.manualOverride === "true"
-      };
-    }
-
-    function applyCampaignsObject(c) {
-      if (!c) return;
-      if (document.getElementById('camp-item-1')) document.getElementById('camp-item-1').value = c.item1 || '';
-      if (document.getElementById('camp-item-2')) {
-        document.getElementById('camp-item-2').value = c.item2 || '';
-        if (c.manualOverride) document.getElementById('camp-item-2').dataset.manualOverride = "true";
-      }
-      if (document.getElementById('camp-item-3')) {
-        document.getElementById('camp-item-3').value = c.item3 || '';
-        if (c.manualOverride) document.getElementById('camp-item-3').dataset.manualOverride = "true";
-      }
-      if (document.getElementById('camp-item-4')) {
-        document.getElementById('camp-item-4').value = c.item4 || '';
-        if (c.manualOverride) document.getElementById('camp-item-4').dataset.manualOverride = "true";
-      }
-      if (document.getElementById('camp-item-5')) document.getElementById('camp-item-5').value = c.item5 || '0';
-      if (document.getElementById('camp-item-6')) document.getElementById('camp-item-6').value = c.item6 || '0';
-    }
-
-    function renderMarketInfoTable() {
-      const tbody = document.getElementById('tbody-market-info');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      activeMarketInfo.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="text-center font-bold">${index + 1}</td>
-          <td class="font-medium text-slate-800">${item.text}</td>
-          <td class="text-slate-600 font-semibold">${item.region}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openMarketEditModal() {
-      const modal = document.getElementById('modal-market-edit');
-      const container = document.getElementById('modal-market-rows');
-      if (!modal || !container) return;
-      container.innerHTML = '';
-
-      activeMarketInfo.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = "flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200";
-        div.innerHTML = `
-          <span class="text-xs font-bold text-slate-400 mt-2">${idx + 1}.</span>
-          <div class="flex-1 space-y-1">
-            <textarea class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-blue-500" rows="2" id="market-text-${idx}">${item.text}</textarea>
-            <input type="text" class="w-full text-xs border border-slate-300 rounded p-1" value="${item.region}" id="market-region-${idx}" placeholder="Applicability / Region">
-          </div>
-          <button onclick="removeMarketObservationRow(${idx})" class="text-rose-500 hover:text-rose-700 font-bold text-sm px-1 mt-1">&times;</button>
-        `;
-        container.appendChild(div);
-      });
-
-      modal.classList.remove('hidden');
-    }
-
-    function closeMarketEditModal() {
-      const modal = document.getElementById('modal-market-edit');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function addMarketObservationRow() {
-      activeMarketInfo.push({ text: "New market intelligence observation...", region: "All Areas" });
-      openMarketEditModal();
-    }
-
-    function removeMarketObservationRow(idx) {
-      activeMarketInfo.splice(idx, 1);
-      openMarketEditModal();
-    }
-
-    async function saveMarketObservations() {
-      const count = activeMarketInfo.length;
-      const updated = [];
-      for (let i = 0; i < count; i++) {
-        const textEl = document.getElementById(`market-text-${i}`);
-        const regEl = document.getElementById(`market-region-${i}`);
-        if (textEl && regEl) {
-          updated.push({ text: textEl.value.trim(), region: regEl.value.trim() });
-        }
-      }
-      activeMarketInfo = updated;
-      localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
-      renderMarketInfoTable();
-      closeMarketEditModal();
-      saveCloudData();
-    }
-
-    function getStockistUniverse(stockist) {
-      const key = STOCKIST_KEY_MAP[stockist] || "tak";
-      return {
-        nonKsk: parseInt(document.getElementById(`u-nonKsk-${key}`).value) || 0,
-        ksk: parseInt(document.getElementById(`u-ksk-${key}`).value) || 0,
-        nayara: parseInt(document.getElementById(`u-nayara-${key}`).value) || 0,
-        bazaar: parseInt(document.getElementById(`u-bazaar-${key}`).value) || 0,
-        oem: parseInt(document.getElementById(`u-oem-${key}`).value) || 0,
-        fleet: parseInt(document.getElementById(`u-fleet-${key}`).value) || 0
-      };
-    }
-
-    function getAllUniverseData() {
-      const keys = ['tak', 'bih', 'nal', 'swa', 'smg'];
-      const data = {};
-      keys.forEach(k => {
-        data[k] = {
-          nonKsk: parseInt(document.getElementById(`u-nonKsk-${k}`).value) || 0,
-          ksk: parseInt(document.getElementById(`u-ksk-${k}`).value) || 0,
-          nayara: parseInt(document.getElementById(`u-nayara-${k}`).value) || 0,
-          bazaar: parseInt(document.getElementById(`u-bazaar-${k}`).value) || 0,
-          oem: parseInt(document.getElementById(`u-oem-${k}`).value) || 0,
-          fleet: parseInt(document.getElementById(`u-fleet-${k}`).value) || 0
-        };
-      });
-      return data;
-    }
-
-    function setAllUniverseData(data) {
-      if (!data) return;
-      Object.keys(data).forEach(k => {
-        if (data[k]) {
-          if (document.getElementById(`u-nonKsk-${k}`)) document.getElementById(`u-nonKsk-${k}`).value = data[k].nonKsk;
-          if (document.getElementById(`u-ksk-${k}`)) document.getElementById(`u-ksk-${k}`).value = data[k].ksk;
-          if (document.getElementById(`u-nayara-${k}`)) document.getElementById(`u-nayara-${k}`).value = data[k].nayara;
-          if (document.getElementById(`u-bazaar-${k}`)) document.getElementById(`u-bazaar-${k}`).value = data[k].bazaar;
-          if (document.getElementById(`u-oem-${k}`)) document.getElementById(`u-oem-${k}`).value = data[k].oem;
-          if (document.getElementById(`u-fleet-${k}`)) document.getElementById(`u-fleet-${k}`).value = data[k].fleet;
-        }
-      });
-      applyUniverseToActiveView();
-      updateCalculations();
-    }
-
-    function resetUniverseDefaults() {
-      const defaults = {
-        tak: { nonKsk: 100, ksk: 41, nayara: 4, bazaar: 550, oem: 4, fleet: 4 },
-        bih: { nonKsk: 56, ksk: 17, nayara: 1, bazaar: 400, oem: 8, fleet: 10 },
-        nal: { nonKsk: 118, ksk: 78, nayara: 6, bazaar: 800, oem: 4, fleet: 100 },
-        swa: { nonKsk: 30, ksk: 16, nayara: 1, bazaar: 200, oem: 1, fleet: 2 },
-        smg: { nonKsk: 50, ksk: 20, nayara: 2, bazaar: 350, oem: 3, fleet: 5 }
-      };
-      setAllUniverseData(defaults);
-      localStorage.setItem('universe_data', JSON.stringify(defaults));
-      saveCloudData();
-    }
-
-    function onUniverseChange() {
-      applyUniverseToActiveView();
-      updateCalculations();
-      localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
-      saveCloudData();
-    }
-
-    function applyUniverseToActiveView() {
-      const stockist = document.getElementById('sel-stockist').value;
-      const u = getStockistUniverse(stockist);
-
-      document.getElementById('tot-non-ksk').textContent = u.nonKsk;
-      document.getElementById('tot-ksk').textContent = u.ksk;
-      document.getElementById('tot-nayara').textContent = u.nayara;
-      document.getElementById('tot-bazaar').textContent = u.bazaar;
-      document.getElementById('tot-oem').textContent = u.oem;
-      document.getElementById('tot-fleet').textContent = u.fleet;
-
-      const totalU = u.nonKsk + u.ksk + u.nayara + u.bazaar + u.oem + u.fleet;
-      document.getElementById('tot-total').textContent = totalU;
-    }
-
-    function categorizeChannel(custGroup, custSubGroup) {
-      const cg = String(custGroup || '').trim().toUpperCase();
-      const csg = String(custSubGroup || '').trim().toUpperCase();
-
-      if (cg === 'OEM') return 'oem';
-      if (cg === 'FLEET') return 'fleet';
-      if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
-      if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
-
-      const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
-      if (isKsk) return 'ksk';
-
-      return 'nonKsk';
-    }
-
-    function getMonthSpan(targetMonth) {
-      const idx = MONTH_ORDER.indexOf(parseInt(targetMonth));
-      return MONTH_ORDER.slice(0, idx + 1);
-    }
-
-    function compilePortalMatrix(rowsCY, rowsLY) {
-      const stockistKeys = ["Takshvi Co", "Nalateswari Lubricants", "Bihariji Auto Service Station", "SMG Trades", "Swastik Automobiles"];
-      const matrix = {
-        updatedAt: new Date().toISOString(),
-        universe: getAllUniverseData(),
-        stockistDetails: activeStockistDetails,
-        marketInfo: activeMarketInfo,
-        campaigns: getCampaignsObject(),
-        primaryData: rawDatasetPrimary.map(r => ({
-          'Name': r['Name'] || r['Stockist Name'],
-          'Inv.Date': normalizeDateStr(r['Inv.Date']),
-          'Invoice No': r['Invoice No'],
-          'KL': parseFloat(r['KL']) || 0
-        })),
-        monthlyData: {},
-        ssfData: {}
-      };
-
-      stockistKeys.forEach(stk => {
-        matrix.monthlyData[stk] = {};
-        matrix.ssfData[stk] = {};
-        const stNameClean = stk.toLowerCase();
-
-        MONTH_ORDER.forEach(m => {
-          const spanMonths = getMonthSpan(m);
-          
-          const cySpanRows = rowsCY.filter(r => {
-            const sName = String(r['Stockist Name'] || '').toLowerCase();
-            return sName.includes(stNameClean) && spanMonths.includes(parseInt(r['Month']));
-          });
-
-          const cyMonthRows = rowsCY.filter(r => {
-            const sName = String(r['Stockist Name'] || '').toLowerCase();
-            return sName.includes(stNameClean) && parseInt(r['Month']) === m;
-          });
-
-          const filterLY = (row, targetMonths) => {
-            const sName = String(row['Stockist Name'] || '').toLowerCase();
-            const rowMonth = parseInt(row['Month']);
-            const dist = String(row['District'] || '').toLowerCase();
-
-            if (stk === "Takshvi Co") {
-              if (sName.includes('takshvi')) return targetMonths.includes(rowMonth);
-              if (sName.includes('servo world') && [4,5,6,7,8].includes(rowMonth)) return targetMonths.includes(rowMonth);
-              return false;
-            }
-            if (stk === "SMG Trades") {
-              if (sName.includes('smg')) return targetMonths.includes(rowMonth);
-              if (sName.includes('servo world') && [9,10,11,12,1].includes(rowMonth)) return targetMonths.includes(rowMonth);
-              if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(rowMonth)) return targetMonths.includes(rowMonth);
-              return false;
-            }
-            return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
-          };
-
-          const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths));
-          const lyMonthRows = rowsLY.filter(r => filterLY(r, [m]));
-
-          const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
-          const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
-          const custSets = { nonKsk: new Set(), ksk: new Set(), nayara: new Set(), bazaar: new Set(), oem: new Set(), fleet: new Set() };
-
-          cySpanRows.forEach(r => {
-            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
-            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
-            const custId = r['Customer Id'];
-            if (channelCY[ch] !== undefined) {
-              channelCY[ch] += qty;
-              if (qty > 0 && custId) custSets[ch].add(custId);
-            }
-          });
-
-          lySpanRows.forEach(r => {
-            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
-            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
-            if (channelLY[ch] !== undefined) {
-              channelLY[ch] += qty;
-            }
-          });
-
-          const mCY = cyMonthRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-          const mLY = lyMonthRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-          const cumCY = cySpanRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-          const cumLY = lySpanRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
-
-          matrix.monthlyData[stk][m] = {
-            mCY, mLY, cumCY, cumLY,
-            channelCY, channelLY,
-            suppliedOutlets: {
-              nonKsk: custSets.nonKsk.size,
-              ksk: custSets.ksk.size,
-              nayara: custSets.nayara.size,
-              bazaar: custSets.bazaar.size,
-              oem: custSets.oem.size,
-              fleet: custSets.fleet.size
-            }
-          };
-
-          const ssfMap = {};
-          cySpanRows.forEach(r => {
-            const ssfName = String(r['SSF Name'] || 'Unassigned').trim();
-            const ssfCode = String(r['SSF Code'] || '-').trim();
-            const key = ssfName + '___' + ssfCode;
-
-            if (!ssfMap[key]) {
-              ssfMap[key] = {
-                name: ssfName,
-                code: ssfCode,
-                custIds: new Set(),
-                nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0, total: 0
-              };
-            }
-
-            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
-            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
-            const custId = r['Customer Id'];
-
-            if (qty > 0 && custId) ssfMap[key].custIds.add(custId);
-            ssfMap[key][ch] = (ssfMap[key][ch] || 0) + qty;
-            ssfMap[key].total += qty;
-          });
-
-          matrix.ssfData[stk][m] = Object.values(ssfMap).map(item => ({
-            name: item.name,
-            code: item.code,
-            outlets: item.custIds.size,
-            nonKsk: item.nonKsk,
-            ksk: item.ksk,
-            nayara: item.nayara,
-            bazaar: item.bazaar,
-            oem: item.oem,
-            fleet: item.fleet,
-            total: item.total
-          })).sort((a, b) => b.total - a.total);
-
-        });
-      });
-
-      return matrix;
-    }
-
-    // Direct Google Sheets CSV Fetcher using the Published Web Endpoint
-    async function fetchGoogleSheetCsv(sheetKey) {
-      const gid = SHEET_GIDS[sheetKey];
-      // 1. Primary: Published to Web CSV endpoint (Zero CORS restrictions)
-      const pubUrl = `${GOOGLE_PUB_URL}?output=csv&gid=${gid}&t=${Date.now()}`;
-      
-      try {
-        const res = await fetch(pubUrl);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const csvText = await res.text();
-        const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
-        return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-      } catch (err) {
-        // 2. Fallback: Direct export endpoint
-        const directUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=${gid}&t=${Date.now()}`;
-        const resFallback = await fetch(directUrl);
-        if (!resFallback.ok) throw new Error(`Failed to fetch ${sheetKey} (HTTP ${resFallback.status})`);
-        const csvText = await resFallback.text();
-        const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
-        return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-      }
-    }
-
-    async function syncAllFromGoogleSheets() {
-      const statusLy = document.getElementById('gsheet-status-ly');
-      const statusCy = document.getElementById('gsheet-status-cy');
-      const statusPri = document.getElementById('gsheet-status-primary');
-
-      if (statusLy) statusLy.innerHTML = `<span class="text-blue-600 font-semibold animate-pulse">Fetching...</span>`;
-      if (statusCy) statusCy.innerHTML = `<span class="text-blue-600 font-semibold animate-pulse">Fetching...</span>`;
-      if (statusPri) statusPri.innerHTML = `<span class="text-blue-600 font-semibold animate-pulse">Fetching...</span>`;
-
-      try {
-        const [rowsLy, rowsCy, rowsPrimary] = await Promise.all([
-          fetchGoogleSheetCsv("S_FY 25-26"),
-          fetchGoogleSheetCsv("S_FY 26-27"),
-          fetchGoogleSheetCsv("P_FY 26-27")
-        ]);
-
-        rawDatasetLY = rowsLy;
-        rawDatasetCY = rowsCy;
-        rawDatasetPrimary = rowsPrimary;
-
-        if (statusLy) statusLy.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${rowsLy.length.toLocaleString()} rows synced</span>`;
-        if (statusCy) statusCy.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${rowsCy.length.toLocaleString()} rows synced</span>`;
-        if (statusPri) statusPri.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${rowsPrimary.length.toLocaleString()} rows synced</span>`;
-
-        portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
-        localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-
-        document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-        document.getElementById('data-status-badge').textContent = "Google Sheets Active";
-
-        renderStockistDetailsTable();
-        renderFinancialsWorkingCapital();
-        updateCampaignsFormula();
-        renderMarketInfoTable();
-        runAnalysis();
-        renderSSFAnalysis();
-
-        await saveCloudData();
-        alert("✓ Successfully fetched and synchronized S_FY 25-26, S_FY 26-27, and P_FY 26-27 from Google Sheets!");
-      } catch (err) {
-        console.error(err);
-        alert("Google Sheet Fetch Error: " + err.message);
-        if (statusLy) statusLy.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
-        if (statusCy) statusCy.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
-        if (statusPri) statusPri.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
-      }
-    }
-
-    function getCleanToken() {
-      const raw = document.getElementById('gh-token')?.value || localStorage.getItem('ghp_token') || '';
-      return raw.trim().replace(/^["']|["']$/g, '');
-    }
-
-    function saveGithubToken() {
-      const token = getCleanToken();
-      if (token) {
-        localStorage.setItem('ghp_token', token);
-        loadCloudData(true);
-      }
-    }
-
-    function clearSavedToken() {
-      localStorage.removeItem('ghp_token');
-      document.getElementById('gh-token').value = '';
-      const feedback = document.getElementById('gh-feedback');
-      if (feedback) feedback.textContent = "Token removed.";
-    }
-
-    async function loadCloudData(showFeedback = false) {
-      const token = getCleanToken();
-      const badge = document.getElementById('sync-status-indicator');
-      const feedback = document.getElementById('gh-feedback');
-
-      if (!token) {
-        if (badge) badge.textContent = "Offline (No Token)";
-        return;
-      }
-
-      if (badge) {
-        badge.textContent = "Syncing...";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
-      }
-
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
-      
-      try {
-        const res = await fetch(apiUrl, {
-          method: "GET",
-          headers: {
-            "Authorization": `token ${token}`,
-            "Accept": "application/vnd.github.v3+json"
-          }
-        });
-
-        if (res.ok) {
-          const fileData = await res.json();
-          window._ghFileSha = fileData.sha;
-
-          const decodedStr = decodeURIComponent(escape(atob(fileData.content.replace(/\s/g, ''))));
-          portalCompiledData = JSON.parse(decodedStr);
-          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-
-          if (portalCompiledData.universe) {
-            setAllUniverseData(portalCompiledData.universe);
-            localStorage.setItem('universe_data', JSON.stringify(portalCompiledData.universe));
-          }
-
-          if (portalCompiledData.stockistDetails) {
-            activeStockistDetails = portalCompiledData.stockistDetails;
-            localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-          }
-
-          if (portalCompiledData.marketInfo) {
-            activeMarketInfo = portalCompiledData.marketInfo;
-            localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
-          }
-
-          if (portalCompiledData.campaigns) {
-            applyCampaignsObject(portalCompiledData.campaigns);
-            localStorage.setItem('campaigns_data', JSON.stringify(portalCompiledData.campaigns));
-          }
-
-          if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
-            rawDatasetPrimary = portalCompiledData.primaryData;
-          }
-
-          renderStockistDetailsTable();
-          renderFinancialsWorkingCapital();
-          updateCampaignsFormula();
-          renderMarketInfoTable();
-          runAnalysis();
-          renderSSFAnalysis();
-
-          if (badge) {
-            badge.textContent = "Cloud Synced ✓";
-            badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          }
-          if (showFeedback && feedback) {
-            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Cloud data loaded successfully!</span>`;
-          }
-        }
-      } catch (err) {
-        console.error("Cloud load error:", err);
-      }
-    }
-
-    async function saveCloudData() {
-      const token = getCleanToken();
-      const badge = document.getElementById('sync-status-indicator');
-      const feedback = document.getElementById('gh-feedback');
-
-      if (!token) return;
-
-      if (!portalCompiledData) {
-        portalCompiledData = {
-          updatedAt: new Date().toISOString(),
-          universe: getAllUniverseData(),
-          stockistDetails: activeStockistDetails,
-          marketInfo: activeMarketInfo,
-          campaigns: getCampaignsObject(),
-          monthlyData: {},
-          ssfData: {}
-        };
-      } else {
-        portalCompiledData.universe = getAllUniverseData();
-        portalCompiledData.stockistDetails = activeStockistDetails;
-        portalCompiledData.marketInfo = activeMarketInfo;
-        portalCompiledData.campaigns = getCampaignsObject();
-        portalCompiledData.updatedAt = new Date().toISOString();
-      }
-
-      if (badge) {
-        badge.textContent = "Syncing...";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
-      }
-
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
-
-      try {
-        if (!window._ghFileSha) {
-          const getRes = await fetch(apiUrl, {
-            headers: {
-              "Authorization": `token ${token}`,
-              "Accept": "application/vnd.github.v3+json"
-            }
-          });
-          if (getRes.ok) {
-            const gd = await getRes.json();
-            window._ghFileSha = gd.sha;
-          }
-        }
-
-        const jsonStr = JSON.stringify(portalCompiledData);
-        const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
-
-        const bodyData = {
-          message: `Auto-sync [${new Date().toLocaleDateString()}]`,
-          content: encodedContent
-        };
-        if (window._ghFileSha) {
-          bodyData.sha = window._ghFileSha;
-        }
-
-        const putRes = await fetch(apiUrl, {
-          method: "PUT",
-          headers: {
-            "Authorization": `token ${token}`,
-            "Accept": "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(bodyData)
-        });
-
-        if (putRes.ok) {
-          const putJson = await putRes.json();
-          window._ghFileSha = putJson.content.sha;
-          if (badge) {
-            badge.textContent = "Cloud Synced ✓";
-            badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          }
-          if (feedback) {
-            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced to cloud at ${new Date().toLocaleTimeString()}</span>`;
-          }
-        }
-      } catch (err) {
-        console.error("Cloud save error:", err);
-      }
-    }
-
-    // App Initialization on Boot
-    window.onload = function() {
-      const savedToken = localStorage.getItem('ghp_token');
-      if (savedToken) {
-        document.getElementById('gh-token').value = savedToken;
-      }
-
-      const savedUniverse = localStorage.getItem('universe_data');
-      if (savedUniverse) {
-        try {
-          setAllUniverseData(JSON.parse(savedUniverse));
-        } catch(e) {}
-      }
-
-      const savedStockistDetails = localStorage.getItem('stockist_details_data');
-      if (savedStockistDetails) {
-        try {
-          activeStockistDetails = JSON.parse(savedStockistDetails);
-        } catch(e) {}
-      }
-
-      const savedMarketInfo = localStorage.getItem('market_info_data');
-      if (savedMarketInfo) {
-        try {
-          activeMarketInfo = JSON.parse(savedMarketInfo);
-        } catch(e) {}
-      }
-
-      const savedCampaigns = localStorage.getItem('campaigns_data');
-      if (savedCampaigns) {
-        try {
-          applyCampaignsObject(JSON.parse(savedCampaigns));
-        } catch(e) {}
-      }
-
-      const cachedData = localStorage.getItem('compiled_portal_data');
-      if (cachedData) {
-        try {
-          portalCompiledData = JSON.parse(cachedData);
-          if (portalCompiledData.stockistDetails) {
-            activeStockistDetails = portalCompiledData.stockistDetails;
-          }
-          if (portalCompiledData.marketInfo) {
-            activeMarketInfo = portalCompiledData.marketInfo;
-          }
-          if (portalCompiledData.campaigns) {
-            applyCampaignsObject(portalCompiledData.campaigns);
-          }
-          if (portalCompiledData.primaryData) {
-            rawDatasetPrimary = portalCompiledData.primaryData;
-          }
-        } catch(e) {}
-      }
-
-      renderStockistDetailsTable();
-      renderFinancialsWorkingCapital();
-      updateCampaignsFormula();
-      renderMarketInfoTable();
-      runAnalysis();
-
-      loadCloudData();
-    };
   </script>
 </body>
 </html>
