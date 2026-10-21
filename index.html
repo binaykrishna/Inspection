@@ -88,7 +88,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Header -->
+  <!-- Top Navigation Header (4 Tabs) -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -96,7 +96,7 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
-      <!-- 5 Navigation Tabs -->
+      <!-- 4 Navigation Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
         <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
@@ -114,10 +114,6 @@
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
           📑 Other Details
         </button>
-        <button id="tab-btn-upload" onclick="switchTab('upload')" 
-          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
-          📁 Sync & Catalog
-        </button>
       </div>
     </div>
   </header>
@@ -125,9 +121,42 @@
   <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full">
 
     <!-- ======================================================= -->
-    <!-- TAB 1: STOCKIST DETAILS                                 -->
+    <!-- TAB 1: STOCKIST DETAILS (WITH SYNC & CATALOG INTEGRATED)-->
     <!-- ======================================================= -->
     <div id="tab-stockist" class="space-y-6">
+
+      <!-- Integrated Google Sheets Live Sync Panel -->
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-200 bg-gradient-to-r from-blue-50/60 to-indigo-50/40">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl">📊</span>
+              <h2 class="text-base sm:text-lg font-bold text-blue-950">Google Sheets Live Data Auto-Sync</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Connected to published spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report</span></p>
+          </div>
+          <button onclick="syncAllFromGoogleSheets()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
+            🔄 Fetch & Auto-Sync from Google Sheets
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mt-2">
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <div class="font-bold text-slate-700">1. Secondary LY (S_FY 25-26)</div>
+            <div id="gsheet-status-ly" class="text-slate-500 mt-1">Ready to fetch</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <div class="font-bold text-slate-700">2. Secondary CY (S_FY 26-27)</div>
+            <div id="gsheet-status-cy" class="text-slate-500 mt-1">Ready to fetch</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <div class="font-bold text-slate-700">3. Primary CY (P_FY 26-27)</div>
+            <div id="gsheet-status-primary" class="text-slate-500 mt-1">Ready to fetch</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stockist Inspection & Profile Table Card -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-4 mb-5">
           <div>
@@ -650,7 +679,14 @@
                 <td>Working Capital requirement as per contract</td>
                 <td class="font-bold text-blue-900 bg-blue-50/60" id="fin-wc-display"></td>
               </tr>
-              <tr><td class="text-center font-bold">2</td><td>Details of Source of capital – Own & Other sources</td><td class="font-medium text-slate-700">OWN FOR ALL EXCEPT BIHARIJI (OWN & BANK LOAN)</td></tr>
+              <tr>
+                <td class="text-center font-bold">2</td>
+                <td>Details of Source of capital – Own & Other sources</td>
+                <!-- Point 2 Auto-calculated -->
+                <td class="font-bold text-slate-800 bg-slate-50" id="fin-source-capital-display">
+                  OWN
+                </td>
+              </tr>
               <tr><td class="text-center font-bold">3</td><td>Current assets – Stock, Receivables, Cash</td><td class="font-medium text-slate-700">STOCK, RECEIVABLES & CASH IN BANK</td></tr>
               <tr><td class="text-center font-bold">4</td><td>Current liabilities – Payables, debt</td><td class="font-medium text-slate-700">PAYABLES</td></tr>
               <tr><td class="text-center font-bold">5</td><td>Stocks Cover: Stocks Held/ Monthly sales (No of Days)</td><td class="font-semibold text-blue-900">40 Days</td></tr>
@@ -748,43 +784,6 @@
 
     </div>
 
-    <!-- ======================================================= -->
-    <!-- TAB 5: SYNC & CATALOG (NO UPDATE BUTTON HERE)           -->
-    <!-- ======================================================= -->
-    <div id="tab-upload" class="hidden space-y-6">
-      
-      <!-- Google Sheets Live Auto-Sync Card -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-blue-200 bg-gradient-to-r from-blue-50/50 to-indigo-50/30">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xl">📊</span>
-              <h2 class="text-lg font-bold text-blue-950">Google Sheets Live Data Auto-Sync</h2>
-            </div>
-            <p class="text-xs text-slate-500 mt-0.5">Connected to published spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report</span></p>
-          </div>
-          <button onclick="syncAllFromGoogleSheets()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
-            🔄 Fetch & Auto-Sync from Google Sheets
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mt-3">
-          <div class="bg-white p-3 rounded-lg border border-slate-200">
-            <div class="font-bold text-slate-700">1. Secondary LY (S_FY 25-26)</div>
-            <div id="gsheet-status-ly" class="text-slate-500 mt-1">Ready to fetch (GID: 14886667)</div>
-          </div>
-          <div class="bg-white p-3 rounded-lg border border-slate-200">
-            <div class="font-bold text-slate-700">2. Secondary CY (S_FY 26-27)</div>
-            <div id="gsheet-status-cy" class="text-slate-500 mt-1">Ready to fetch (GID: 1106362987)</div>
-          </div>
-          <div class="bg-white p-3 rounded-lg border border-slate-200">
-            <div class="font-bold text-slate-700">3. Primary CY (P_FY 26-27)</div>
-            <div id="gsheet-status-primary" class="text-slate-500 mt-1">Ready to fetch (GID: 1856894261)</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </main>
 
   <!-- Market Observations Edit Modal -->
@@ -819,7 +818,7 @@
     const GOOGLE_PUB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLDk7To-avyWgA59TQZqZqfYQ7dpkeaSxm6i254YMnVf9gUsNSOFv_cKoipTi-2Uap81SjyjPidFfP/pub";
     const GOOGLE_SHEET_ID = "1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE";
 
-    // Verified GIDs from spreadsheet
+    // Verified GIDs from spreadsheet (kept in background script, not displayed on UI)
     const SHEET_GIDS = {
       "S_FY 25-26": "14886667",
       "S_FY 26-27": "1106362987",
@@ -827,7 +826,7 @@
     };
 
     function switchTab(tab) {
-      const tabs = ['stockist', 'analysis', 'ssf', 'other', 'upload'];
+      const tabs = ['stockist', 'analysis', 'ssf', 'other'];
       tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
@@ -1061,7 +1060,7 @@
         : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
 
       if (!primaryRows || primaryRows.length === 0) {
-        return { kl: 0, text: "0.000 KL", subtext: "Sync Google Sheets in Settings" };
+        return { kl: 0, text: "0.000 KL", subtext: "Sync Google Sheets" };
       }
 
       const stClean = stockistName.toLowerCase();
@@ -1277,19 +1276,37 @@
       alert(`✓ ${pageName}: Manual entries updated and saved successfully!`);
     }
 
+    // Point 1 & Point 2 in Financials Review: Auto-calculated
     function renderFinancialsWorkingCapital() {
       const finEl = document.getElementById('fin-wc-display');
-      if (!finEl) return;
+      const sourceCapitalEl = document.getElementById('fin-source-capital-display');
       
       const currentStockist = document.getElementById('sel-stockist').value;
       const idx = STOCKIST_NAMES.indexOf(currentStockist);
       const target = idx >= 0 ? activeStockistDetails.annualTargetKL[idx] : 360;
       const wcVal = calcMinWorkingCapital(target);
 
-      finEl.innerHTML = `
-        <span class="text-sm text-blue-950 font-bold">${wcVal}</span> 
-        <span class="text-[11px] text-slate-500 font-normal ml-2">(${currentStockist} - Auto-derived from Stockist Details)</span>
-      `;
+      if (finEl) {
+        finEl.innerHTML = `
+          <span class="text-sm text-blue-950 font-bold">${wcVal}</span> 
+          <span class="text-[11px] text-slate-500 font-normal ml-2">(${currentStockist} - Auto-derived from Stockist Details)</span>
+        `;
+      }
+
+      // Point 2 Auto-calculation: OWN & LOAN for Bihariji, OWN for all others
+      if (sourceCapitalEl) {
+        if (currentStockist === "Bihariji Auto Service Station") {
+          sourceCapitalEl.innerHTML = `
+            <span class="text-blue-900 font-bold">OWN & LOAN</span>
+            <span class="text-[11px] text-slate-500 font-normal ml-2">(Auto-calculated for ${currentStockist})</span>
+          `;
+        } else {
+          sourceCapitalEl.innerHTML = `
+            <span class="text-emerald-700 font-bold">OWN</span>
+            <span class="text-[11px] text-slate-500 font-normal ml-2">(Auto-calculated for ${currentStockist})</span>
+          `;
+        }
+      }
     }
 
     function updateCampaignsFormula() {
