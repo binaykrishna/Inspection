@@ -88,7 +88,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Header with Reordered Tabs -->
+  <!-- Top Navigation Header -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -134,9 +134,10 @@
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
             <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
           </div>
-          <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
-            💾 Save & Update All Devices
-          </button>
+          <div id="cloud-sync-badge" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Cloud Synced
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -239,11 +240,11 @@
           <tbody>
             <tr class="text-right">
               <td><input type="number" step="0.1" id="input-m-pot" class="input-cell font-semibold text-left" value="80.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
+              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
+              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
               <td class="font-bold" id="cell-m-diff">0.0</td>
-              <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
+              <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks" oninput="saveCloudData()"></td>
             </tr>
 
             <tr class="sheet-accent">
@@ -262,11 +263,11 @@
 
             <tr class="text-right">
               <td><input type="number" step="0.1" id="input-cum-pot" class="input-cell font-semibold text-left" value="400.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
+              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
+              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
               <td class="font-bold" id="cell-cum-diff">0.0</td>
-              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
+              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" placeholder="Optional remarks" oninput="saveCloudData()"></td>
             </tr>
 
             <tr class="bg-slate-200">
@@ -457,7 +458,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 4: OTHER DETAILS (Clean Section Headers)           -->
+    <!-- TAB 4: OTHER DETAILS                                    -->
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
@@ -567,9 +568,6 @@
           <div>
             <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
           </div>
-          <button onclick="saveAndSyncCampaigns()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
-            💾 Save & Sync Campaigns
-          </button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -584,14 +582,14 @@
               <tr>
                 <td class="text-center font-bold">1</td>
                 <td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td>
-                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()"></td>
+                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty(); saveCloudData();"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">2</td>
                 <td>Cumulative number of RO Campaigns conducted in current FY</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty()">
+                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty(); saveCloudData();">
                     <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-2-formula"></span>
                   </div>
                 </td>
@@ -600,7 +598,7 @@
                 <td class="text-center font-bold">3</td>
                 <td>Number of Bazaar Campaigns conducted last month</td>
                 <td>
-                  <input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()">
+                  <input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty(); saveCloudData();">
                   <div class="text-[11px] text-slate-500 font-medium mt-1" id="camp-item-3-note"></div>
                 </td>
               </tr>
@@ -608,19 +606,19 @@
                 <td class="text-center font-bold">4</td>
                 <td>Cumulative number of Bazaar Campaigns conducted in current FY</td>
                 <td>
-                  <textarea id="camp-item-4" class="editable-yellow font-bold text-blue-950 w-full" rows="2" oninput="markCampaignDirty()"></textarea>
+                  <textarea id="camp-item-4" class="editable-yellow font-bold text-blue-950 w-full" rows="2" oninput="markCampaignDirty(); saveCloudData();"></textarea>
                   <div class="text-[11px] text-slate-400 mt-0.5" id="camp-item-4-formula"></div>
                 </td>
               </tr>
               <tr>
                 <td class="text-center font-bold">5</td>
                 <td>Campaign Van - Campaigns done last month</td>
-                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
+                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" oninput="markCampaignDirty(); saveCloudData();"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">6</td>
                 <td>Campaign Van - Cumulative Campaigns done in current FY</td>
-                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
+                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" oninput="markCampaignDirty(); saveCloudData();"></td>
               </tr>
             </tbody>
           </table>
@@ -654,13 +652,14 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 5: UPLOADS & GITHUB SYNC                            -->
+    <!-- TAB 5: UPLOADS & SETTINGS                               -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
+      <!-- Excel Uploads -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
-        <p class="text-sm text-slate-500 mb-6">Upload raw secondary and primary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
+        <p class="text-sm text-slate-500 mb-6">Upload raw secondary and primary sales reports from SAP/SDMS extraction. Data auto-syncs to cloud immediately upon selection.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
@@ -725,43 +724,48 @@
         </div>
       </div>
 
-      <!-- Cloud Sync Box -->
+      <!-- Cloud Sync Credentials & Status -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
           <div>
             <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <span>🐙</span> GitHub Multi-Device Cloud Sync
+              <span>🐙</span> GitHub Background Auto-Sync Settings
             </h2>
-            <p class="text-sm text-slate-500">Target path: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
+            <p class="text-sm text-slate-500">Data automatically syncs with repository: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
           </div>
           <span id="sync-status-indicator" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
-            Sync: Idle
+            Auto-Sync Ready
           </span>
         </div>
 
-        <div class="max-w-xl mb-4">
-          <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Personal Access Token (ghp_...)</label>
+        <div class="max-w-xl mb-3">
+          <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Personal Access Token (ghp_... or github_pat_...)</label>
           <div class="flex gap-2">
-            <input type="password" id="gh-token" placeholder="Enter ghp_ token" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" onchange="saveGithubToken()">
+            <input type="password" id="gh-token" placeholder="Paste GitHub token here" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" onchange="saveGithubToken()">
             <button onclick="clearSavedToken()" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
               Clear
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 mt-1">Requires <code>repo</code> access. Stored locally in your browser cache.</p>
+          <p class="text-[11px] text-slate-400 mt-1">Enter your token once on each device. Any uploads or changes you make on one device will automatically update all others.</p>
         </div>
+        <div id="gh-feedback" class="text-xs font-semibold text-slate-500"></div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <button onclick="pushDataToGithub()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-            ⬆️ Push Latest Data to GitHub
-          </button>
-          <button onclick="pullDataFromGithub(true)" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-            ⬇️ Pull & Sync Now
-          </button>
-          <button onclick="testGithubConnection()" class="bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-            🔍 Test Connection & Permissions
-          </button>
+        <!-- Direct File Export/Import -->
+        <div class="mt-6 pt-5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 class="text-xs font-bold text-slate-700 uppercase">Offline Backup & Direct Device Transfer</h3>
+            <p class="text-[11px] text-slate-400">Export or import a single file if network/firewall restricts GitHub access.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportPortalJsonFile()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+              💾 Export Portal Data (.json)
+            </button>
+            <input type="file" id="file-import-json" accept=".json" onchange="importPortalJsonFile(event)" class="hidden">
+            <label for="file-import-json" class="cursor-pointer bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition">
+              📥 Import & Load Data (.json)
+            </label>
+          </div>
         </div>
-        <p id="gh-feedback" class="text-xs font-semibold mt-3 text-slate-500"></p>
       </div>
 
       <!-- Static Universe Configuration -->
@@ -864,7 +868,7 @@
             Cancel
           </button>
           <button onclick="saveMarketObservations()" class="text-xs font-bold px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow">
-            Save & Sync Across Devices
+            Save & Update
           </button>
         </div>
       </div>
@@ -1024,7 +1028,7 @@
       return "Rs. " + Math.ceil(raw) + " L";
     }
 
-    // Convert any date value into clean YYYY-MM-DD
+    // Convert date string/number/Date to YYYY-MM-DD
     function normalizeDateStr(val) {
       if (val === null || val === undefined || val === '') return '';
 
@@ -1082,6 +1086,7 @@
       return dt.toISOString().split('T')[0];
     }
 
+    // Primary Stock Receipt Calculation
     function calculateStockistReceipt(stockistIndex) {
       const stockistName = STOCKIST_NAMES[stockistIndex];
 
@@ -1286,34 +1291,12 @@
       }
 
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+      saveCloudData(); // Auto background commit
     }
 
     async function saveAndUpdateStockistDetails() {
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-      if (!portalCompiledData) {
-        portalCompiledData = {
-          updatedAt: new Date().toISOString(),
-          universe: getAllUniverseData(),
-          stockistDetails: activeStockistDetails,
-          marketInfo: activeMarketInfo,
-          campaigns: getCampaignsObject(),
-          monthlyData: {},
-          ssfData: {}
-        };
-      } else {
-        portalCompiledData.stockistDetails = activeStockistDetails;
-      }
-      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-      renderFinancialsWorkingCapital();
-      updateCampaignsFormula();
-
-      const token = getCleanToken();
-      if (token) {
-        await pushDataToGithub();
-        alert("Stockist Details updated locally and synced across all devices via GitHub!");
-      } else {
-        alert("Stockist Details saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
-      }
+      saveCloudData();
     }
 
     function renderFinancialsWorkingCapital() {
@@ -1347,7 +1330,6 @@
       const diff = Math.max(0, mNum - aprVal);
       const superSatCount = 2 * diff;
 
-      // Point 2
       const p2 = document.getElementById('camp-item-2');
       if (p2 && !p2.dataset.manualOverride) {
         p2.value = `${superSatCount} Super Saturday campaigns`;
@@ -1355,11 +1337,9 @@
       const f2 = document.getElementById('camp-item-2-formula');
       if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
 
-      // BTL Meets
       const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
       const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
 
-      // Point 4
       const p4 = document.getElementById('camp-item-4');
       const btlCumulativeParts = [];
       if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
@@ -1372,7 +1352,6 @@
       const f4 = document.getElementById('camp-item-4-formula');
       if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
 
-      // Point 3
       const p3 = document.getElementById('camp-item-3');
       const note3 = document.getElementById('camp-item-3-note');
 
@@ -1434,34 +1413,6 @@
       }
       if (document.getElementById('camp-item-5')) document.getElementById('camp-item-5').value = c.item5 || '0';
       if (document.getElementById('camp-item-6')) document.getElementById('camp-item-6').value = c.item6 || '0';
-    }
-
-    async function saveAndSyncCampaigns() {
-      const campObj = getCampaignsObject();
-      localStorage.setItem('campaigns_data', JSON.stringify(campObj));
-
-      if (!portalCompiledData) {
-        portalCompiledData = {
-          updatedAt: new Date().toISOString(),
-          universe: getAllUniverseData(),
-          stockistDetails: activeStockistDetails,
-          marketInfo: activeMarketInfo,
-          campaigns: campObj,
-          monthlyData: {},
-          ssfData: {}
-        };
-      } else {
-        portalCompiledData.campaigns = campObj;
-      }
-      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-
-      const token = getCleanToken();
-      if (token) {
-        await pushDataToGithub();
-        alert("Sales Promotion Campaigns (Section 14) saved and synced across all devices via GitHub!");
-      } else {
-        alert("Campaign details saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
-      }
     }
 
     function renderMarketInfoTable() {
@@ -1532,29 +1483,7 @@
       localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
       renderMarketInfoTable();
       closeMarketEditModal();
-
-      if (!portalCompiledData) {
-        portalCompiledData = {
-          updatedAt: new Date().toISOString(),
-          universe: getAllUniverseData(),
-          stockistDetails: activeStockistDetails,
-          marketInfo: activeMarketInfo,
-          campaigns: getCampaignsObject(),
-          monthlyData: {},
-          ssfData: {}
-        };
-      } else {
-        portalCompiledData.marketInfo = activeMarketInfo;
-      }
-      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-
-      const token = getCleanToken();
-      if (token) {
-        await pushDataToGithub();
-        alert("Market Information updated and synced across all devices via GitHub!");
-      } else {
-        alert("Market Information saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
-      }
+      saveCloudData();
     }
 
     function getStockistUniverse(stockist) {
@@ -1611,12 +1540,14 @@
       };
       setAllUniverseData(defaults);
       localStorage.setItem('universe_data', JSON.stringify(defaults));
+      saveCloudData();
     }
 
     function onUniverseChange() {
       applyUniverseToActiveView();
       updateCalculations();
       localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
+      saveCloudData();
     }
 
     function applyUniverseToActiveView() {
@@ -1832,12 +1763,8 @@
           runAnalysis();
           renderSSFAnalysis();
 
-          if (getCleanToken()) {
-            pushDataToGithub();
-          } else {
-            document.getElementById('gh-feedback').textContent = "Data compiled. Enter your ghp_ token below to push across other devices.";
-            document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-amber-600";
-          }
+          // Auto background sync to GitHub
+          saveCloudData();
         } catch (err) {
           console.error(err);
           statusEl.innerHTML = `<span class="text-rose-600 font-bold">✕ Error loading file: ${err.message}</span>`;
@@ -2023,126 +1950,18 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // --- Modern, Bulletproof UTF-8 Base64 Encoders using TextEncoder / TextDecoder ---
-    function utf8ToBase64(str) {
-      const bytes = new TextEncoder().encode(str);
-      let binary = '';
-      const len = bytes.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return btoa(binary);
-    }
-
-    function base64ToUtf8(b64) {
-      const binary = atob(b64.replace(/\s/g, ''));
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-      }
-      return new TextDecoder('utf-8').decode(bytes);
-    }
-
-    // Token Sanitizer: Strips accidentally copied quotes, spaces, or leading words
+    // --- REPLICATED STREAMLINED GITHUB SYNC ENGINE ---
+    // Reads and saves directly without manual push/pull or complex checks
     function getCleanToken() {
       const raw = document.getElementById('gh-token')?.value || localStorage.getItem('ghp_token') || '';
       return raw.trim().replace(/^["']|["']$/g, '');
-    }
-
-    // Standard GitHub API Authorization Header builder
-    function getGithubAuthHeaders(token) {
-      const clean = token || getCleanToken();
-      const headers = {
-        'Accept': 'application/vnd.github.v3+json',
-        'Cache-Control': 'no-cache'
-      };
-      if (clean) {
-        // Fine-grained PATs start with 'github_pat_', classic with 'ghp_'
-        headers['Authorization'] = clean.startsWith('github_pat_') ? `Bearer ${clean}` : `token ${clean}`;
-      }
-      return headers;
-    }
-
-    // Test Connection Button: Verifies token, user identity, repo permissions, and file existence
-    async function testGithubConnection() {
-      const token = getCleanToken();
-      const feedback = document.getElementById('gh-feedback');
-      const badge = document.getElementById('sync-status-indicator');
-
-      if (!token) {
-        feedback.innerHTML = `<span class="text-rose-600 font-bold">⚠️ Please enter your Personal Access Token first.</span>`;
-        return;
-      }
-
-      badge.textContent = "Testing...";
-      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
-      feedback.textContent = "Connecting to GitHub API...";
-
-      try {
-        // Step 1: Check Token Identity
-        const userRes = await fetch("https://api.github.com/user", { headers: getGithubAuthHeaders(token) });
-        if (!userRes.ok) {
-          throw new Error(`Token invalid or expired (HTTP ${userRes.status})`);
-        }
-        const userData = await userRes.json();
-        const authedUser = userData.login;
-
-        // Step 2: Check Repository Access
-        const repoRes = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}`, { headers: getGithubAuthHeaders(token) });
-        if (!repoRes.ok) {
-          throw new Error(`Cannot access repository ${GITHUB_USERNAME}/${GITHUB_REPO} (HTTP ${repoRes.status}). Verify repository permissions.`);
-        }
-        const repoData = await repoRes.json();
-        const defaultBranch = repoData.default_branch || 'main';
-        const hasPushPermission = repoData.permissions ? repoData.permissions.push : true;
-
-        // Step 3: Check if file exists
-        const fileUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
-        const fileRes = await fetch(fileUrl, { method: 'GET', cache: 'no-store', headers: getGithubAuthHeaders(token) });
-        const fileFound = fileRes.ok;
-
-        badge.textContent = "Verified ✓";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-        feedback.innerHTML = `
-          <div class="space-y-1 text-emerald-700 font-medium">
-            <div>✓ Authenticated as: <strong>${authedUser}</strong></div>
-            <div>✓ Repository: <strong>${repoData.full_name}</strong> (${repoData.private ? 'Private' : 'Public'}, branch: <code>${defaultBranch}</code>)</div>
-            <div>✓ Push Permission: <strong>${hasPushPermission ? 'YES (Write Access)' : 'NO (Read Only)'}</strong></div>
-            <div>✓ Remote File: <strong>${fileFound ? 'Exists (Ready to Pull/Update)' : 'Not Created Yet (Will be created on First Push)'}</strong></div>
-          </div>
-        `;
-      } catch (err) {
-        badge.textContent = "Check Failed";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
-        feedback.innerHTML = `<span class="text-rose-600 font-bold">✕ Connection Test Failed:</span> ${err.message}`;
-      }
-    }
-
-    async function getLatestFileSha(token) {
-      const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
-      try {
-        const res = await fetch(url, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: getGithubAuthHeaders(token)
-        });
-        if (res.ok) {
-          const json = await res.json();
-          return json.sha || null;
-        }
-      } catch (e) {
-        console.warn("Could not query SHA:", e);
-      }
-      return null;
     }
 
     function saveGithubToken() {
       const token = getCleanToken();
       if (token) {
         localStorage.setItem('ghp_token', token);
-        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser storage.";
-        document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-emerald-600";
-        pullDataFromGithub(false);
+        loadCloudData();
       }
     }
 
@@ -2150,22 +1969,116 @@
       localStorage.removeItem('ghp_token');
       document.getElementById('gh-token').value = '';
       document.getElementById('gh-feedback').textContent = "Token removed.";
-      document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-slate-500";
     }
 
-    async function pushDataToGithub() {
+    // Load data from GitHub directly into app memory
+    async function loadCloudData(showFeedback = false) {
       const token = getCleanToken();
-      const feedback = document.getElementById('gh-feedback');
       const badge = document.getElementById('sync-status-indicator');
+      const feedback = document.getElementById('gh-feedback');
 
       if (!token) {
-        feedback.textContent = "⚠️ Please enter your Personal Access Token (ghp_...) first.";
-        feedback.className = "text-xs font-semibold mt-3 text-rose-600";
+        if (badge) badge.textContent = "Offline (No Token)";
         return;
       }
 
-      badge.textContent = "Sync: Pushing to Cloud...";
-      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
+      if (badge) {
+        badge.textContent = "Syncing...";
+        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
+      }
+
+      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
+      
+      try {
+        const res = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Authorization": `token ${token}`,
+            "Accept": "application/vnd.github.v3+json"
+          }
+        });
+
+        if (res.ok) {
+          const fileData = await res.json();
+          window._ghFileSha = fileData.sha; // Track sha for seamless saves
+
+          const decodedStr = decodeURIComponent(escape(atob(fileData.content.replace(/\s/g, ''))));
+          portalCompiledData = JSON.parse(decodedStr);
+          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+          if (portalCompiledData.universe) {
+            setAllUniverseData(portalCompiledData.universe);
+            localStorage.setItem('universe_data', JSON.stringify(portalCompiledData.universe));
+          }
+
+          if (portalCompiledData.stockistDetails) {
+            activeStockistDetails = portalCompiledData.stockistDetails;
+            localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+          }
+
+          if (portalCompiledData.marketInfo) {
+            activeMarketInfo = portalCompiledData.marketInfo;
+            localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
+          }
+
+          if (portalCompiledData.campaigns) {
+            applyCampaignsObject(portalCompiledData.campaigns);
+            localStorage.setItem('campaigns_data', JSON.stringify(portalCompiledData.campaigns));
+          }
+
+          if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
+            rawDatasetPrimary = portalCompiledData.primaryData;
+            const statusPrimary = document.getElementById('status-primary');
+            if (statusPrimary) {
+              statusPrimary.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary (${rawDatasetPrimary.length} rows)</span>`;
+            }
+          }
+
+          // Re-render UI
+          renderStockistDetailsTable();
+          renderFinancialsWorkingCapital();
+          updateCampaignsFormula();
+          renderMarketInfoTable();
+
+          const sCY = document.getElementById('status-cy');
+          const sLY = document.getElementById('status-ly');
+          if (sCY) sCY.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
+          if (sLY) sLY.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
+
+          runAnalysis();
+          renderSSFAnalysis();
+
+          if (badge) {
+            badge.textContent = "Cloud Synced ✓";
+            badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          }
+          if (showFeedback && feedback) {
+            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Cloud data loaded successfully!</span>`;
+          }
+        } else if (res.status === 404) {
+          if (badge) badge.textContent = "Ready to Upload";
+          if (showFeedback && feedback) {
+            feedback.innerHTML = `<span class="text-slate-600">No cloud file found yet. Upload your Excel files to start.</span>`;
+          }
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } catch (err) {
+        console.error("Cloud load error:", err);
+        if (badge) {
+          badge.textContent = "Sync Offline";
+          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+        }
+      }
+    }
+
+    // Save data directly to GitHub in the background
+    async function saveCloudData() {
+      const token = getCleanToken();
+      const badge = document.getElementById('sync-status-indicator');
+      const feedback = document.getElementById('gh-feedback');
+
+      if (!token) return;
 
       if (!portalCompiledData) {
         portalCompiledData = {
@@ -2185,162 +2098,168 @@
         portalCompiledData.updatedAt = new Date().toISOString();
       }
 
+      if (badge) {
+        badge.textContent = "Syncing...";
+        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
+      }
+
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
       try {
-        let sha = await getLatestFileSha(token);
-
-        const jsonStr = JSON.stringify(portalCompiledData);
-        const encodedContent = utf8ToBase64(jsonStr);
-
-        const bodyData = {
-          message: `Update sales data and inspection profiles [${new Date().toLocaleDateString()}]`,
-          content: encodedContent
-        };
-        if (sha) {
-          bodyData.sha = sha;
+        // Query current sha if missing
+        if (!window._ghFileSha) {
+          const getRes = await fetch(apiUrl, {
+            headers: {
+              "Authorization": `token ${token}`,
+              "Accept": "application/vnd.github.v3+json"
+            }
+          });
+          if (getRes.ok) {
+            const gd = await getRes.json();
+            window._ghFileSha = gd.sha;
+          }
         }
 
-        const putHeaders = getGithubAuthHeaders(token);
-        putHeaders['Content-Type'] = 'application/json';
+        const jsonStr = JSON.stringify(portalCompiledData);
+        const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
 
-        let putRes = await fetch(apiUrl, {
-          method: 'PUT',
-          headers: putHeaders,
+        const bodyData = {
+          message: `Auto-sync [${new Date().toLocaleDateString()}]`,
+          content: encodedContent
+        };
+        if (window._ghFileSha) {
+          bodyData.sha = window._ghFileSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers: {
+            "Authorization": `token ${token}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(bodyData)
         });
 
-        // Auto-retry if SHA conflict occurs
-        if (!putRes.ok && (putRes.status === 422 || putRes.status === 409)) {
-          sha = await getLatestFileSha(token);
-          if (sha) {
-            bodyData.sha = sha;
-            putRes = await fetch(apiUrl, {
-              method: 'PUT',
-              headers: putHeaders,
-              body: JSON.stringify(bodyData)
-            });
-          }
-        }
-
         if (putRes.ok) {
-          badge.textContent = "Sync: Up to date";
-          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} (~${Math.round(jsonStr.length/1024)} KB) at ${new Date().toLocaleTimeString()}</span>`;
+          const putJson = await putRes.json();
+          window._ghFileSha = putJson.content.sha;
+          if (badge) {
+            badge.textContent = "Cloud Synced ✓";
+            badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          }
+          if (feedback) {
+            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced to cloud at ${new Date().toLocaleTimeString()}</span>`;
+          }
         } else {
+          // If sha conflict, force refetch and retry once
           const errData = await putRes.json();
-          throw new Error(`(${putRes.status}) ${errData.message || 'GitHub error'}`);
+          if (putRes.status === 409 || putRes.status === 422) {
+            const reGet = await fetch(apiUrl, {
+              headers: { "Authorization": `token ${token}` }
+            });
+            if (reGet.ok) {
+              const reJson = await reGet.json();
+              bodyData.sha = reJson.sha;
+              const retryPut = await fetch(apiUrl, {
+                method: "PUT",
+                headers: {
+                  "Authorization": `token ${token}`,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyData)
+              });
+              if (retryPut.ok) {
+                const retryJson = await retryPut.json();
+                window._ghFileSha = retryJson.content.sha;
+                if (badge) {
+                  badge.textContent = "Cloud Synced ✓";
+                  badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                }
+                return;
+              }
+            }
+          }
+          throw new Error(errData.message || "Failed to commit");
         }
       } catch (err) {
-        console.error(err);
-        badge.textContent = "Sync: Error";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
-        feedback.innerHTML = `<span class="text-rose-600 font-bold">✕ Push failed: ${err.message}</span>`;
+        console.error("Cloud save error:", err);
+        if (badge) {
+          badge.textContent = "Sync Failed";
+          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+        }
       }
     }
 
-    async function pullDataFromGithub(userTriggered) {
-      const token = getCleanToken();
-      const feedback = document.getElementById('gh-feedback');
-      const badge = document.getElementById('sync-status-indicator');
+    // Direct File Export & Import (Offline Fallback)
+    function exportPortalJsonFile() {
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
+          monthlyData: {},
+          ssfData: {}
+        };
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(portalCompiledData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `portal_data_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
 
-      badge.textContent = "Sync: Fetching Cloud Data...";
-      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
+    function importPortalJsonFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
-
-      try {
-        const res = await fetch(apiUrl, { 
-          method: 'GET',
-          cache: 'no-store',
-          headers: getGithubAuthHeaders(token) 
-        });
-
-        if (res.ok) {
-          const fileMeta = await res.json();
-          
-          if (!fileMeta.content) {
-            throw new Error("Empty file content received from GitHub.");
-          }
-
-          const decodedJsonStr = base64ToUtf8(fileMeta.content);
-          portalCompiledData = JSON.parse(decodedJsonStr);
-
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          portalCompiledData = JSON.parse(e.target.result);
           localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
 
           if (portalCompiledData.universe) {
             setAllUniverseData(portalCompiledData.universe);
             localStorage.setItem('universe_data', JSON.stringify(portalCompiledData.universe));
           }
-
           if (portalCompiledData.stockistDetails) {
             activeStockistDetails = portalCompiledData.stockistDetails;
             localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-            renderStockistDetailsTable();
           }
-
           if (portalCompiledData.marketInfo) {
             activeMarketInfo = portalCompiledData.marketInfo;
             localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
-            renderMarketInfoTable();
           }
-
           if (portalCompiledData.campaigns) {
             applyCampaignsObject(portalCompiledData.campaigns);
             localStorage.setItem('campaigns_data', JSON.stringify(portalCompiledData.campaigns));
           }
-
-          if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
+          if (portalCompiledData.primaryData) {
             rawDatasetPrimary = portalCompiledData.primaryData;
-            const statusPrimary = document.getElementById('status-primary');
-            if (statusPrimary) {
-              statusPrimary.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary (${rawDatasetPrimary.length} rows)</span>`;
-            }
           }
 
-          // Re-render all views with newly pulled data
           renderStockistDetailsTable();
           renderFinancialsWorkingCapital();
           updateCampaignsFormula();
           renderMarketInfoTable();
-
-          const sCY = document.getElementById('status-cy');
-          const sLY = document.getElementById('status-ly');
-          if (sCY) sCY.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
-          if (sLY) sLY.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
-
           runAnalysis();
           renderSSFAnalysis();
 
-          badge.textContent = "Sync: Synced";
-          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          if (userTriggered) {
-            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced latest cloud data from ${GITHUB_REPO}/${GITHUB_DATA_PATH} at ${new Date().toLocaleTimeString()}</span>`;
-          }
-        } else if (res.status === 404) {
-          badge.textContent = "Sync: No remote file";
-          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300";
-          if (userTriggered) {
-            feedback.innerHTML = `<span class="text-slate-600">Remote file (${GITHUB_DATA_PATH}) not created yet. Push data from Device 1 first.</span>`;
-          }
-        } else if (res.status === 401 || res.status === 403) {
-          badge.textContent = "Sync: Auth Error";
-          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
-          feedback.innerHTML = `<span class="text-rose-600 font-bold">Authentication failed (${res.status}). Verify your token has 'repo' access or run 'Test Connection'.</span>`;
-        } else {
-          throw new Error(`(${res.status}) ${res.statusText}`);
+          alert("✓ Portal data file loaded successfully!");
+          saveCloudData(); // Sync imported file to cloud automatically
+        } catch(err) {
+          alert("✕ Failed to parse JSON file: " + err.message);
         }
-      } catch (err) {
-        console.error(err);
-        badge.textContent = "Sync: Failed";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
-        if (userTriggered) {
-          feedback.innerHTML = `<span class="text-amber-600">Sync notice: ${err.message}</span>`;
-        }
-      }
+      };
+      reader.readAsText(file);
     }
 
-    // App Initialization on Boot
+    // App Boot
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
@@ -2399,7 +2318,9 @@
       updateCampaignsFormula();
       renderMarketInfoTable();
       runAnalysis();
-      pullDataFromGithub(false);
+
+      // Automatically sync latest cloud state on startup
+      loadCloudData();
     };
   </script>
 </body>
