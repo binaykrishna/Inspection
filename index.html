@@ -1274,7 +1274,6 @@
       alert(`✓ ${pageName}: Manual entries updated and saved successfully!`);
     }
 
-    // Point 1 & Point 2 in Financials Review: Auto-calculated
     function renderFinancialsWorkingCapital() {
       const finEl = document.getElementById('fin-wc-display');
       const sourceCapitalEl = document.getElementById('fin-source-capital-display');
@@ -1291,7 +1290,6 @@
         `;
       }
 
-      // Point 2 Auto-calculation: OWN & LOAN for Bihariji, OWN for all others
       if (sourceCapitalEl) {
         if (currentStockist === "Bihariji Auto Service Station") {
           sourceCapitalEl.innerHTML = `
@@ -1323,7 +1321,6 @@
       const diff = Math.max(0, mNum - aprVal);
       const superSatCount = 2 * diff;
 
-      // Point 2
       const p2 = document.getElementById('camp-item-2');
       if (p2 && !p2.dataset.manualOverride) {
         p2.value = `${superSatCount} Super Saturday campaigns`;
@@ -1331,11 +1328,9 @@
       const f2 = document.getElementById('camp-item-2-formula');
       if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
 
-      // BTL Meets
       const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
       const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
 
-      // Point 4
       const p4 = document.getElementById('camp-item-4');
       const btlCumulativeParts = [];
       if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
@@ -1348,7 +1343,6 @@
       const f4 = document.getElementById('camp-item-4-formula');
       if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
 
-      // Point 3
       const p3 = document.getElementById('camp-item-3');
       const note3 = document.getElementById('camp-item-3-note');
 
@@ -1579,11 +1573,11 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Exact Sales LY Logic for Takshvi Co and SMG Trades
+    // Refined Sales LY Filter Rule for SMG Trades and Takshvi Co
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
       const sName = String(row['Stockist Name'] || row['Stockist'] || '').toLowerCase();
       const rowMonth = parseInt(row['Month']);
-      const dist = String(row['District'] || row['Customer District'] || '').toLowerCase();
+      const dist = String(row['District'] || row['Customer District'] || row['Customer City'] || '').toLowerCase();
 
       // SMG Trades Rule
       if (stk === "SMG Trades") {
@@ -1734,7 +1728,6 @@
       return matrix;
     }
 
-    // Google Sheets Direct Fetcher via exact GIDs
     async function fetchGoogleSheetCsv(sheetKey) {
       const gid = SHEET_GIDS[sheetKey];
       const pubUrl = `${GOOGLE_PUB_URL}?output=csv&gid=${gid}&t=${Date.now()}`;
