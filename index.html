@@ -134,15 +134,10 @@
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
             <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
           </div>
-          <div class="flex items-center gap-3">
-            <button onclick="syncAllFromGoogleSheets()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
-              🔄 Sync Google Sheet Data
-            </button>
-            <div id="cloud-sync-badge" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Auto-Sync Ready
-            </div>
-          </div>
+          <!-- Update Button for Tab 1 -->
+          <button onclick="updateManualEntries('Stockist Details')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
+            💾 Update Entries
+          </button>
         </div>
 
         <div class="overflow-x-auto">
@@ -163,9 +158,9 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TAB 2: SALES ANALYSIS                      -->
-    <!-- ========================================== -->
+    <!-- ======================================================= -->
+    <!-- TAB 2: SALES ANALYSIS (WITH STATIC UNIVERSE BELOW)      -->
+    <!-- ======================================================= -->
     <div id="tab-analysis" class="hidden space-y-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-6">
@@ -205,12 +200,17 @@
           <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
             Awaiting Data
           </span>
+          <!-- Update Button for Tab 2 -->
+          <button onclick="updateManualEntries('Sales Analysis')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
+            💾 Update Entries
+          </button>
           <button onclick="exportToPDF('pdf-report-content', 'Sales_Analysis')" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
             📄 Export to PDF
           </button>
         </div>
       </div>
 
+      <!-- Sales Analysis Table Card -->
       <div id="pdf-report-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
         <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
           <div>
@@ -245,11 +245,11 @@
           <tbody>
             <tr class="text-right">
               <td><input type="number" step="0.1" id="input-m-pot" class="input-cell font-semibold text-left" value="80.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
-              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
-              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
+              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
               <td class="font-bold" id="cell-m-diff">0.0</td>
-              <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks" oninput="saveCloudData()"></td>
+              <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
             </tr>
 
             <tr class="sheet-accent">
@@ -268,11 +268,11 @@
 
             <tr class="text-right">
               <td><input type="number" step="0.1" id="input-cum-pot" class="input-cell font-semibold text-left" value="400.0" oninput="updateCalculations()"></td>
-              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
-              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
-              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="0.0" oninput="updateCalculations(); saveCloudData();"></td>
+              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
               <td class="font-bold" id="cell-cum-diff">0.0</td>
-              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" placeholder="Optional remarks" oninput="saveCloudData()"></td>
+              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
             </tr>
 
             <tr class="bg-slate-200">
@@ -369,6 +369,82 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Static Universe Configuration (PLACED DIRECTLY BELOW SALES ANALYSIS) -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-slate-800">Static Universe (Total No. of Outlets / Stockist)</h2>
+          <button onclick="resetUniverseDefaults()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+            ↺ Reset Defaults
+          </button>
+        </div>
+
+        <div class="overflow-x-auto mt-2">
+          <table class="w-full text-xs sheet-table" id="table-universe">
+            <thead>
+              <tr class="sheet-subheader text-center">
+                <th class="text-left py-2.5">Channel</th>
+                <th>Takshvi Co</th>
+                <th>Bihariji</th>
+                <th>Nalateswari</th>
+                <th>Swastik</th>
+                <th>SMG Trades</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
+                <td><input type="number" id="u-nonKsk-tak" class="input-universe" value="100" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-bih" class="input-universe" value="56" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-nal" class="input-universe" value="118" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-swa" class="input-universe" value="30" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-smg" class="input-universe" value="50" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - KSK RO</td>
+                <td><input type="number" id="u-ksk-tak" class="input-universe" value="41" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-bih" class="input-universe" value="17" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-nal" class="input-universe" value="78" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-swa" class="input-universe" value="16" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-smg" class="input-universe" value="20" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - Nayara Energy</td>
+                <td><input type="number" id="u-nayara-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-bih" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-nal" class="input-universe" value="6" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-smg" class="input-universe" value="2" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Bazaar Shop</td>
+                <td><input type="number" id="u-bazaar-tak" class="input-universe" value="550" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-bih" class="input-universe" value="400" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-nal" class="input-universe" value="800" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-swa" class="input-universe" value="200" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-smg" class="input-universe" value="350" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">OE Dealers</td>
+                <td><input type="number" id="u-oem-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-bih" class="input-universe" value="8" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-nal" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-smg" class="input-universe" value="3" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Fleet</td>
+                <td><input type="number" id="u-fleet-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-bih" class="input-universe" value="10" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-nal" class="input-universe" value="100" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-swa" class="input-universe" value="2" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-smg" class="input-universe" value="5" oninput="onUniverseChange()"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
     <!-- ========================================== -->
@@ -407,6 +483,13 @@
               <option value="3">Mar'27</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <!-- Update Button for Tab 3 -->
+          <button onclick="updateManualEntries('SSF Analysis')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
+            💾 Update Entries
+          </button>
         </div>
       </div>
 
@@ -467,6 +550,17 @@
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
+      <!-- Top Bar with Update Button for Tab 4 -->
+      <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+        <div>
+          <h2 class="text-base font-black text-blue-950 uppercase">Operational & Inspection Review Items</h2>
+          <p class="text-xs text-slate-500">Review checklists, promotional campaigns, and market feedback.</p>
+        </div>
+        <button onclick="updateManualEntries('Other Details')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
+          💾 Update Entries
+        </button>
+      </div>
+
       <!-- Section 1: Godown Inspection -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
@@ -569,10 +663,8 @@
 
       <!-- Section 4: Details of Sales Promotion Campaigns -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
-          <div>
-            <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
-          </div>
+        <div class="border-b-2 border-blue-900 pb-3 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -587,14 +679,14 @@
               <tr>
                 <td class="text-center font-bold">1</td>
                 <td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td>
-                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty(); saveCloudData();"></td>
+                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">2</td>
                 <td>Cumulative number of RO Campaigns conducted in current FY</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty(); saveCloudData();">
+                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty()">
                     <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-2-formula"></span>
                   </div>
                 </td>
@@ -603,7 +695,7 @@
                 <td class="text-center font-bold">3</td>
                 <td>Number of Bazaar Campaigns conducted last month</td>
                 <td>
-                  <input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty(); saveCloudData();">
+                  <input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()">
                   <div class="text-[11px] text-slate-500 font-medium mt-1" id="camp-item-3-note"></div>
                 </td>
               </tr>
@@ -611,19 +703,19 @@
                 <td class="text-center font-bold">4</td>
                 <td>Cumulative number of Bazaar Campaigns conducted in current FY</td>
                 <td>
-                  <textarea id="camp-item-4" class="editable-yellow font-bold text-blue-950 w-full" rows="2" oninput="markCampaignDirty(); saveCloudData();"></textarea>
+                  <textarea id="camp-item-4" class="editable-yellow font-bold text-blue-950 w-full" rows="2" oninput="markCampaignDirty()"></textarea>
                   <div class="text-[11px] text-slate-400 mt-0.5" id="camp-item-4-formula"></div>
                 </td>
               </tr>
               <tr>
                 <td class="text-center font-bold">5</td>
                 <td>Campaign Van - Campaigns done last month</td>
-                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" oninput="markCampaignDirty(); saveCloudData();"></td>
+                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">6</td>
                 <td>Campaign Van - Cumulative Campaigns done in current FY</td>
-                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" oninput="markCampaignDirty(); saveCloudData();"></td>
+                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
               </tr>
             </tbody>
           </table>
@@ -657,7 +749,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 5: UPLOADS & SETTINGS                               -->
+    <!-- TAB 5: SYNC & CATALOG (NO UPDATE BUTTON HERE)           -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
@@ -669,7 +761,7 @@
               <span class="text-xl">📊</span>
               <h2 class="text-lg font-bold text-blue-950">Google Sheets Live Data Auto-Sync</h2>
             </div>
-            <p class="text-xs text-slate-500 mt-0.5">Directly connected to published spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report</span></p>
+            <p class="text-xs text-slate-500 mt-0.5">Connected to published spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report</span></p>
           </div>
           <button onclick="syncAllFromGoogleSheets()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
             🔄 Fetch & Auto-Sync from Google Sheets
@@ -689,108 +781,6 @@
             <div class="font-bold text-slate-700">3. Primary CY (P_FY 26-27)</div>
             <div id="gsheet-status-primary" class="text-slate-500 mt-1">Ready to fetch (GID: 1856894261)</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Cloud Sync Credentials & Status -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
-          <div>
-            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <span>🐙</span> GitHub Background Auto-Sync Settings
-            </h2>
-            <p class="text-sm text-slate-500">Data automatically syncs with repository: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
-          </div>
-          <span id="sync-status-indicator" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
-            Auto-Sync Ready
-          </span>
-        </div>
-
-        <div class="max-w-xl mb-3">
-          <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Personal Access Token (ghp_... or github_pat_...)</label>
-          <div class="flex gap-2">
-            <input type="password" id="gh-token" placeholder="Paste GitHub token here" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" onchange="saveGithubToken()">
-            <button onclick="clearSavedToken()" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-              Clear
-            </button>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">Enter your token once on each device. Any updates made on one device will automatically sync to all others.</p>
-        </div>
-        <div id="gh-feedback" class="text-xs font-semibold text-slate-500"></div>
-      </div>
-
-      <!-- Static Universe Configuration -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-bold text-slate-800">Static Universe (Total No. of Outlets / Stockist)</h2>
-          <button onclick="resetUniverseDefaults()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
-            ↺ Reset Defaults
-          </button>
-        </div>
-
-        <div class="overflow-x-auto mt-2">
-          <table class="w-full text-xs sheet-table" id="table-universe">
-            <thead>
-              <tr class="sheet-subheader text-center">
-                <th class="text-left py-2.5">Channel</th>
-                <th>Takshvi Co</th>
-                <th>Bihariji</th>
-                <th>Nalateswari</th>
-                <th>Swastik</th>
-                <th>SMG Trades</th>
-              </tr>
-            </thead>
-            <tbody class="text-center">
-              <tr>
-                <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
-                <td><input type="number" id="u-nonKsk-tak" class="input-universe" value="100" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nonKsk-bih" class="input-universe" value="56" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nonKsk-nal" class="input-universe" value="118" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nonKsk-swa" class="input-universe" value="30" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nonKsk-smg" class="input-universe" value="50" oninput="onUniverseChange()"></td>
-              </tr>
-              <tr>
-                <td class="text-left font-medium">Retail Outlets - KSK RO</td>
-                <td><input type="number" id="u-ksk-tak" class="input-universe" value="41" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-ksk-bih" class="input-universe" value="17" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-ksk-nal" class="input-universe" value="78" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-ksk-swa" class="input-universe" value="16" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-ksk-smg" class="input-universe" value="20" oninput="onUniverseChange()"></td>
-              </tr>
-              <tr>
-                <td class="text-left font-medium">Retail Outlets - Nayara Energy</td>
-                <td><input type="number" id="u-nayara-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nayara-bih" class="input-universe" value="1" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nayara-nal" class="input-universe" value="6" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nayara-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-nayara-smg" class="input-universe" value="2" oninput="onUniverseChange()"></td>
-              </tr>
-              <tr>
-                <td class="text-left font-medium">Bazaar Shop</td>
-                <td><input type="number" id="u-bazaar-tak" class="input-universe" value="550" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-bazaar-bih" class="input-universe" value="400" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-bazaar-nal" class="input-universe" value="800" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-bazaar-swa" class="input-universe" value="200" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-bazaar-smg" class="input-universe" value="350" oninput="onUniverseChange()"></td>
-              </tr>
-              <tr>
-                <td class="text-left font-medium">OE Dealers</td>
-                <td><input type="number" id="u-oem-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-oem-bih" class="input-universe" value="8" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-oem-nal" class="input-universe" value="4" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-oem-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-oem-smg" class="input-universe" value="3" oninput="onUniverseChange()"></td>
-              </tr>
-              <tr>
-                <td class="text-left font-medium">Fleet</td>
-                <td><input type="number" id="u-fleet-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-fleet-bih" class="input-universe" value="10" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-fleet-nal" class="input-universe" value="100" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-fleet-swa" class="input-universe" value="2" oninput="onUniverseChange()"></td>
-                <td><input type="number" id="u-fleet-smg" class="input-universe" value="5" oninput="onUniverseChange()"></td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -825,10 +815,6 @@
 
   <!-- Application Logic -->
   <script>
-    const GITHUB_USERNAME = "binaykrishna";
-    const GITHUB_REPO = "inspection";
-    const GITHUB_DATA_PATH = "data/portal_data.json";
-
     // Published Google Sheet Base URL & IDs
     const GOOGLE_PUB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLDk7To-avyWgA59TQZqZqfYQ7dpkeaSxm6i254YMnVf9gUsNSOFv_cKoipTi-2Uap81SjyjPidFfP/pub";
     const GOOGLE_SHEET_ID = "1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE";
@@ -1253,12 +1239,42 @@
       }
 
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-      saveCloudData();
     }
 
-    async function saveAndUpdateStockistDetails() {
+    // Universal Update Function for all pages
+    function updateManualEntries(pageName) {
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-      saveCloudData();
+      localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
+      localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
+      localStorage.setItem('campaigns_data', JSON.stringify(getCampaignsObject()));
+
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.universe = getAllUniverseData();
+        portalCompiledData.stockistDetails = activeStockistDetails;
+        portalCompiledData.marketInfo = activeMarketInfo;
+        portalCompiledData.campaigns = getCampaignsObject();
+        portalCompiledData.updatedAt = new Date().toISOString();
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+      renderStockistDetailsTable();
+      renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
+      renderMarketInfoTable();
+      runAnalysis();
+      renderSSFAnalysis();
+
+      alert(`✓ ${pageName}: Manual entries updated and saved successfully!`);
     }
 
     function renderFinancialsWorkingCapital() {
@@ -1292,6 +1308,7 @@
       const diff = Math.max(0, mNum - aprVal);
       const superSatCount = 2 * diff;
 
+      // Point 2
       const p2 = document.getElementById('camp-item-2');
       if (p2 && !p2.dataset.manualOverride) {
         p2.value = `${superSatCount} Super Saturday campaigns`;
@@ -1299,9 +1316,11 @@
       const f2 = document.getElementById('camp-item-2-formula');
       if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
 
+      // BTL Meets
       const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
       const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
 
+      // Point 4
       const p4 = document.getElementById('camp-item-4');
       const btlCumulativeParts = [];
       if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
@@ -1314,6 +1333,7 @@
       const f4 = document.getElementById('camp-item-4-formula');
       if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
 
+      // Point 3
       const p3 = document.getElementById('camp-item-3');
       const note3 = document.getElementById('camp-item-3-note');
 
@@ -1445,7 +1465,6 @@
       localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
       renderMarketInfoTable();
       closeMarketEditModal();
-      saveCloudData();
     }
 
     function getStockistUniverse(stockist) {
@@ -1502,14 +1521,12 @@
       };
       setAllUniverseData(defaults);
       localStorage.setItem('universe_data', JSON.stringify(defaults));
-      saveCloudData();
     }
 
     function onUniverseChange() {
       applyUniverseToActiveView();
       updateCalculations();
       localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
-      saveCloudData();
     }
 
     function applyUniverseToActiveView() {
@@ -1746,7 +1763,6 @@
         runAnalysis();
         renderSSFAnalysis();
 
-        await saveCloudData();
         alert("✓ Successfully fetched and synchronized S_FY 25-26, S_FY 26-27, and P_FY 26-27 from Google Sheets!");
       } catch (err) {
         console.error(err);
@@ -1935,194 +1951,8 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    function getCleanToken() {
-      const raw = document.getElementById('gh-token')?.value || localStorage.getItem('ghp_token') || '';
-      return raw.trim().replace(/^["']|["']$/g, '');
-    }
-
-    function saveGithubToken() {
-      const token = getCleanToken();
-      if (token) {
-        localStorage.setItem('ghp_token', token);
-        loadCloudData(true);
-      }
-    }
-
-    function clearSavedToken() {
-      localStorage.removeItem('ghp_token');
-      document.getElementById('gh-token').value = '';
-      const feedback = document.getElementById('gh-feedback');
-      if (feedback) feedback.textContent = "Token removed.";
-    }
-
-    async function loadCloudData(showFeedback = false) {
-      const token = getCleanToken();
-      const badge = document.getElementById('sync-status-indicator');
-      const feedback = document.getElementById('gh-feedback');
-
-      if (!token) {
-        if (badge) badge.textContent = "Offline (No Token)";
-        return;
-      }
-
-      if (badge) {
-        badge.textContent = "Syncing...";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
-      }
-
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
-      
-      try {
-        const res = await fetch(apiUrl, {
-          method: "GET",
-          headers: {
-            "Authorization": `token ${token}`,
-            "Accept": "application/vnd.github.v3+json"
-          }
-        });
-
-        if (res.ok) {
-          const fileData = await res.json();
-          window._ghFileSha = fileData.sha;
-
-          const decodedStr = decodeURIComponent(escape(atob(fileData.content.replace(/\s/g, ''))));
-          portalCompiledData = JSON.parse(decodedStr);
-          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-
-          if (portalCompiledData.universe) {
-            setAllUniverseData(portalCompiledData.universe);
-            localStorage.setItem('universe_data', JSON.stringify(portalCompiledData.universe));
-          }
-
-          if (portalCompiledData.stockistDetails) {
-            activeStockistDetails = portalCompiledData.stockistDetails;
-            localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
-          }
-
-          if (portalCompiledData.marketInfo) {
-            activeMarketInfo = portalCompiledData.marketInfo;
-            localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
-          }
-
-          if (portalCompiledData.campaigns) {
-            applyCampaignsObject(portalCompiledData.campaigns);
-            localStorage.setItem('campaigns_data', JSON.stringify(portalCompiledData.campaigns));
-          }
-
-          if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
-            rawDatasetPrimary = portalCompiledData.primaryData;
-          }
-
-          renderStockistDetailsTable();
-          renderFinancialsWorkingCapital();
-          updateCampaignsFormula();
-          renderMarketInfoTable();
-          runAnalysis();
-          renderSSFAnalysis();
-
-          if (badge) {
-            badge.textContent = "Cloud Synced ✓";
-            badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          }
-          if (showFeedback && feedback) {
-            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Cloud data loaded successfully!</span>`;
-          }
-        }
-      } catch (err) {
-        console.error("Cloud load error:", err);
-      }
-    }
-
-    async function saveCloudData() {
-      const token = getCleanToken();
-      const badge = document.getElementById('sync-status-indicator');
-      const feedback = document.getElementById('gh-feedback');
-
-      if (!token) return;
-
-      if (!portalCompiledData) {
-        portalCompiledData = {
-          updatedAt: new Date().toISOString(),
-          universe: getAllUniverseData(),
-          stockistDetails: activeStockistDetails,
-          marketInfo: activeMarketInfo,
-          campaigns: getCampaignsObject(),
-          monthlyData: {},
-          ssfData: {}
-        };
-      } else {
-        portalCompiledData.universe = getAllUniverseData();
-        portalCompiledData.stockistDetails = activeStockistDetails;
-        portalCompiledData.marketInfo = activeMarketInfo;
-        portalCompiledData.campaigns = getCampaignsObject();
-        portalCompiledData.updatedAt = new Date().toISOString();
-      }
-
-      if (badge) {
-        badge.textContent = "Syncing...";
-        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
-      }
-
-      const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
-
-      try {
-        if (!window._ghFileSha) {
-          const getRes = await fetch(apiUrl, {
-            headers: {
-              "Authorization": `token ${token}`,
-              "Accept": "application/vnd.github.v3+json"
-            }
-          });
-          if (getRes.ok) {
-            const gd = await getRes.json();
-            window._ghFileSha = gd.sha;
-          }
-        }
-
-        const jsonStr = JSON.stringify(portalCompiledData);
-        const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
-
-        const bodyData = {
-          message: `Auto-sync [${new Date().toLocaleDateString()}]`,
-          content: encodedContent
-        };
-        if (window._ghFileSha) {
-          bodyData.sha = window._ghFileSha;
-        }
-
-        const putRes = await fetch(apiUrl, {
-          method: "PUT",
-          headers: {
-            "Authorization": `token ${token}`,
-            "Accept": "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(bodyData)
-        });
-
-        if (putRes.ok) {
-          const putJson = await putRes.json();
-          window._ghFileSha = putJson.content.sha;
-          if (badge) {
-            badge.textContent = "Cloud Synced ✓";
-            badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          }
-          if (feedback) {
-            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced to cloud at ${new Date().toLocaleTimeString()}</span>`;
-          }
-        }
-      } catch (err) {
-        console.error("Cloud save error:", err);
-      }
-    }
-
     // App Initialization on Boot
     window.onload = function() {
-      const savedToken = localStorage.getItem('ghp_token');
-      if (savedToken) {
-        document.getElementById('gh-token').value = savedToken;
-      }
-
       const savedUniverse = localStorage.getItem('universe_data');
       if (savedUniverse) {
         try {
@@ -2175,8 +2005,6 @@
       updateCampaignsFormula();
       renderMarketInfoTable();
       runAnalysis();
-
-      loadCloudData();
     };
   </script>
 </body>
