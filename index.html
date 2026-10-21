@@ -265,7 +265,7 @@
               <th style="width: 13%;">Target (KL)</th>
               <th style="width: 13%;">Sales CY (KL)</th>
               <th style="width: 13%;">Sales LY (KL)</th>
-              <th style="width: 12%;">$(+/-)$</th>
+              <th style="width: 12%;">(+/-)</th>
               <th colspan="2" style="width: 27%;">Remarks</th>
             </tr>
           </thead>
@@ -289,7 +289,7 @@
               <th style="width: 13%;">Target (KL)</th>
               <th style="width: 13%;">Sales CY (KL)</th>
               <th style="width: 13%;">Sales LY (KL)</th>
-              <th style="width: 12%;">$(+/-)$</th>
+              <th style="width: 12%;">(+/-)</th>
               <th colspan="2" style="width: 27%;">Remarks</th>
             </tr>
 
@@ -1571,7 +1571,7 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Fully rectified Sales LY (S_FY 25-26) Logic for SMG Trades and Takshvi Co
+    // Exact Sales LY Logic for Takshvi Co and SMG Trades
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
       const sName = String(row['Stockist Name'] || row['Stockist'] || row['Name'] || '').toLowerCase();
       const rowMonth = parseInt(row['Month']);
