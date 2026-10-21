@@ -163,7 +163,6 @@
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
             <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
           </div>
-          <!-- Update Button for Tab 1 -->
           <button onclick="updateManualEntries('Stockist Details')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
             💾 Update Entries
           </button>
@@ -229,7 +228,6 @@
           <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
             Awaiting Data
           </span>
-          <!-- Update Button for Tab 2 -->
           <button onclick="updateManualEntries('Sales Analysis')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
             💾 Update Entries
           </button>
@@ -239,7 +237,7 @@
         </div>
       </div>
 
-      <!-- Sales Analysis Table Card -->
+      <!-- Sales Analysis Table Card (With fixed, professional column widths) -->
       <div id="pdf-report-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
         <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
           <div>
@@ -263,12 +261,12 @@
               <th colspan="6" id="disp-month-label" class="font-semibold text-slate-800">Aug'26</th>
             </tr>
             <tr class="sheet-subheader text-center">
-              <th class="text-left">Potential (KL)</th>
-              <th>Target (KL)</th>
-              <th>Sales CY (KL)</th>
-              <th>Sales LY (KL)</th>
-              <th>(+/-)</th>
-              <th colspan="2">Remarks</th>
+              <th class="text-left" style="width: 22%;">Potential (KL)</th>
+              <th style="width: 13%;">Target (KL)</th>
+              <th style="width: 13%;">Sales CY (KL)</th>
+              <th style="width: 13%;">Sales LY (KL)</th>
+              <th style="width: 12%;">$(+/-)$</th>
+              <th colspan="2" style="width: 27%;">Remarks</th>
             </tr>
           </thead>
           <tbody>
@@ -287,12 +285,12 @@
             </tr>
 
             <tr class="sheet-subheader text-center">
-              <th class="text-left">Potential (KL)</th>
-              <th>Target (KL)</th>
-              <th>Sales CY (KL)</th>
-              <th>Sales LY (KL)</th>
-              <th>(+/-)</th>
-              <th colspan="2">Remarks</th>
+              <th class="text-left" style="width: 22%;">Potential (KL)</th>
+              <th style="width: 13%;">Target (KL)</th>
+              <th style="width: 13%;">Sales CY (KL)</th>
+              <th style="width: 13%;">Sales LY (KL)</th>
+              <th style="width: 12%;">$(+/-)$</th>
+              <th colspan="2" style="width: 27%;">Remarks</th>
             </tr>
 
             <tr class="text-right">
@@ -316,14 +314,15 @@
               <th colspan="6" id="disp-channel-period" class="font-semibold text-slate-800">Apr'26- Aug'26</th>
             </tr>
 
+            <!-- Channel Analysis Table with Professional Proportioned Widths -->
             <tr class="sheet-subheader text-center">
-              <th class="text-left">Channel</th>
-              <th>Total No.</th>
-              <th>Cum. No. Supplied</th>
-              <th>Sales CY</th>
-              <th>Sales LY</th>
-              <th>% of Total Sales CY</th>
-              <th>% of Total Sales LY</th>
+              <th class="text-left" style="width: 28%;">Channel</th>
+              <th style="width: 11%;">Total No.</th>
+              <th style="width: 12%;">Cum. No. Supplied</th>
+              <th style="width: 11%;">Sales CY</th>
+              <th style="width: 11%;">Sales LY</th>
+              <th style="width: 14%;">% of Total Sales CY</th>
+              <th style="width: 13%;">% of Total Sales LY</th>
             </tr>
 
             <tr id="row-non-ksk" class="text-right">
@@ -515,7 +514,6 @@
         </div>
 
         <div>
-          <!-- Update Button for Tab 3 -->
           <button onclick="updateManualEntries('SSF Analysis')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
             💾 Update Entries
           </button>
@@ -1573,11 +1571,11 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Exact Sales LY Logic for Takshvi Co and SMG Trades (Fiscal Months: 4=Apr ... 12=Dec, 1=Jan, 2=Feb, 3=Mar)
+    // Fully rectified Sales LY (S_FY 25-26) Logic for SMG Trades and Takshvi Co
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
-      const sName = String(row['Stockist Name'] || row['Stockist'] || '').toLowerCase();
+      const sName = String(row['Stockist Name'] || row['Stockist'] || row['Name'] || '').toLowerCase();
       const rowMonth = parseInt(row['Month']);
-      const dist = String(row['District'] || row['Customer District'] || '').toLowerCase();
+      const dist = String(row['District'] || row['Customer District'] || row['Billing District'] || '').toLowerCase();
 
       // SMG Trades Rule: 0 for Apr-Sep (4-9). From Oct onwards (10-3), cumulative sales of Bankura district.
       if (stk === "SMG Trades") {
