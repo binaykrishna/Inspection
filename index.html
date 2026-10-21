@@ -424,7 +424,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 3: STOCKIST DETAILS (With Save & Update All Button)  -->
+    <!-- TAB 3: STOCKIST DETAILS                                 -->
     <!-- ======================================================= -->
     <div id="tab-stockist" class="hidden space-y-6">
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -433,7 +433,6 @@
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
             <p class="text-xs text-slate-500 font-medium">Yellow cells are editable. Click "Save & Update All Devices" to sync across all devices.</p>
           </div>
-          <!-- Update button to sync editable cells across all devices -->
           <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
             💾 Save & Update All Devices
           </button>
@@ -458,15 +457,14 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 4: OTHER DETAILS                                    -->
+    <!-- TAB 4: OTHER DETAILS (Subheadings removed + Section 14 Sync) -->
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
-      <!-- Section 1: Godown Inspection (Additional Notes column removed) -->
+      <!-- Section 1: Godown Inspection -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">8 - Godown Inspection Checklist</h2>
-          <p class="text-xs text-slate-500">Audited premises inspection checklist & equipment safety records.</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -493,11 +491,10 @@
         </div>
       </div>
 
-      <!-- Section 2: SSF / OE Promoter Details (Only Stockist and SSFs Assigned, Nilkantha removed) -->
+      <!-- Section 2: SSF / OE Promoter Details -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">9 - SSF / OE Promoter Inspection Logs</h2>
-          <p class="text-xs text-slate-500">Designated SSF field representatives assigned to stockist territories.</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -533,11 +530,10 @@
         </div>
       </div>
 
-      <!-- Section 3: Financials Inspection (Working Capital pulls from Stockist Details) -->
+      <!-- Section 3: Financials Inspection Review -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">10 - Financials Inspection Review</h2>
-          <p class="text-xs text-slate-500">Contractual working capital, debt, incentive receipts, and audit reconciliation.</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -552,9 +548,7 @@
               <tr>
                 <td class="text-center font-bold">1</td>
                 <td>Working Capital requirement as per contract</td>
-                <td class="font-bold text-blue-900 bg-blue-50/60" id="fin-wc-display">
-                  <!-- Injected dynamically from Minimum Working Capital in Stockist Details -->
-                </td>
+                <td class="font-bold text-blue-900 bg-blue-50/60" id="fin-wc-display"></td>
               </tr>
               <tr><td class="text-center font-bold">2</td><td>Details of Source of capital – Own & Other sources</td><td class="font-medium text-slate-700">OWN FOR ALL EXCEPT BIHARIJI (OWN & BANK LOAN)</td></tr>
               <tr><td class="text-center font-bold">3</td><td>Current assets – Stock, Receivables, Cash</td><td class="font-medium text-slate-700">STOCK, RECEIVABLES & CASH IN BANK</td></tr>
@@ -567,11 +561,16 @@
         </div>
       </div>
 
-      <!-- Section 4: Promotional Campaigns (Point 2 and 4 computed and editable) -->
+      <!-- Section 4: Details of Sales Promotion Campaigns (With Save & Sync Button) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="border-b-2 border-blue-900 pb-2 mb-4">
-          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
-          <p class="text-xs text-slate-500">Retail outlet and Bazaar promotion campaign tracking log. Points 2 and 4 are calculated dynamically from selected month ($2 \times (\text{Month} - 4)$) and remain fully editable.</p>
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
+          <div>
+            <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
+          </div>
+          <!-- Dedicated Save & Sync Button for Section 14 -->
+          <button onclick="saveAndSyncCampaigns()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+            💾 Save & Sync Campaigns
+          </button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -586,54 +585,53 @@
               <tr>
                 <td class="text-center font-bold">1</td>
                 <td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td>
-                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" onchange="saveCampaignsData()"></td>
+                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">2</td>
                 <td>Cumulative number of RO Campaigns conducted in current FY</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" onchange="saveCampaignsData()">
-                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-2-formula">Formula: 2 * (Month - Apr'26)</span>
+                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty()">
+                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-2-formula"></span>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td class="text-center font-bold">3</td>
                 <td>Number of Bazaar Campaigns conducted last month</td>
-                <td><input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" onchange="saveCampaignsData()"></td>
+                <td><input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">4</td>
                 <td>Cumulative number of Bazaar Campaigns conducted in current FY</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <input type="text" id="camp-item-4" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" onchange="saveCampaignsData()">
-                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-4-formula">Formula: 2 * (Month - Apr'26)</span>
+                    <input type="text" id="camp-item-4" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty()">
+                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-4-formula"></span>
                   </div>
                 </td>
               </tr>
               <tr>
                 <td class="text-center font-bold">5</td>
                 <td>Campaign Van - Campaigns done last month</td>
-                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" onchange="saveCampaignsData()"></td>
+                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
               </tr>
               <tr>
                 <td class="text-center font-bold">6</td>
                 <td>Campaign Van - Cumulative Campaigns done in current FY</td>
-                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" onchange="saveCampaignsData()"></td>
+                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Section 5: Market Information (With Edit More Button and Cloud Sync) -->
+      <!-- Section 5: Market Information -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
           <div>
             <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">Market Information & Competitor Intelligence</h2>
-            <p class="text-xs text-slate-500">Field intelligence and market observations across competitors.</p>
           </div>
           <button onclick="openMarketEditModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
             ✏️ Edit / Add More Observations
@@ -852,9 +850,7 @@
         <button onclick="closeMarketEditModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
       </div>
 
-      <div class="overflow-y-auto flex-1 space-y-3 p-1" id="modal-market-rows">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="overflow-y-auto flex-1 space-y-3 p-1" id="modal-market-rows"></div>
 
       <div class="flex items-center justify-between pt-3 border-t">
         <button onclick="addMarketObservationRow()" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
@@ -947,7 +943,6 @@
     let rawDatasetPrimary = [];
     let portalCompiledData = null;
 
-    // Default Stockist Details
     const DEFAULT_STOCKIST_DETAILS = {
       type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
       location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
@@ -987,13 +982,12 @@
       stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881],
       currentInspectionDate: ["", "", "", "", ""],
       giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
-      resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"], // Editable
-      megaMeets: ["1 Mega", "1 Mega", "0 Mega", "1 Mega", "0 Mega"] // Editable
+      resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
+      megaMeets: ["1 Mega", "1 Mega", "0 Mega", "1 Mega", "0 Mega"]
     };
 
     let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
 
-    // Default Market Information
     const DEFAULT_MARKET_INFO = [
       { text: "CASTROL overstretching in 4T & multigrades with aggressive lower pricing products.", region: "All Areas" },
       { text: "Gulf DEO coupons available in the market with double redeem value.", region: "Bazaar & Commercial" },
@@ -1126,8 +1120,8 @@
         { label: "Receipt (KL) - Auto Computed from Primary", key: "receiptKL", isReceiptAuto: true },
         { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
         { label: "Giveaway Amount", key: "giveaway", isYellow: false },
-        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true }, // Editable
-        { label: "BTL - Mega Meets", key: "megaMeets", isYellow: true }        // Editable
+        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true },
+        { label: "BTL - Mega Meets", key: "megaMeets", isYellow: true }
       ];
 
       rows.forEach(r => {
@@ -1185,7 +1179,6 @@
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
     }
 
-    // Save & Update Button in Stockist Details: Pushes changes to GitHub
     async function saveAndUpdateStockistDetails() {
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
       if (!portalCompiledData) {
@@ -1194,6 +1187,7 @@
           universe: getAllUniverseData(),
           stockistDetails: activeStockistDetails,
           marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
           monthlyData: {},
           ssfData: {}
         };
@@ -1212,7 +1206,6 @@
       }
     }
 
-    // Dynamic Financials: Working Capital as per contract derived from Stockist Details
     function renderFinancialsWorkingCapital() {
       const finEl = document.getElementById('fin-wc-display');
       if (!finEl) return;
@@ -1228,17 +1221,12 @@
       `;
     }
 
-    // Point 2 & 4 Formula in Promotional Campaigns
     function updateCampaignsFormula() {
       const selectedMonthVal = parseInt(document.getElementById('sel-month').value);
-      const aprVal = 4; // Apr'26
+      const aprVal = 4;
       
-      // Calculate month index: e.g. Aug'26 = 8, Mar'27 = 12 (or 15 in FY)
-      // Per user prompt: 2 * (month chosen in select month - Apr26)
-      // e.g., Apr'26 = 4, Aug'26 = 8, Mar'27 = 12
       let mNum = selectedMonthVal;
       if (selectedMonthVal < 4) {
-        // Jan=1, Feb=2, Mar=3
         mNum = selectedMonthVal === 3 ? 12 : (selectedMonthVal + 12);
       }
       const diff = Math.max(0, mNum - aprVal);
@@ -1261,21 +1249,68 @@
       if (f4) f4.textContent = formulaText;
     }
 
-    function saveCampaignsData() {
+    function markCampaignDirty() {
       const p2 = document.getElementById('camp-item-2');
       const p4 = document.getElementById('camp-item-4');
       if (p2) p2.dataset.manualOverride = "true";
       if (p4) p4.dataset.manualOverride = "true";
+    }
 
-      const campData = {
-        item1: document.getElementById('camp-item-1')?.value,
-        item2: p2?.value,
-        item3: document.getElementById('camp-item-3')?.value,
-        item4: p4?.value,
-        item5: document.getElementById('camp-item-5')?.value,
-        item6: document.getElementById('camp-item-6')?.value
+    function getCampaignsObject() {
+      return {
+        item1: document.getElementById('camp-item-1')?.value || "2 Super Saturday campaigns",
+        item2: document.getElementById('camp-item-2')?.value || "8 Super Saturday campaigns",
+        item3: document.getElementById('camp-item-3')?.value || "2 Super Saturday campaigns",
+        item4: document.getElementById('camp-item-4')?.value || "8 Super Saturday campaigns",
+        item5: document.getElementById('camp-item-5')?.value || "0",
+        item6: document.getElementById('camp-item-6')?.value || "0",
+        manualOverride: document.getElementById('camp-item-2')?.dataset.manualOverride === "true"
       };
-      localStorage.setItem('campaigns_data', JSON.stringify(campData));
+    }
+
+    function applyCampaignsObject(c) {
+      if (!c) return;
+      if (document.getElementById('camp-item-1')) document.getElementById('camp-item-1').value = c.item1 || '';
+      if (document.getElementById('camp-item-2')) {
+        document.getElementById('camp-item-2').value = c.item2 || '';
+        if (c.manualOverride) document.getElementById('camp-item-2').dataset.manualOverride = "true";
+      }
+      if (document.getElementById('camp-item-3')) document.getElementById('camp-item-3').value = c.item3 || '';
+      if (document.getElementById('camp-item-4')) {
+        document.getElementById('camp-item-4').value = c.item4 || '';
+        if (c.manualOverride) document.getElementById('camp-item-4').dataset.manualOverride = "true";
+      }
+      if (document.getElementById('camp-item-5')) document.getElementById('camp-item-5').value = c.item5 || '0';
+      if (document.getElementById('camp-item-6')) document.getElementById('camp-item-6').value = c.item6 || '0';
+    }
+
+    // Save and Sync specifically for Section 14
+    async function saveAndSyncCampaigns() {
+      const campObj = getCampaignsObject();
+      localStorage.setItem('campaigns_data', JSON.stringify(campObj));
+
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: campObj,
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.campaigns = campObj;
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        await pushDataToGithub();
+        alert("Sales Promotion Campaigns (Section 14) saved and synced across all devices via GitHub!");
+      } else {
+        alert("Campaign details saved locally! Enter your GitHub token in 'Upload & Settings' to sync across other devices.");
+      }
     }
 
     // Market Information Table & Modal
@@ -1354,6 +1389,7 @@
           universe: getAllUniverseData(),
           stockistDetails: activeStockistDetails,
           marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
           monthlyData: {},
           ssfData: {}
         };
@@ -1475,6 +1511,7 @@
         universe: getAllUniverseData(),
         stockistDetails: activeStockistDetails,
         marketInfo: activeMarketInfo,
+        campaigns: getCampaignsObject(),
         primaryData: rawDatasetPrimary.map(r => ({
           'Name': r['Name'],
           'Inv.Date': normalizeDateStr(r['Inv.Date']),
@@ -1885,19 +1922,26 @@
         return;
       }
 
-      if (!portalCompiledData) {
-        feedback.textContent = "⚠️ Please upload the Excel files first before pushing.";
-        feedback.className = "text-xs font-semibold mt-3 text-amber-600";
-        return;
-      }
-
       badge.textContent = "Sync: Pushing to Cloud...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
-      portalCompiledData.universe = getAllUniverseData();
-      portalCompiledData.stockistDetails = activeStockistDetails;
-      portalCompiledData.marketInfo = activeMarketInfo;
-      portalCompiledData.updatedAt = new Date().toISOString();
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.universe = getAllUniverseData();
+        portalCompiledData.stockistDetails = activeStockistDetails;
+        portalCompiledData.marketInfo = activeMarketInfo;
+        portalCompiledData.campaigns = getCampaignsObject();
+        portalCompiledData.updatedAt = new Date().toISOString();
+      }
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
 
@@ -2002,10 +2046,20 @@
             renderMarketInfoTable();
           }
 
+          if (portalCompiledData.campaigns) {
+            applyCampaignsObject(portalCompiledData.campaigns);
+            localStorage.setItem('campaigns_data', JSON.stringify(portalCompiledData.campaigns));
+          }
+
           if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
             rawDatasetPrimary = portalCompiledData.primaryData;
             document.getElementById('status-primary').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary (${rawDatasetPrimary.length} rows)</span>`;
           }
+
+          renderStockistDetailsTable();
+          renderFinancialsWorkingCapital();
+          updateCampaignsFormula();
+          renderMarketInfoTable();
 
           document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
           document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
@@ -2039,7 +2093,7 @@
       }
     }
 
-    // App Initialization
+    // App Boot
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
@@ -2067,6 +2121,13 @@
         } catch(e) {}
       }
 
+      const savedCampaigns = localStorage.getItem('campaigns_data');
+      if (savedCampaigns) {
+        try {
+          applyCampaignsObject(JSON.parse(savedCampaigns));
+        } catch(e) {}
+      }
+
       const cachedData = localStorage.getItem('compiled_portal_data');
       if (cachedData) {
         try {
@@ -2076,6 +2137,9 @@
           }
           if (portalCompiledData.marketInfo) {
             activeMarketInfo = portalCompiledData.marketInfo;
+          }
+          if (portalCompiledData.campaigns) {
+            applyCampaignsObject(portalCompiledData.campaigns);
           }
           if (portalCompiledData.primaryData) {
             rawDatasetPrimary = portalCompiledData.primaryData;
