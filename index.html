@@ -88,7 +88,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Header -->
+  <!-- Top Navigation Header with Reordered Tabs -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -96,7 +96,7 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
-      <!-- Reordered Navigation Tabs -->
+      <!-- 5 Navigation Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
         <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
@@ -757,6 +757,9 @@
           <button onclick="pullDataFromGithub(true)" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
             ⬇️ Pull & Sync Now
           </button>
+          <button onclick="testGithubConnection()" class="bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            🔍 Test Connection & Permissions
+          </button>
         </div>
         <p id="gh-feedback" class="text-xs font-semibold mt-3 text-slate-500"></p>
       </div>
@@ -1025,7 +1028,6 @@
     function normalizeDateStr(val) {
       if (val === null || val === undefined || val === '') return '';
 
-      // If val is an Excel serial number
       if (typeof val === 'number') {
         if (isNaN(val) || val <= 0) return '';
         const excelEpoch = new Date(Date.UTC(1899, 11, 30));
@@ -1067,7 +1069,6 @@
       return '';
     }
 
-    // Clean UTC date subtraction without epoch (1970-01-01) bugs
     function subtractOneDay(dateStr) {
       if (!dateStr || dateStr.length < 10) return null;
       const parts = dateStr.split('-');
@@ -1081,7 +1082,6 @@
       return dt.toISOString().split('T')[0];
     }
 
-    // Primary Stock Receipt Calculation:
     function calculateStockistReceipt(stockistIndex) {
       const stockistName = STOCKIST_NAMES[stockistIndex];
 
@@ -1307,7 +1307,7 @@
       renderFinancialsWorkingCapital();
       updateCampaignsFormula();
 
-      const token = document.getElementById('gh-token').value.trim();
+      const token = getCleanToken();
       if (token) {
         await pushDataToGithub();
         alert("Stockist Details updated locally and synced across all devices via GitHub!");
@@ -1331,7 +1331,6 @@
       `;
     }
 
-    // Dynamic Updates for Section 14
     function updateCampaignsFormula() {
       const selectedMonthVal = parseInt(document.getElementById('sel-month').value);
       const selectedMonthName = MONTH_NAMES[selectedMonthVal] || "Aug'26";
@@ -1456,7 +1455,7 @@
       }
       localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
 
-      const token = document.getElementById('gh-token').value.trim();
+      const token = getCleanToken();
       if (token) {
         await pushDataToGithub();
         alert("Sales Promotion Campaigns (Section 14) saved and synced across all devices via GitHub!");
@@ -1465,7 +1464,6 @@
       }
     }
 
-    // Market Information Table & Modal
     function renderMarketInfoTable() {
       const tbody = document.getElementById('tbody-market-info');
       if (!tbody) return;
@@ -1550,7 +1548,7 @@
       }
       localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
 
-      const token = document.getElementById('gh-token').value.trim();
+      const token = getCleanToken();
       if (token) {
         await pushDataToGithub();
         alert("Market Information updated and synced across all devices via GitHub!");
@@ -1809,7 +1807,6 @@
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
-          // cellDates: true parses date cells into JS Date objects
           const workbook = XLSX.read(data, { type: 'array', cellDates: true });
           const firstSheet = workbook.SheetNames[0];
           const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
@@ -1835,7 +1832,7 @@
           runAnalysis();
           renderSSFAnalysis();
 
-          if (document.getElementById('gh-token').value.trim()) {
+          if (getCleanToken()) {
             pushDataToGithub();
           } else {
             document.getElementById('gh-feedback').textContent = "Data compiled. Enter your ghp_ token below to push across other devices.";
@@ -2026,14 +2023,19 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // Robust Base64 Encoders / Decoders
-    function encodeGithubBase64(str) {
-      return btoa(unescape(encodeURIComponent(str)));
+    // --- Modern, Bulletproof UTF-8 Base64 Encoders using TextEncoder / TextDecoder ---
+    function utf8ToBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
     }
 
-    function decodeGithubBase64(base64Str) {
-      const clean = base64Str.replace(/\s/g, '');
-      const binary = atob(clean);
+    function base64ToUtf8(b64) {
+      const binary = atob(b64.replace(/\s/g, ''));
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) {
         bytes[i] = binary.charCodeAt(i);
@@ -2041,19 +2043,88 @@
       return new TextDecoder('utf-8').decode(bytes);
     }
 
+    // Token Sanitizer: Strips accidentally copied quotes, spaces, or leading words
+    function getCleanToken() {
+      const raw = document.getElementById('gh-token')?.value || localStorage.getItem('ghp_token') || '';
+      return raw.trim().replace(/^["']|["']$/g, '');
+    }
+
+    // Standard GitHub API Authorization Header builder
+    function getGithubAuthHeaders(token) {
+      const clean = token || getCleanToken();
+      const headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'Cache-Control': 'no-cache'
+      };
+      if (clean) {
+        // Fine-grained PATs start with 'github_pat_', classic with 'ghp_'
+        headers['Authorization'] = clean.startsWith('github_pat_') ? `Bearer ${clean}` : `token ${clean}`;
+      }
+      return headers;
+    }
+
+    // Test Connection Button: Verifies token, user identity, repo permissions, and file existence
+    async function testGithubConnection() {
+      const token = getCleanToken();
+      const feedback = document.getElementById('gh-feedback');
+      const badge = document.getElementById('sync-status-indicator');
+
+      if (!token) {
+        feedback.innerHTML = `<span class="text-rose-600 font-bold">⚠️ Please enter your Personal Access Token first.</span>`;
+        return;
+      }
+
+      badge.textContent = "Testing...";
+      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+      feedback.textContent = "Connecting to GitHub API...";
+
+      try {
+        // Step 1: Check Token Identity
+        const userRes = await fetch("https://api.github.com/user", { headers: getGithubAuthHeaders(token) });
+        if (!userRes.ok) {
+          throw new Error(`Token invalid or expired (HTTP ${userRes.status})`);
+        }
+        const userData = await userRes.json();
+        const authedUser = userData.login;
+
+        // Step 2: Check Repository Access
+        const repoRes = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}`, { headers: getGithubAuthHeaders(token) });
+        if (!repoRes.ok) {
+          throw new Error(`Cannot access repository ${GITHUB_USERNAME}/${GITHUB_REPO} (HTTP ${repoRes.status}). Verify repository permissions.`);
+        }
+        const repoData = await repoRes.json();
+        const defaultBranch = repoData.default_branch || 'main';
+        const hasPushPermission = repoData.permissions ? repoData.permissions.push : true;
+
+        // Step 3: Check if file exists
+        const fileUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
+        const fileRes = await fetch(fileUrl, { method: 'GET', cache: 'no-store', headers: getGithubAuthHeaders(token) });
+        const fileFound = fileRes.ok;
+
+        badge.textContent = "Verified ✓";
+        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        feedback.innerHTML = `
+          <div class="space-y-1 text-emerald-700 font-medium">
+            <div>✓ Authenticated as: <strong>${authedUser}</strong></div>
+            <div>✓ Repository: <strong>${repoData.full_name}</strong> (${repoData.private ? 'Private' : 'Public'}, branch: <code>${defaultBranch}</code>)</div>
+            <div>✓ Push Permission: <strong>${hasPushPermission ? 'YES (Write Access)' : 'NO (Read Only)'}</strong></div>
+            <div>✓ Remote File: <strong>${fileFound ? 'Exists (Ready to Pull/Update)' : 'Not Created Yet (Will be created on First Push)'}</strong></div>
+          </div>
+        `;
+      } catch (err) {
+        badge.textContent = "Check Failed";
+        badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+        feedback.innerHTML = `<span class="text-rose-600 font-bold">✕ Connection Test Failed:</span> ${err.message}`;
+      }
+    }
+
     async function getLatestFileSha(token) {
       const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
       try {
-        const headers = {
-          'Accept': 'application/vnd.github.v3+json',
-          'Cache-Control': 'no-cache'
-        };
-        if (token) headers['Authorization'] = `token ${token}`;
-
         const res = await fetch(url, {
           method: 'GET',
           cache: 'no-store',
-          headers
+          headers: getGithubAuthHeaders(token)
         });
         if (res.ok) {
           const json = await res.json();
@@ -2066,7 +2137,7 @@
     }
 
     function saveGithubToken() {
-      const token = document.getElementById('gh-token').value.trim();
+      const token = getCleanToken();
       if (token) {
         localStorage.setItem('ghp_token', token);
         document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser storage.";
@@ -2083,7 +2154,7 @@
     }
 
     async function pushDataToGithub() {
-      const token = document.getElementById('gh-token').value.trim();
+      const token = getCleanToken();
       const feedback = document.getElementById('gh-feedback');
       const badge = document.getElementById('sync-status-indicator');
 
@@ -2120,7 +2191,7 @@
         let sha = await getLatestFileSha(token);
 
         const jsonStr = JSON.stringify(portalCompiledData);
-        const encodedContent = encodeGithubBase64(jsonStr);
+        const encodedContent = utf8ToBase64(jsonStr);
 
         const bodyData = {
           message: `Update sales data and inspection profiles [${new Date().toLocaleDateString()}]`,
@@ -2130,27 +2201,23 @@
           bodyData.sha = sha;
         }
 
+        const putHeaders = getGithubAuthHeaders(token);
+        putHeaders['Content-Type'] = 'application/json';
+
         let putRes = await fetch(apiUrl, {
           method: 'PUT',
-          headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
+          headers: putHeaders,
           body: JSON.stringify(bodyData)
         });
 
+        // Auto-retry if SHA conflict occurs
         if (!putRes.ok && (putRes.status === 422 || putRes.status === 409)) {
           sha = await getLatestFileSha(token);
           if (sha) {
             bodyData.sha = sha;
             putRes = await fetch(apiUrl, {
               method: 'PUT',
-              headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-              },
+              headers: putHeaders,
               body: JSON.stringify(bodyData)
             });
           }
@@ -2159,8 +2226,7 @@
         if (putRes.ok) {
           badge.textContent = "Sync: Up to date";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          feedback.textContent = `✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} (~${Math.round(jsonStr.length/1024)} KB) at ${new Date().toLocaleTimeString()}`;
-          feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
+          feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Successfully synced to ${GITHUB_REPO}/${GITHUB_DATA_PATH} (~${Math.round(jsonStr.length/1024)} KB) at ${new Date().toLocaleTimeString()}</span>`;
         } else {
           const errData = await putRes.json();
           throw new Error(`(${putRes.status}) ${errData.message || 'GitHub error'}`);
@@ -2169,13 +2235,12 @@
         console.error(err);
         badge.textContent = "Sync: Error";
         badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
-        feedback.textContent = `✕ Push failed: ${err.message}`;
-        feedback.className = "text-xs font-semibold mt-3 text-rose-600";
+        feedback.innerHTML = `<span class="text-rose-600 font-bold">✕ Push failed: ${err.message}</span>`;
       }
     }
 
     async function pullDataFromGithub(userTriggered) {
-      const token = document.getElementById('gh-token').value.trim();
+      const token = getCleanToken();
       const feedback = document.getElementById('gh-feedback');
       const badge = document.getElementById('sync-status-indicator');
 
@@ -2183,27 +2248,22 @@
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
-      const headers = { 
-        'Accept': 'application/vnd.github.v3+json',
-        'Cache-Control': 'no-cache'
-      };
-      if (token) headers['Authorization'] = `token ${token}`;
 
       try {
         const res = await fetch(apiUrl, { 
           method: 'GET',
           cache: 'no-store',
-          headers 
+          headers: getGithubAuthHeaders(token) 
         });
 
         if (res.ok) {
           const fileMeta = await res.json();
           
           if (!fileMeta.content) {
-            throw new Error("Empty content received from GitHub.");
+            throw new Error("Empty file content received from GitHub.");
           }
 
-          const decodedJsonStr = decodeGithubBase64(fileMeta.content);
+          const decodedJsonStr = base64ToUtf8(fileMeta.content);
           portalCompiledData = JSON.parse(decodedJsonStr);
 
           localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
@@ -2238,6 +2298,7 @@
             }
           }
 
+          // Re-render all views with newly pulled data
           renderStockistDetailsTable();
           renderFinancialsWorkingCapital();
           updateCampaignsFormula();
@@ -2254,21 +2315,18 @@
           badge.textContent = "Sync: Synced";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
           if (userTriggered) {
-            feedback.textContent = `✓ Synced latest cloud data from ${GITHUB_REPO}/${GITHUB_DATA_PATH} at ${new Date().toLocaleTimeString()}`;
-            feedback.className = "text-xs font-semibold mt-3 text-emerald-600";
+            feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced latest cloud data from ${GITHUB_REPO}/${GITHUB_DATA_PATH} at ${new Date().toLocaleTimeString()}</span>`;
           }
         } else if (res.status === 404) {
           badge.textContent = "Sync: No remote file";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300";
           if (userTriggered) {
-            feedback.textContent = `Remote file (${GITHUB_DATA_PATH}) not found yet. Push data from Device 1 first.`;
-            feedback.className = "text-xs font-semibold mt-3 text-slate-600";
+            feedback.innerHTML = `<span class="text-slate-600">Remote file (${GITHUB_DATA_PATH}) not created yet. Push data from Device 1 first.</span>`;
           }
         } else if (res.status === 401 || res.status === 403) {
           badge.textContent = "Sync: Auth Error";
           badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
-          feedback.textContent = `Authentication failed (${res.status}). Verify your token has 'repo' access.`;
-          feedback.className = "text-xs font-semibold mt-3 text-rose-600";
+          feedback.innerHTML = `<span class="text-rose-600 font-bold">Authentication failed (${res.status}). Verify your token has 'repo' access or run 'Test Connection'.</span>`;
         } else {
           throw new Error(`(${res.status}) ${res.statusText}`);
         }
@@ -2277,13 +2335,12 @@
         badge.textContent = "Sync: Failed";
         badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
         if (userTriggered) {
-          feedback.textContent = `Sync notice: ${err.message}`;
-          feedback.className = "text-xs font-semibold mt-3 text-amber-600";
+          feedback.innerHTML = `<span class="text-amber-600">Sync notice: ${err.message}</span>`;
         }
       }
     }
 
-    // App Boot
+    // App Initialization on Boot
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
