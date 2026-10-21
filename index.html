@@ -89,7 +89,7 @@
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
   <!-- Top Navigation Header -->
-  <header class="bg-blue-900 text-white shadow-md print:hidden">
+  <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
         <h1 class="text-xl font-bold tracking-wide">Secondary Sales & SSF Performance Portal</h1>
@@ -128,7 +128,7 @@
     <!-- TAB 1: SALES ANALYSIS                      -->
     <!-- ========================================== -->
     <div id="tab-analysis" class="space-y-6">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 print:hidden">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-6">
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Stockist Name</label>
@@ -144,7 +144,7 @@
 
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Select Month</label>
-            <select id="sel-month" onchange="syncMonth(this.value); runAnalysis();" 
+            <select id="sel-month" onchange="syncMonth(this.value); runAnalysis(); updateCampaignsFormula();" 
               class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
               <option value="4">Apr'26</option>
               <option value="5">May'26</option>
@@ -168,9 +168,6 @@
           </span>
           <button onclick="exportToPDF('pdf-report-content', 'Sales_Analysis')" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
             📄 Export to PDF
-          </button>
-          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-            🖨️ Print
           </button>
         </div>
       </div>
@@ -288,7 +285,7 @@
               <td class="font-semibold" id="cy-nayara">0.0</td>
               <td class="font-semibold" id="ly-nayara">0.1</td>
               <td id="pct-cy-nayara">0.0%</td>
-              <td id="pct-ly-nayara">0.0%</td>
+              <td id="pct-ly-nayara">0.1%</td>
             </tr>
 
             <tr id="row-bazaar" class="text-right">
@@ -339,7 +336,7 @@
     <!-- TAB 2: SSF WISE SALES ANALYSIS             -->
     <!-- ========================================== -->
     <div id="tab-ssf" class="hidden space-y-6">
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 print:hidden">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-6">
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Stockist Name</label>
@@ -355,7 +352,7 @@
 
           <div>
             <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Select Month (Cumulative Till)</label>
-            <select id="sel-ssf-month" onchange="syncMonth(this.value); renderSSFAnalysis();" 
+            <select id="sel-ssf-month" onchange="syncMonth(this.value); renderSSFAnalysis(); updateCampaignsFormula();" 
               class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
               <option value="4">Apr'26</option>
               <option value="5">May'26</option>
@@ -371,12 +368,6 @@
               <option value="3">Mar'27</option>
             </select>
           </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
-            🖨️ Print
-          </button>
         </div>
       </div>
 
@@ -433,17 +424,18 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 3: STOCKIST DETAILS (Auto-Receipt + Calendar Date)  -->
+    <!-- TAB 3: STOCKIST DETAILS (With Save & Update All Button)  -->
     <!-- ======================================================= -->
     <div id="tab-stockist" class="hidden space-y-6">
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-5">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-4 mb-5">
           <div>
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
-            <p class="text-xs text-slate-500 font-medium">Highlighted yellow cells are editable. Select the calendar date for inspection to automatically compute the primary sales receipt volume (KL).</p>
+            <p class="text-xs text-slate-500 font-medium">Yellow cells are editable. Click "Save & Update All Devices" to sync across all devices.</p>
           </div>
-          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition">
-            🖨️ Print Details
+          <!-- Update button to sync editable cells across all devices -->
+          <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
+            💾 Save & Update All Devices
           </button>
         </div>
 
@@ -459,20 +451,18 @@
                 <th class="w-1/6">SWASTIK AUTOMOBILES</th>
               </tr>
             </thead>
-            <tbody id="tbody-stockist-details">
-              <!-- Rendered via JavaScript -->
-            </tbody>
+            <tbody id="tbody-stockist-details"></tbody>
           </table>
         </div>
       </div>
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 4: OTHER DETAILS (Remaining Inspection Sheets)      -->
+    <!-- TAB 4: OTHER DETAILS                                    -->
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
-      <!-- Section 1: Godown Inspection -->
+      <!-- Section 1: Godown Inspection (Additional Notes column removed) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">8 - Godown Inspection Checklist</h2>
@@ -484,97 +474,66 @@
               <tr class="sheet-subheader">
                 <th class="w-12 text-center">Sl No</th>
                 <th>Inspection Item</th>
-                <th>Remarks / Status</th>
-                <th>Additional Notes</th>
+                <th class="w-1/3">Remarks / Status</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td class="text-center font-bold">1</td><td>Whether adequate space for movement is available?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">2</td><td>Segregation of damaged/ contaminated/ leaky stock is done?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">3</td><td>Godown is clean?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">4</td><td>Weighing machine available and in working condition?</td><td class="font-semibold text-rose-600">NO</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">5</td><td>Valid Calibration certificate for Weighing Machine available?</td><td class="font-semibold text-slate-600">NA</td><td>Calibration Date Validity: -</td></tr>
-              <tr><td class="text-center font-bold">6</td><td>Safety Equipment against fire available?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">7</td><td>No. of Fire Extinguishers with proper validity</td><td class="font-semibold text-blue-900">3</td><td>Proper validity maintained</td></tr>
-              <tr><td class="text-center font-bold">8</td><td>Proper Illumination available?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">9</td><td>Stacking of barrels/ cartons is proper?</td><td class="font-semibold text-emerald-700">Yes</td><td>-</td></tr>
-              <tr><td class="text-center font-bold">10</td><td>Last date of Electrical Audit</td><td class="font-semibold text-slate-600">NA</td><td>-</td></tr>
+              <tr><td class="text-center font-bold">1</td><td>Whether adequate space for movement is available?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">2</td><td>Segregation of damaged/ contaminated/ leaky stock is done?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Godown is clean?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Weighing machine available and in working condition?</td><td class="font-semibold text-rose-600">NO</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Valid Calibration certificate for Weighing Machine available?</td><td class="font-semibold text-slate-600">NA</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>Safety Equipment against fire available?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">7</td><td>No. of Fire Extinguishers with proper validity</td><td class="font-semibold text-blue-900">3</td></tr>
+              <tr><td class="text-center font-bold">8</td><td>Proper Illumination available?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">9</td><td>Stacking of barrels/ cartons is proper?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">10</td><td>Last date of Electrical Audit</td><td class="font-semibold text-slate-600">NA</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Section 2: SSF / OE Promoter Details Log -->
+      <!-- Section 2: SSF / OE Promoter Details (Only Stockist and SSFs Assigned, Nilkantha removed) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">9 - SSF / OE Promoter Inspection Logs</h2>
-          <p class="text-xs text-slate-500">Historical inspection logs across stockists from the SSF OE Promoter sheet.</p>
+          <p class="text-xs text-slate-500">Designated SSF field representatives assigned to stockist territories.</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
             <thead>
-              <tr class="sheet-subheader text-center">
-                <th class="text-left">Stockist</th>
-                <th>Month</th>
-                <th>SSFs Active</th>
-                <th>SSF Volume Norms</th>
-                <th>Key SSFs Assigned</th>
-                <th>SERVO Uniform</th>
-                <th>OE Promoter / Qualification</th>
+              <tr class="sheet-subheader">
+                <th class="w-1/3 text-left">Stockist</th>
+                <th>SSFs Assigned</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="font-bold text-blue-950">TAKSHVI CO (NILKANTHA)</td>
-                <td class="text-center">Apr'24 - Dec'24</td>
-                <td class="text-center font-bold">3</td>
-                <td class="text-center font-bold">3</td>
-                <td>Ranajit Maitra (8170035510), Sudam Mondal (9083256046), Sudipta Sam (9732096695), Soumitra Das (8918067604)</td>
-                <td class="text-center font-semibold text-emerald-700">Yes</td>
-                <td>Senhasis Bhattacharya (B.A. / 7029237958)</td>
+                <td class="font-bold text-blue-950">TAKSHVI CO</td>
+                <td class="font-medium text-slate-700">Ranajit Maitra (8170035510), Sudam Mondal (9083256046), Sudipta Sam (9732096695), Soumitra Das (8918067604)</td>
               </tr>
               <tr>
                 <td class="font-bold text-blue-950">BIHARIJI AUTO SERVICE</td>
-                <td class="text-center">Apr'24 - Jan'25</td>
-                <td class="text-center font-bold">3 - 4</td>
-                <td class="text-center font-bold">3</td>
-                <td>Arup Mukherjee (9749555224), Dolan Paul (7001152823), Bijay Sharma (6297740787), Sukhamay Mukherjee (8436488100)</td>
-                <td class="text-center font-semibold text-emerald-700">Yes</td>
-                <td>Sukhamay Mukherjee (H.S / 8436488100)</td>
+                <td class="font-medium text-slate-700">Arup Mukherjee (9749555224), Dolan Paul (7001152823), Bijay Sharma (6297740787), Sukhamay Mukherjee (8436488100)</td>
               </tr>
               <tr>
                 <td class="font-bold text-blue-950">M/S NALATESWARI LUBRICANTS</td>
-                <td class="text-center">Apr'24 - Jan'25</td>
-                <td class="text-center font-bold">5</td>
-                <td class="text-center font-bold">3</td>
-                <td>Sagar Das (7864004485), Soumen Dutta (7908634950), Biswanath Mitra (9382562229), Timir Baran Nandi (9474352537), Uttam Kabiraj (9593438808)</td>
-                <td class="text-center font-semibold text-emerald-700">Yes</td>
-                <td>Archisman Banerjee (H.S / 7908349118)</td>
+                <td class="font-medium text-slate-700">Sagar Das (7864004485), Soumen Dutta (7908634950), Biswanath Mitra (9382562229), Timir Baran Nandi (9474352537), Uttam Kabiraj (9593438808)</td>
               </tr>
               <tr>
-                <td class="font-bold text-blue-950">SERVO WORLD (SMG TRADES)</td>
-                <td class="text-center">Apr'24 - Jan'25</td>
-                <td class="text-center font-bold">3</td>
-                <td class="text-center font-bold">3</td>
-                <td>Pinaki Chakraborty (9531568565), Robin Chakraborty (9434845141), Sujit Chattaraj (7872139666), Ram Prasad Chakraborty (9733939912)</td>
-                <td class="text-center font-semibold text-emerald-700">Yes</td>
-                <td>Ramprasad Chakraborty (B.A. / 9733939912)</td>
+                <td class="font-bold text-blue-950">SMG TRADES</td>
+                <td class="font-medium text-slate-700">Pinaki Chakraborty (9531568565), Robin Chakraborty (9434845141), Sujit Chattaraj (7872139666), Ram Prasad Chakraborty (9733939912)</td>
               </tr>
               <tr>
                 <td class="font-bold text-blue-950">SWASTIK AUTOMOBILES</td>
-                <td class="text-center">Aug'24 - Jan'25</td>
-                <td class="text-center font-bold">3</td>
-                <td class="text-center font-bold">2 - 3</td>
-                <td>Nayan Choudhury (8016185353), Lalu Mahata (9800153677), Tapas Adhikary (8972880326), Dayal Mahato (8016185353)</td>
-                <td class="text-center font-semibold text-emerald-700">Yes</td>
-                <td>NA</td>
+                <td class="font-medium text-slate-700">Nayan Choudhury (8016185353), Lalu Mahata (9800153677), Tapas Adhikary (8972880326), Dayal Mahato (8016185353)</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Section 3: Financials Inspection -->
+      <!-- Section 3: Financials Inspection (Working Capital pulls from Stockist Details) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">10 - Financials Inspection Review</h2>
@@ -590,7 +549,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td class="text-center font-bold">1</td><td>Working Capital requirement as per contract</td><td class="font-medium text-slate-700">Derived from Stockist Details formula: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-800">ROUNDUP((Target/12)*1.18*1.75*276/100, 0) L</code></td></tr>
+              <tr>
+                <td class="text-center font-bold">1</td>
+                <td>Working Capital requirement as per contract</td>
+                <td class="font-bold text-blue-900 bg-blue-50/60" id="fin-wc-display">
+                  <!-- Injected dynamically from Minimum Working Capital in Stockist Details -->
+                </td>
+              </tr>
               <tr><td class="text-center font-bold">2</td><td>Details of Source of capital – Own & Other sources</td><td class="font-medium text-slate-700">OWN FOR ALL EXCEPT BIHARIJI (OWN & BANK LOAN)</td></tr>
               <tr><td class="text-center font-bold">3</td><td>Current assets – Stock, Receivables, Cash</td><td class="font-medium text-slate-700">STOCK, RECEIVABLES & CASH IN BANK</td></tr>
               <tr><td class="text-center font-bold">4</td><td>Current liabilities – Payables, debt</td><td class="font-medium text-slate-700">PAYABLES</td></tr>
@@ -602,11 +567,11 @@
         </div>
       </div>
 
-      <!-- Section 4: Promotional Campaigns -->
+      <!-- Section 4: Promotional Campaigns (Point 2 and 4 computed and editable) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="border-b-2 border-blue-900 pb-2 mb-4">
           <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
-          <p class="text-xs text-slate-500">Retail outlet and Bazaar promotion campaign tracking log.</p>
+          <p class="text-xs text-slate-500">Retail outlet and Bazaar promotion campaign tracking log. Points 2 and 4 are calculated dynamically from selected month ($2 \times (\text{Month} - 4)$) and remain fully editable.</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs sheet-table">
@@ -614,46 +579,76 @@
               <tr class="sheet-subheader">
                 <th class="w-12 text-center">Sl No</th>
                 <th>Inspection Item</th>
-                <th>Remarks / Standard Frequency</th>
+                <th class="w-1/2">Remarks / Computed Volume</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td class="text-center font-bold">1</td><td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td><td class="font-semibold text-slate-800">2 Super Saturday campaigns</td></tr>
-              <tr><td class="text-center font-bold">2</td><td>Cumulative number of RO Campaigns conducted in current FY</td><td class="font-semibold text-slate-800">2 × current month Super Saturday campaigns</td></tr>
-              <tr><td class="text-center font-bold">3</td><td>Number of Bazaar Campaigns conducted last month</td><td class="font-semibold text-slate-800">2 Super Saturday campaigns</td></tr>
-              <tr><td class="text-center font-bold">4</td><td>Cumulative number of Bazaar Campaigns conducted in current FY</td><td class="font-semibold text-slate-800">2 × current month Super Saturday campaigns</td></tr>
-              <tr><td class="text-center font-bold">5</td><td>Campaign Van - Campaigns done last month</td><td class="font-semibold text-slate-600">0</td></tr>
-              <tr><td class="text-center font-bold">6</td><td>Campaign Van - Cumulative Campaigns done in current FY</td><td class="font-semibold text-slate-600">0</td></tr>
+              <tr>
+                <td class="text-center font-bold">1</td>
+                <td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td>
+                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" onchange="saveCampaignsData()"></td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">2</td>
+                <td>Cumulative number of RO Campaigns conducted in current FY</td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" onchange="saveCampaignsData()">
+                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-2-formula">Formula: 2 * (Month - Apr'26)</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">3</td>
+                <td>Number of Bazaar Campaigns conducted last month</td>
+                <td><input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" onchange="saveCampaignsData()"></td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">4</td>
+                <td>Cumulative number of Bazaar Campaigns conducted in current FY</td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <input type="text" id="camp-item-4" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" onchange="saveCampaignsData()">
+                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-4-formula">Formula: 2 * (Month - Apr'26)</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">5</td>
+                <td>Campaign Van - Campaigns done last month</td>
+                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" onchange="saveCampaignsData()"></td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">6</td>
+                <td>Campaign Van - Cumulative Campaigns done in current FY</td>
+                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" onchange="saveCampaignsData()"></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Section 5: Market Information -->
+      <!-- Section 5: Market Information (With Edit More Button and Cloud Sync) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="border-b-2 border-blue-900 pb-2 mb-4">
-          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">Market Information & Competitor Intelligence</h2>
-          <p class="text-xs text-slate-500">Observations and feedback on competitor strategies and product demands.</p>
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
+          <div>
+            <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">Market Information & Competitor Intelligence</h2>
+            <p class="text-xs text-slate-500">Field intelligence and market observations across competitors.</p>
+          </div>
+          <button onclick="openMarketEditModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+            ✏️ Edit / Add More Observations
+          </button>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-xs sheet-table">
+          <table class="w-full text-xs sheet-table" id="table-market-info">
             <thead>
               <tr class="sheet-subheader">
                 <th class="w-12 text-center">Sl.No.</th>
                 <th>Additional Observations Or General Remarks</th>
-                <th class="w-1/4">Applicability / Region</th>
+                <th class="w-1/3">Applicability / Region</th>
               </tr>
             </thead>
-            <tbody>
-              <tr><td class="text-center font-bold">1</td><td>CASTROL overstretching in 4T & multigrades with aggressive lower pricing products.</td><td class="text-slate-600">All Areas</td></tr>
-              <tr><td class="text-center font-bold">2</td><td>Gulf DEO coupons available in the market with double redeem value.</td><td class="text-slate-600">Bazaar & Commercial</td></tr>
-              <tr><td class="text-center font-bold">3</td><td>Gel-based RED Grease is in high demand for the retail market.</td><td class="text-slate-600">Retail Trade</td></tr>
-              <tr><td class="text-center font-bold">4</td><td>Servo Chakkada is urgently required in 2.2 L pack size.</td><td class="text-slate-600">3-Wheeler / Rural</td></tr>
-              <tr><td class="text-center font-bold">5</td><td>Motul 7100 launched in API SP specification with attractive packaging and aggressive rates.</td><td class="text-slate-600">Premium 2W</td></tr>
-              <tr><td class="text-center font-bold">6</td><td>MAK and Castrol have launched API SP Products for PCMO category.</td><td class="text-slate-600">Passenger Car Segment</td></tr>
-              <tr><td class="text-center font-bold">7</td><td>MAK has launched scooter gear oil in small convenience pouches.</td><td class="text-slate-600">Bazaar Trade</td></tr>
-              <tr><td class="text-center font-bold">8</td><td>Less than 20% market share of Servo in the area.</td><td class="font-semibold text-rose-700 bg-rose-50">Swastik Automobiles & SMG Trades</td></tr>
-            </tbody>
+            <tbody id="tbody-market-info"></tbody>
           </table>
         </div>
       </div>
@@ -661,18 +656,15 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 5: UPLOADS & GITHUB SYNC (data/portal_data.json)     -->
+    <!-- TAB 5: UPLOADS & GITHUB SYNC                            -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
-      <!-- Upload Excels Box: 3 uploads -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
         <p class="text-sm text-slate-500 mb-6">Upload raw secondary and primary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          <!-- Secondary LY -->
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2.5 mb-2">
@@ -693,7 +685,6 @@
             </div>
           </div>
 
-          <!-- Secondary CY -->
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2.5 mb-2">
@@ -714,7 +705,6 @@
             </div>
           </div>
 
-          <!-- Primary CY (NEW) -->
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-2.5 mb-2">
@@ -734,7 +724,6 @@
               <div id="status-primary" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -855,6 +844,34 @@
     </div>
   </main>
 
+  <!-- Market Observations Edit Modal -->
+  <div id="modal-market-edit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-slate-800 text-base">Edit Market & Competitor Intelligence</h3>
+        <button onclick="closeMarketEditModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+      </div>
+
+      <div class="overflow-y-auto flex-1 space-y-3 p-1" id="modal-market-rows">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t">
+        <button onclick="addMarketObservationRow()" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+          + Add New Row
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeMarketEditModal()" class="text-xs font-semibold px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-600">
+            Cancel
+          </button>
+          <button onclick="saveMarketObservations()" class="text-xs font-bold px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow">
+            Save & Sync Across Devices
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Application Logic -->
   <script>
     const GITHUB_USERNAME = "binaykrishna";
@@ -877,15 +894,22 @@
 
       if (tab === 'ssf') renderSSFAnalysis();
       if (tab === 'stockist') renderStockistDetailsTable();
+      if (tab === 'other') {
+        renderFinancialsWorkingCapital();
+        updateCampaignsFormula();
+        renderMarketInfoTable();
+      }
     }
 
     function syncStockist(val) {
       document.getElementById('sel-stockist').value = val;
       document.getElementById('sel-ssf-stockist').value = val;
+      renderFinancialsWorkingCapital();
     }
     function syncMonth(val) {
       document.getElementById('sel-month').value = val;
       document.getElementById('sel-ssf-month').value = val;
+      updateCampaignsFormula();
     }
 
     const STOCKIST_BASE_POTENTIAL = {
@@ -920,14 +944,14 @@
 
     let rawDatasetLY = [];
     let rawDatasetCY = [];
-    let rawDatasetPrimary = []; // Primary CY Sales records
+    let rawDatasetPrimary = [];
     let portalCompiledData = null;
 
-    // Default Stockist Details from SSA-Inspection.xlsx
+    // Default Stockist Details
     const DEFAULT_STOCKIST_DETAILS = {
       type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
       location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
-      lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"], // Standard ISO YYYY-MM-DD
+      lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"],
       commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "03/09/2013", "30/11/2023"],
       officeAddress: [
         "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
@@ -961,39 +985,46 @@
       agreementValidity: ["29.04.2028", "02.03.2028", "22.01.2028", "14.09.2029", "29.11.2026"],
       annualTargetKL: [360, 619, 1107, 300, 150],
       stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881],
-      currentInspectionDate: ["", "", "", "", ""], // Calendar date (YYYY-MM-DD)
+      currentInspectionDate: ["", "", "", "", ""],
       giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
-      resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
-      coreMeets: ["1 Core", "11 Core", "6 Core", "3 Core", "1 Core Mechanic"],
-      megaMeets: ["1 Mega", "1 Mega", "0 Mega", "1 Mega", "0 Mega"],
-      roMeets: ["0 RO", "0 RO", "2 ROs", "0 RO", "0 RO"],
-      oemMeets: ["0 OEM", "1 OEM", "0 OEM", "0 OEM", "0 OEM"],
-      miniMechanicMeets: ["10 Mini meets", "50 Mini meets", "86 Mini meets", "44 Mini meets", "13 Mini meets"]
+      resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"], // Editable
+      megaMeets: ["1 Mega", "1 Mega", "0 Mega", "1 Mega", "0 Mega"] // Editable
     };
 
     let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
 
-    // Calculate Minimum Working Capital: ROUNDUP((Target/12)*1.18*1.75*276/100, 0)
+    // Default Market Information
+    const DEFAULT_MARKET_INFO = [
+      { text: "CASTROL overstretching in 4T & multigrades with aggressive lower pricing products.", region: "All Areas" },
+      { text: "Gulf DEO coupons available in the market with double redeem value.", region: "Bazaar & Commercial" },
+      { text: "Gel-based RED Grease is in high demand for the retail market.", region: "Retail Trade" },
+      { text: "Servo Chakkada is urgently required in 2.2 L pack size.", region: "3-Wheeler / Rural" },
+      { text: "Motul 7100 launched in API SP specification with attractive packaging and aggressive rates.", region: "Premium 2W" },
+      { text: "MAK and Castrol have launched API SP Products for PCMO category.", region: "Passenger Car Segment" },
+      { text: "MAK has launched scooter gear oil in small convenience pouches.", region: "Bazaar Trade" },
+      { text: "Less than 20% market share of Servo in the area.", region: "Swastik Automobiles & SMG Trades" }
+    ];
+
+    let activeMarketInfo = JSON.parse(JSON.stringify(DEFAULT_MARKET_INFO));
+
     function calcMinWorkingCapital(targetKL) {
       const t = parseFloat(targetKL) || 0;
       const raw = (t / 12) * 1.18 * 1.75 * 2.76;
       return "Rs. " + Math.ceil(raw) + " L";
     }
 
-    // Standardize dates to YYYY-MM-DD format
     function normalizeDateStr(val) {
       if (!val) return '';
       if (typeof val === 'string') {
         const trimmed = val.trim();
-        // check if dd/mm/yyyy or dd.mm.yyyy
         const parts = trimmed.split(/[/.-]/);
         if (parts.length === 3) {
-          if (parts[2].length === 4) { // dd/mm/yyyy
+          if (parts[2].length === 4) {
             const d = parts[0].padStart(2, '0');
             const m = parts[1].padStart(2, '0');
             const y = parts[2];
             return `${y}-${m}-${d}`;
-          } else if (parts[0].length === 4) { // yyyy-mm-dd
+          } else if (parts[0].length === 4) {
             return trimmed;
           }
         }
@@ -1007,8 +1038,6 @@
       return '';
     }
 
-    // Auto-calculate Receipt in KL using Primary Sales
-    // Logic: Stock received from last date of inspection to current date - 1 in KL
     function calculateStockistReceipt(stockistIndex) {
       const stockistName = STOCKIST_NAMES[stockistIndex];
       const lastDate = normalizeDateStr(activeStockistDetails.lastInspection[stockistIndex]);
@@ -1018,7 +1047,6 @@
         return { kl: 0, text: "Select Current Date" };
       }
 
-      // Calculate curDate - 1 day
       const curDtObj = new Date(curDate);
       curDtObj.setDate(curDtObj.getDate() - 1);
       const curMinusOne = curDtObj.toISOString().split('T')[0];
@@ -1027,8 +1055,6 @@
         return { kl: 0, text: "Current Date must be > Last Date" };
       }
 
-      // Filter Primary Sales data
-      // Check both local rawDatasetPrimary and compiled portalCompiledData.primaryData
       const primaryRows = rawDatasetPrimary.length > 0 
         ? rawDatasetPrimary 
         : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
@@ -1046,7 +1072,6 @@
         if (rowName.includes(stClean) || stClean.includes(rowName)) {
           const invDateStr = normalizeDateStr(row['Inv.Date']);
           if (invDateStr) {
-            // Check if lastDate <= invDateStr <= curMinusOne
             const afterOrOnLast = !lastDate || (invDateStr >= lastDate);
             const beforeCurMinusOne = invDateStr <= curMinusOne;
 
@@ -1075,7 +1100,7 @@
       const rows = [
         { label: "Type of Stockist", key: "type", isYellow: false },
         { label: "Location", key: "location", isYellow: false },
-        { label: "Date of Last Inspection (Calendar)", key: "lastInspection", isDate: true },
+        { label: "Date of Last Inspection", key: "lastInspection", isDate: true },
         { label: "Date of Commissioning", key: "commissioning", isYellow: false },
         { label: "Office Address", key: "officeAddress", isYellow: false },
         { label: "Office Tel No & Mobile No:", key: "telNo", isYellow: false },
@@ -1097,16 +1122,12 @@
         { label: "Agreement Validity", key: "agreementValidity", isYellow: false },
         { label: "Annual Sales Target for Current FY (KL)", key: "annualTargetKL", isYellow: true, isNumber: true },
         { label: "Stock During Last Inspection (KL)", key: "stockLastInspection", isYellow: true, isNumber: true },
-        { label: "Current Inspection Date (Select Calendar)", key: "currentInspectionDate", isDate: true },
+        { label: "Current Inspection Date", key: "currentInspectionDate", isDate: true },
         { label: "Receipt (KL) - Auto Computed from Primary", key: "receiptKL", isReceiptAuto: true },
         { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
         { label: "Giveaway Amount", key: "giveaway", isYellow: false },
-        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: false },
-        { label: "BTL - Core Meets", key: "coreMeets", isYellow: false },
-        { label: "BTL - Mega Meets", key: "megaMeets", isYellow: false },
-        { label: "BTL - RO Meets", key: "roMeets", isYellow: false },
-        { label: "BTL - OEM Meets", key: "oemMeets", isYellow: false },
-        { label: "BTL - Mini Mechanic Meets", key: "miniMechanicMeets", isYellow: false }
+        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true }, // Editable
+        { label: "BTL - Mega Meets", key: "megaMeets", isYellow: true }        // Editable
       ];
 
       rows.forEach(r => {
@@ -1147,9 +1168,9 @@
       if (key === 'annualTargetKL') {
         const wcEl = document.getElementById(`wc-col-${idx}`);
         if (wcEl) wcEl.textContent = calcMinWorkingCapital(val);
+        renderFinancialsWorkingCapital();
       }
 
-      // If inspection dates changed, refresh the auto Receipt column
       if (key === 'lastInspection' || key === 'currentInspectionDate') {
         const receiptCol = document.getElementById(`receipt-col-${idx}`);
         if (receiptCol) {
@@ -1162,6 +1183,192 @@
       }
 
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+    }
+
+    // Save & Update Button in Stockist Details: Pushes changes to GitHub
+    async function saveAndUpdateStockistDetails() {
+      localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.stockistDetails = activeStockistDetails;
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+      renderFinancialsWorkingCapital();
+
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        await pushDataToGithub();
+        alert("Stockist Details updated locally and synced across all devices via GitHub!");
+      } else {
+        alert("Stockist Details saved locally! Enter your GitHub token in 'Upload & Settings' to sync across other devices.");
+      }
+    }
+
+    // Dynamic Financials: Working Capital as per contract derived from Stockist Details
+    function renderFinancialsWorkingCapital() {
+      const finEl = document.getElementById('fin-wc-display');
+      if (!finEl) return;
+      
+      const currentStockist = document.getElementById('sel-stockist').value;
+      const idx = STOCKIST_NAMES.indexOf(currentStockist);
+      const target = idx >= 0 ? activeStockistDetails.annualTargetKL[idx] : 360;
+      const wcVal = calcMinWorkingCapital(target);
+
+      finEl.innerHTML = `
+        <span class="text-sm text-blue-950 font-bold">${wcVal}</span> 
+        <span class="text-[11px] text-slate-500 font-normal ml-2">(${currentStockist} - Auto-derived from Stockist Details)</span>
+      `;
+    }
+
+    // Point 2 & 4 Formula in Promotional Campaigns
+    function updateCampaignsFormula() {
+      const selectedMonthVal = parseInt(document.getElementById('sel-month').value);
+      const aprVal = 4; // Apr'26
+      
+      // Calculate month index: e.g. Aug'26 = 8, Mar'27 = 12 (or 15 in FY)
+      // Per user prompt: 2 * (month chosen in select month - Apr26)
+      // e.g., Apr'26 = 4, Aug'26 = 8, Mar'27 = 12
+      let mNum = selectedMonthVal;
+      if (selectedMonthVal < 4) {
+        // Jan=1, Feb=2, Mar=3
+        mNum = selectedMonthVal === 3 ? 12 : (selectedMonthVal + 12);
+      }
+      const diff = Math.max(0, mNum - aprVal);
+      const calcCount = 2 * diff;
+
+      const p2 = document.getElementById('camp-item-2');
+      const p4 = document.getElementById('camp-item-4');
+
+      if (p2 && !p2.dataset.manualOverride) {
+        p2.value = `${calcCount} Super Saturday campaigns`;
+      }
+      if (p4 && !p4.dataset.manualOverride) {
+        p4.value = `${calcCount} Super Saturday campaigns`;
+      }
+
+      const f2 = document.getElementById('camp-item-2-formula');
+      const f4 = document.getElementById('camp-item-4-formula');
+      const formulaText = `Formula: 2 * (${mNum} - 4) = ${calcCount} (editable)`;
+      if (f2) f2.textContent = formulaText;
+      if (f4) f4.textContent = formulaText;
+    }
+
+    function saveCampaignsData() {
+      const p2 = document.getElementById('camp-item-2');
+      const p4 = document.getElementById('camp-item-4');
+      if (p2) p2.dataset.manualOverride = "true";
+      if (p4) p4.dataset.manualOverride = "true";
+
+      const campData = {
+        item1: document.getElementById('camp-item-1')?.value,
+        item2: p2?.value,
+        item3: document.getElementById('camp-item-3')?.value,
+        item4: p4?.value,
+        item5: document.getElementById('camp-item-5')?.value,
+        item6: document.getElementById('camp-item-6')?.value
+      };
+      localStorage.setItem('campaigns_data', JSON.stringify(campData));
+    }
+
+    // Market Information Table & Modal
+    function renderMarketInfoTable() {
+      const tbody = document.getElementById('tbody-market-info');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      activeMarketInfo.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center font-bold">${index + 1}</td>
+          <td class="font-medium text-slate-800">${item.text}</td>
+          <td class="text-slate-600 font-semibold">${item.region}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openMarketEditModal() {
+      const modal = document.getElementById('modal-market-edit');
+      const container = document.getElementById('modal-market-rows');
+      if (!modal || !container) return;
+      container.innerHTML = '';
+
+      activeMarketInfo.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = "flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200";
+        div.innerHTML = `
+          <span class="text-xs font-bold text-slate-400 mt-2">${idx + 1}.</span>
+          <div class="flex-1 space-y-1">
+            <textarea class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-blue-500" rows="2" id="market-text-${idx}">${item.text}</textarea>
+            <input type="text" class="w-full text-xs border border-slate-300 rounded p-1" value="${item.region}" id="market-region-${idx}" placeholder="Applicability / Region">
+          </div>
+          <button onclick="removeMarketObservationRow(${idx})" class="text-rose-500 hover:text-rose-700 font-bold text-sm px-1 mt-1">&times;</button>
+        `;
+        container.appendChild(div);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeMarketEditModal() {
+      const modal = document.getElementById('modal-market-edit');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function addMarketObservationRow() {
+      activeMarketInfo.push({ text: "New market intelligence observation...", region: "All Areas" });
+      openMarketEditModal();
+    }
+
+    function removeMarketObservationRow(idx) {
+      activeMarketInfo.splice(idx, 1);
+      openMarketEditModal();
+    }
+
+    async function saveMarketObservations() {
+      const count = activeMarketInfo.length;
+      const updated = [];
+      for (let i = 0; i < count; i++) {
+        const textEl = document.getElementById(`market-text-${i}`);
+        const regEl = document.getElementById(`market-region-${i}`);
+        if (textEl && regEl) {
+          updated.push({ text: textEl.value.trim(), region: regEl.value.trim() });
+        }
+      }
+      activeMarketInfo = updated;
+      localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
+      renderMarketInfoTable();
+      closeMarketEditModal();
+
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.marketInfo = activeMarketInfo;
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        await pushDataToGithub();
+        alert("Market Information updated and synced across all devices via GitHub!");
+      } else {
+        alert("Market Information saved locally! Enter your GitHub token in 'Upload & Settings' to sync across other devices.");
+      }
     }
 
     function getStockistUniverse(stockist) {
@@ -1267,6 +1474,7 @@
         updatedAt: new Date().toISOString(),
         universe: getAllUniverseData(),
         stockistDetails: activeStockistDetails,
+        marketInfo: activeMarketInfo,
         primaryData: rawDatasetPrimary.map(r => ({
           'Name': r['Name'],
           'Inv.Date': normalizeDateStr(r['Inv.Date']),
@@ -1499,6 +1707,7 @@
       }
 
       updateCalculations();
+      renderFinancialsWorkingCapital();
     }
 
     function updateCalculations() {
@@ -1687,6 +1896,7 @@
 
       portalCompiledData.universe = getAllUniverseData();
       portalCompiledData.stockistDetails = activeStockistDetails;
+      portalCompiledData.marketInfo = activeMarketInfo;
       portalCompiledData.updatedAt = new Date().toISOString();
 
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
@@ -1698,7 +1908,7 @@
         const encodedContent = btoa(unescape(encodeURIComponent(jsonStr)));
 
         const bodyData = {
-          message: `Update sales data and primary receipts [${new Date().toLocaleDateString()}]`,
+          message: `Update sales data and inspection profiles [${new Date().toLocaleDateString()}]`,
           content: encodedContent
         };
         if (sha) {
@@ -1783,14 +1993,20 @@
           if (portalCompiledData.stockistDetails) {
             activeStockistDetails = portalCompiledData.stockistDetails;
             localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+            renderStockistDetailsTable();
+          }
+
+          if (portalCompiledData.marketInfo) {
+            activeMarketInfo = portalCompiledData.marketInfo;
+            localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
+            renderMarketInfoTable();
           }
 
           if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
             rawDatasetPrimary = portalCompiledData.primaryData;
-            document.getElementById('status-primary').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary Data (${rawDatasetPrimary.length} rows)</span>`;
+            document.getElementById('status-primary').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary (${rawDatasetPrimary.length} rows)</span>`;
           }
 
-          renderStockistDetailsTable();
           document.getElementById('status-cy').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
           document.getElementById('status-ly').innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
 
@@ -1844,12 +2060,22 @@
         } catch(e) {}
       }
 
+      const savedMarketInfo = localStorage.getItem('market_info_data');
+      if (savedMarketInfo) {
+        try {
+          activeMarketInfo = JSON.parse(savedMarketInfo);
+        } catch(e) {}
+      }
+
       const cachedData = localStorage.getItem('compiled_portal_data');
       if (cachedData) {
         try {
           portalCompiledData = JSON.parse(cachedData);
           if (portalCompiledData.stockistDetails) {
             activeStockistDetails = portalCompiledData.stockistDetails;
+          }
+          if (portalCompiledData.marketInfo) {
+            activeMarketInfo = portalCompiledData.marketInfo;
           }
           if (portalCompiledData.primaryData) {
             rawDatasetPrimary = portalCompiledData.primaryData;
@@ -1858,6 +2084,9 @@
       }
 
       renderStockistDetailsTable();
+      renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
+      renderMarketInfoTable();
       runAnalysis();
       pullDataFromGithub(false);
     };
