@@ -1238,7 +1238,6 @@
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
     }
 
-    // Universal Update Function for all pages
     function updateManualEntries(pageName) {
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
       localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
@@ -1573,13 +1572,13 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Refined Sales LY Filter Rule for SMG Trades and Takshvi Co
+    // Precise Cumulative Sales LY Logic for SMG Trades and Takshvi Co
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
       const sName = String(row['Stockist Name'] || row['Stockist'] || '').toLowerCase();
       const rowMonth = parseInt(row['Month']);
-      const dist = String(row['District'] || row['Customer District'] || row['Customer City'] || '').toLowerCase();
+      const dist = String(row['District'] || row['Customer District'] || '').toLowerCase();
 
-      // SMG Trades Rule
+      // SMG Trades Rule: Apr-Sep LY = 0. Oct onwards = Bankura district cumulative from Oct.
       if (stk === "SMG Trades") {
         if ([4, 5, 6, 7, 8, 9].includes(currentSelectedMonth)) return false;
         const octOnwards = [10, 11, 12, 1, 2, 3];
@@ -1589,7 +1588,7 @@
         return false;
       }
 
-      // Takshvi Co Rule
+      // Takshvi Co Rule: Apr-Sep = Takshvi + Servo World. Oct onwards = Takshvi excluding Bankura district.
       if (stk === "Takshvi Co") {
         if (!targetMonths.includes(rowMonth)) return false;
         if ([4, 5, 6, 7, 8, 9].includes(rowMonth)) {
@@ -1601,7 +1600,7 @@
         return false;
       }
 
-      // Other Stockists
+      // Other Stockists Rule
       const stNameClean = stk.toLowerCase();
       return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
     };
@@ -1728,6 +1727,7 @@
       return matrix;
     }
 
+    // Google Sheets Direct Fetcher via exact GIDs
     async function fetchGoogleSheetCsv(sheetKey) {
       const gid = SHEET_GIDS[sheetKey];
       const pubUrl = `${GOOGLE_PUB_URL}?output=csv&gid=${gid}&t=${Date.now()}`;
