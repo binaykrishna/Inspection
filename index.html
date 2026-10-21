@@ -88,7 +88,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Top Navigation Header -->
+  <!-- Top Navigation Header with Reordered Tabs -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -96,19 +96,19 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
-      <!-- 5 Navigation Tabs -->
+      <!-- Reordered Navigation Tabs: Stockist Details 1st, Sales Analysis 2nd, SSF 3rd, Other 4th, Upload 5th -->
       <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
-        <button id="tab-btn-analysis" onclick="switchTab('analysis')" 
+        <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
+          📋 Stockist Details
+        </button>
+        <button id="tab-btn-analysis" onclick="switchTab('analysis')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
           📊 Sales Analysis
         </button>
         <button id="tab-btn-ssf" onclick="switchTab('ssf')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
           👥 SSF Analysis
-        </button>
-        <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
-          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
-          📋 Stockist Details
         </button>
         <button id="tab-btn-other" onclick="switchTab('other')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
@@ -116,7 +116,7 @@
         </button>
         <button id="tab-btn-upload" onclick="switchTab('upload')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
-          📁 Upload & Settings
+          📁 Upload Catalog
         </button>
       </div>
     </div>
@@ -124,10 +124,43 @@
 
   <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full">
 
+    <!-- ======================================================= -->
+    <!-- TAB 1: STOCKIST DETAILS (NOW FIRST TAB)                -->
+    <!-- ======================================================= -->
+    <div id="tab-stockist" class="space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-4 mb-5">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
+            <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
+          </div>
+          <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
+            💾 Save & Update All Devices
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse sheet-table text-left" id="table-stockist-details">
+            <thead>
+              <tr class="sheet-header-dark text-center">
+                <th class="text-left w-1/4 py-2.5">Attribute / Parameter</th>
+                <th class="w-1/6">TAKSHVI CO</th>
+                <th class="w-1/6">BIHARIJI AUTO SERVICE</th>
+                <th class="w-1/6">M/S NALATESWARI LUBRICANTS</th>
+                <th class="w-1/6">SMG TRADES</th>
+                <th class="w-1/6">SWASTIK AUTOMOBILES</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-stockist-details"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- ========================================== -->
-    <!-- TAB 1: SALES ANALYSIS                      -->
+    <!-- TAB 2: SALES ANALYSIS (NOW SECOND TAB)     -->
     <!-- ========================================== -->
-    <div id="tab-analysis" class="space-y-6">
+    <div id="tab-analysis" class="hidden space-y-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-6">
           <div>
@@ -285,7 +318,7 @@
               <td class="font-semibold" id="cy-nayara">0.0</td>
               <td class="font-semibold" id="ly-nayara">0.1</td>
               <td id="pct-cy-nayara">0.0%</td>
-              <td id="pct-ly-nayara">0.0%</td>
+              <td id="pct-ly-nayara">0.1%</td>
             </tr>
 
             <tr id="row-bazaar" class="text-right">
@@ -333,7 +366,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- TAB 2: SSF WISE SALES ANALYSIS             -->
+    <!-- TAB 3: SSF WISE SALES ANALYSIS             -->
     <!-- ========================================== -->
     <div id="tab-ssf" class="hidden space-y-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
@@ -424,40 +457,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 3: STOCKIST DETAILS                                 -->
-    <!-- ======================================================= -->
-    <div id="tab-stockist" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-4 mb-5">
-          <div>
-            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
-            <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
-          </div>
-          <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
-            💾 Save & Update All Devices
-          </button>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse sheet-table text-left" id="table-stockist-details">
-            <thead>
-              <tr class="sheet-header-dark text-center">
-                <th class="text-left w-1/4 py-2.5">Attribute / Parameter</th>
-                <th class="w-1/6">TAKSHVI CO</th>
-                <th class="w-1/6">BIHARIJI AUTO SERVICE</th>
-                <th class="w-1/6">M/S NALATESWARI LUBRICANTS</th>
-                <th class="w-1/6">SMG TRADES</th>
-                <th class="w-1/6">SWASTIK AUTOMOBILES</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-stockist-details"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ======================================================= -->
-    <!-- TAB 4: OTHER DETAILS (Clean Section Headers)           -->
+    <!-- TAB 4: OTHER DETAILS                                    -->
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
@@ -561,7 +561,7 @@
         </div>
       </div>
 
-      <!-- Section 4: Details of Sales Promotion Campaigns -->
+      <!-- Section 4: Details of Sales Promotion Campaigns (Dynamic BTL & Month Matching) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
           <div>
@@ -577,7 +577,7 @@
               <tr class="sheet-subheader">
                 <th class="w-12 text-center">Sl No</th>
                 <th>Inspection Item</th>
-                <th class="w-1/2">Remarks / Computed Volume</th>
+                <th class="w-3/5">Remarks / Computed Volume & BTL Log</th>
               </tr>
             </thead>
             <tbody>
@@ -599,16 +599,17 @@
               <tr>
                 <td class="text-center font-bold">3</td>
                 <td>Number of Bazaar Campaigns conducted last month</td>
-                <td><input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()"></td>
+                <td>
+                  <input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()">
+                  <div class="text-[11px] text-slate-500 font-medium mt-1" id="camp-item-3-note"></div>
+                </td>
               </tr>
               <tr>
                 <td class="text-center font-bold">4</td>
                 <td>Cumulative number of Bazaar Campaigns conducted in current FY</td>
                 <td>
-                  <div class="flex items-center gap-2">
-                    <input type="text" id="camp-item-4" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty()">
-                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-4-formula"></span>
-                  </div>
+                  <textarea id="camp-item-4" class="editable-yellow font-bold text-blue-950 w-full" rows="2" oninput="markCampaignDirty()"></textarea>
+                  <div class="text-[11px] text-slate-400 mt-0.5" id="camp-item-4-formula"></div>
                 </td>
               </tr>
               <tr>
@@ -653,7 +654,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 5: UPLOADS & GITHUB SYNC                            -->
+    <!-- TAB 5: UPLOADS & GITHUB SYNC (NOW 5TH TAB)              -->
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
@@ -874,7 +875,7 @@
     const GITHUB_DATA_PATH = "data/portal_data.json";
 
     function switchTab(tab) {
-      const tabs = ['analysis', 'ssf', 'stockist', 'other', 'upload'];
+      const tabs = ['stockist', 'analysis', 'ssf', 'other', 'upload'];
       tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
@@ -887,8 +888,9 @@
       if (activeEl) activeEl.classList.remove('hidden');
       if (activeBtn) activeBtn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
 
-      if (tab === 'ssf') renderSSFAnalysis();
       if (tab === 'stockist') renderStockistDetailsTable();
+      if (tab === 'analysis') runAnalysis();
+      if (tab === 'ssf') renderSSFAnalysis();
       if (tab === 'other') {
         renderFinancialsWorkingCapital();
         updateCampaignsFormula();
@@ -900,6 +902,7 @@
       document.getElementById('sel-stockist').value = val;
       document.getElementById('sel-ssf-stockist').value = val;
       renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
     }
     function syncMonth(val) {
       document.getElementById('sel-month').value = val;
@@ -981,8 +984,21 @@
       stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881],
       currentInspectionDate: ["", "", "", "", ""],
       giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
-      resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
-      mechanicMeets: ["1 Mechanic", "11 Mechanic", "6 Mechanic", "3 Mechanic", "1 Mechanic"]
+      // BTL Meets with Detailed Locations and Months:
+      resellerMeets: [
+        "2 Reseller Meets", 
+        "5 Reseller Meets (1: Durgapur- Jun'26)", 
+        "1 Reseller Meet", 
+        "1 Reseller Meet", 
+        "1 Reseller Meet (1: Purulia- Mar'27)"
+      ],
+      mechanicMeets: [
+        "2 Mechanic Meets (2: Katwa- Jul'26, Bardhaman- Jul'26)", 
+        "11 Mechanic Meets (1: Durgapur- Jun'26)", 
+        "6 Mechanic Meets", 
+        "3 Mechanic Meets", 
+        "1 Mechanic Meet (2: Purulia- Nov'26, Raghunathpur- Mar'27)"
+      ]
     };
 
     let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
@@ -1006,14 +1022,11 @@
       return "Rs. " + Math.ceil(raw) + " L";
     }
 
-    // Convert any date (string, Date, Excel numeric serial number) into pure YYYY-MM-DD
     function normalizeDateStr(val) {
       if (val === null || val === undefined || val === '') return '';
 
-      // If val is a number, it is an Excel serial date number (e.g. 46142 for 30-Apr-2026)
       if (typeof val === 'number') {
         if (isNaN(val) || val <= 0) return '';
-        // Excel base date: Dec 30, 1899 UTC
         const excelEpoch = new Date(Date.UTC(1899, 11, 30));
         const jsDate = new Date(excelEpoch.getTime() + val * 86400000);
         return jsDate.toISOString().split('T')[0];
@@ -1024,7 +1037,6 @@
         if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
           return trimmed;
         }
-        // Handle numeric string serial
         if (/^\d{5}$/.test(trimmed)) {
           const num = parseFloat(trimmed);
           const excelEpoch = new Date(Date.UTC(1899, 11, 30));
@@ -1054,7 +1066,6 @@
       return '';
     }
 
-    // Clean UTC date subtraction without epoch (1970-01-01) bugs
     function subtractOneDay(dateStr) {
       if (!dateStr || dateStr.length < 10) return null;
       const parts = dateStr.split('-');
@@ -1068,7 +1079,6 @@
       return dt.toISOString().split('T')[0];
     }
 
-    // Primary Stock Receipt Calculation:
     function calculateStockistReceipt(stockistIndex) {
       const stockistName = STOCKIST_NAMES[stockistIndex];
 
@@ -1085,13 +1095,11 @@
         return { kl: 0, text: "Select Current Date", subtext: "Pick inspection date in calendar" };
       }
 
-      // 1. Determine target date: 1 day before current inspection date
       const targetEndDate = subtractOneDay(currentInspectionDateRaw);
       if (!targetEndDate) {
         return { kl: 0, text: "Invalid Current Date", subtext: "Please re-select date" };
       }
 
-      // 2. Fetch primary records for this stockist
       const primaryRows = rawDatasetPrimary.length > 0 
         ? rawDatasetPrimary 
         : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
@@ -1110,7 +1118,6 @@
         return { kl: 0, text: "0.000 KL", subtext: "No primary billing records for stockist" };
       }
 
-      // Collect unique upliftment dates sorted chronologically
       const upliftmentDatesSet = new Set();
       stockistRows.forEach(r => {
         const d = normalizeDateStr(r['Inv.Date']);
@@ -1124,8 +1131,6 @@
         return { kl: 0, text: "0.000 KL", subtext: "No valid invoice dates found" };
       }
 
-      // 3. Find effective END upliftment date:
-      // Exact targetEndDate if primary lifted on that date, else immediate previous date on which upliftment was made
       let effectiveEndDate = null;
       if (upliftmentDatesSet.has(targetEndDate)) {
         effectiveEndDate = targetEndDate;
@@ -1138,8 +1143,6 @@
         }
       }
 
-      // 4. Find effective START upliftment date:
-      // Exact lastInspectionDateRaw if primary lifted on that date, else immediate next date on which upliftment was made
       let effectiveStartDate = null;
       if (lastInspectionDateRaw) {
         if (upliftmentDatesSet.has(lastInspectionDateRaw)) {
@@ -1164,7 +1167,6 @@
         };
       }
 
-      // 5. Sum primary quantities between effectiveStartDate and effectiveEndDate (inclusive)
       let totalKL = 0;
       let countInv = 0;
 
@@ -1276,6 +1278,10 @@
         }
       }
 
+      if (key === 'resellerMeets' || key === 'mechanicMeets') {
+        updateCampaignsFormula();
+      }
+
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
     }
 
@@ -1296,13 +1302,14 @@
       }
       localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
       renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
 
       const token = document.getElementById('gh-token').value.trim();
       if (token) {
         await pushDataToGithub();
         alert("Stockist Details updated locally and synced across all devices via GitHub!");
       } else {
-        alert("Stockist Details saved locally! Enter your GitHub token in 'Upload & Settings' to sync across other devices.");
+        alert("Stockist Details saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
       }
     }
 
@@ -1321,38 +1328,90 @@
       `;
     }
 
+    // Helper: Parse BTL string into meeting count and details
+    function parseBTLMeets(val) {
+      if (!val) return { count: 0, text: "" };
+      const str = String(val).trim();
+      // Look for leading number or number after colon
+      const matchNum = str.match(/^\d+/) || str.match(/(\d+)\s*(?:Reseller|Mechanic|Meet)/i);
+      const count = matchNum ? parseInt(matchNum[1] || matchNum[0], 10) : 0;
+      return { count, text: str };
+    }
+
+    // Dynamic Updates for Section 14: Details of Sales Promotion Campaigns
     function updateCampaignsFormula() {
       const selectedMonthVal = parseInt(document.getElementById('sel-month').value);
+      const selectedMonthName = MONTH_NAMES[selectedMonthVal] || "Aug'26"; // e.g. "Jul'26", "Aug'26"
+      const monthPrefix = selectedMonthName.split("'")[0]; // e.g. "Jul", "Aug"
+
+      const currentStockist = document.getElementById('sel-stockist').value;
+      const sIdx = Math.max(0, STOCKIST_NAMES.indexOf(currentStockist));
+
       const aprVal = 4;
-      
       let mNum = selectedMonthVal;
       if (selectedMonthVal < 4) {
         mNum = selectedMonthVal === 3 ? 12 : (selectedMonthVal + 12);
       }
       const diff = Math.max(0, mNum - aprVal);
-      const calcCount = 2 * diff;
+      const superSatCount = 2 * diff;
 
+      // Point 2: Cumulative RO Campaigns
       const p2 = document.getElementById('camp-item-2');
-      const p4 = document.getElementById('camp-item-4');
-
       if (p2 && !p2.dataset.manualOverride) {
-        p2.value = `${calcCount} Super Saturday campaigns`;
+        p2.value = `${superSatCount} Super Saturday campaigns`;
       }
+      const f2 = document.getElementById('camp-item-2-formula');
+      if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
+
+      // BTL Reseller and Mechanic Details from Stockist Details
+      const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
+      const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
+
+      // Point 4: Cumulative Bazaar Campaigns + BTL Reseller & Mechanic meets
+      const p4 = document.getElementById('camp-item-4');
+      const btlCumulativeParts = [];
+      if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
+      if (mechStr && mechStr !== "-") btlCumulativeParts.push(`Mechanic: ${mechStr}`);
+      const btlCombinedText = btlCumulativeParts.length > 0 ? " + BTL Meets (" + btlCumulativeParts.join(" | ") + ")" : "";
+
       if (p4 && !p4.dataset.manualOverride) {
-        p4.value = `${calcCount} Super Saturday campaigns`;
+        p4.value = `${superSatCount} Super Saturday campaigns${btlCombinedText}`;
+      }
+      const f4 = document.getElementById('camp-item-4-formula');
+      if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
+
+      // Point 3: Number of Bazaar Campaigns in Last Month
+      // If month in BTL details matches selected month, add those BTL meets
+      const p3 = document.getElementById('camp-item-3');
+      const note3 = document.getElementById('camp-item-3-note');
+
+      const matchingMeets = [];
+      // Check if Reseller or Mechanic contains current month (e.g. "Jul", "Jun", "Mar", etc.)
+      const monthRegex = new RegExp(`\\b${monthPrefix}\\b`, 'i');
+      if (resStr && monthRegex.test(resStr)) {
+        matchingMeets.push(`Reseller: ${resStr}`);
+      }
+      if (mechStr && monthRegex.test(mechStr)) {
+        matchingMeets.push(`Mechanic: ${mechStr}`);
       }
 
-      const f2 = document.getElementById('camp-item-2-formula');
-      const f4 = document.getElementById('camp-item-4-formula');
-      const formulaText = `Formula: 2 * (${mNum} - 4) = ${calcCount} (editable)`;
-      if (f2) f2.textContent = formulaText;
-      if (f4) f4.textContent = formulaText;
+      if (p3 && !p3.dataset.manualOverride) {
+        if (matchingMeets.length > 0) {
+          p3.value = `2 Super Saturday campaigns + ${matchingMeets.join(", ")}`;
+          if (note3) note3.textContent = `✓ Auto-updated: Detected BTL meet conducted in ${selectedMonthName}`;
+        } else {
+          p3.value = `2 Super Saturday campaigns`;
+          if (note3) note3.textContent = `Standard 2 Super Saturday campaigns (No BTL meet in ${selectedMonthName})`;
+        }
+      }
     }
 
     function markCampaignDirty() {
       const p2 = document.getElementById('camp-item-2');
+      const p3 = document.getElementById('camp-item-3');
       const p4 = document.getElementById('camp-item-4');
       if (p2) p2.dataset.manualOverride = "true";
+      if (p3) p3.dataset.manualOverride = "true";
       if (p4) p4.dataset.manualOverride = "true";
     }
 
@@ -1375,7 +1434,10 @@
         document.getElementById('camp-item-2').value = c.item2 || '';
         if (c.manualOverride) document.getElementById('camp-item-2').dataset.manualOverride = "true";
       }
-      if (document.getElementById('camp-item-3')) document.getElementById('camp-item-3').value = c.item3 || '';
+      if (document.getElementById('camp-item-3')) {
+        document.getElementById('camp-item-3').value = c.item3 || '';
+        if (c.manualOverride) document.getElementById('camp-item-3').dataset.manualOverride = "true";
+      }
       if (document.getElementById('camp-item-4')) {
         document.getElementById('camp-item-4').value = c.item4 || '';
         if (c.manualOverride) document.getElementById('camp-item-4').dataset.manualOverride = "true";
@@ -1408,7 +1470,7 @@
         await pushDataToGithub();
         alert("Sales Promotion Campaigns (Section 14) saved and synced across all devices via GitHub!");
       } else {
-        alert("Campaign details saved locally! Enter your GitHub token in 'Upload & Settings' to sync across other devices.");
+        alert("Campaign details saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
       }
     }
 
@@ -1501,7 +1563,7 @@
         await pushDataToGithub();
         alert("Market Information updated and synced across all devices via GitHub!");
       } else {
-        alert("Market Information saved locally! Enter your GitHub token in 'Upload & Settings' to sync across other devices.");
+        alert("Market Information saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
       }
     }
 
@@ -1755,7 +1817,6 @@
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
-          // cellDates: true parses Excel date serial numbers into Date objects natively
           const workbook = XLSX.read(data, { type: 'array', cellDates: true });
           const firstSheet = workbook.SheetNames[0];
           const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
@@ -2020,6 +2081,9 @@
         feedback.className = "text-xs font-semibold mt-3 text-rose-600";
         return;
       }
+
+      badge.textContent = "Sync: Pushing to Cloud...";
+      badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
       if (!portalCompiledData) {
         portalCompiledData = {
