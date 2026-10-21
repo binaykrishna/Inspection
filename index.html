@@ -88,6 +88,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
+  <!-- Top Navigation Header -->
   <header class="bg-blue-900 text-white shadow-md">
     <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
       <div>
@@ -95,6 +96,7 @@
         <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
       </div>
       
+      <!-- 5 Navigation Tabs -->
       <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
         <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
@@ -114,7 +116,7 @@
         </button>
         <button id="tab-btn-upload" onclick="switchTab('upload')" 
           class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
-          📁 Upload Catalog
+          📁 Sync & Catalog
         </button>
       </div>
     </div>
@@ -132,9 +134,14 @@
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
             <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
           </div>
-          <div id="cloud-sync-badge" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Cloud Synced
+          <div class="flex items-center gap-3">
+            <button onclick="syncAllFromGoogleSheets()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+              🔄 Sync Google Sheet Data
+            </button>
+            <div id="cloud-sync-badge" class="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Auto-Sync Ready
+            </div>
           </div>
         </div>
 
@@ -654,70 +661,33 @@
     <!-- ======================================================= -->
     <div id="tab-upload" class="hidden space-y-6">
       
-      <!-- Excel Uploads -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
-        <p class="text-sm text-slate-500 mb-6">Upload raw secondary and primary sales reports from SAP/SDMS extraction. Data auto-syncs to cloud immediately upon selection.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2.5 mb-2">
-                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">📄</div>
-                <div>
-                  <h3 class="font-bold text-slate-800 text-sm">Secondary Sales LY (25-26)</h3>
-                  <p class="text-[11px] text-slate-500">File: S FY 25-26.xlsx</p>
-                </div>
-              </div>
-              <p class="text-xs text-slate-600 mb-3">Prior FY secondary sales invoices and channel categorizations.</p>
+      <!-- Google Sheets Live Auto-Sync Card -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-blue-200 bg-gradient-to-r from-blue-50/50 to-indigo-50/30">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl">📊</span>
+              <h2 class="text-lg font-bold text-blue-950">Google Sheets Live Data Auto-Sync</h2>
             </div>
-            <div>
-              <input type="file" id="file-ly" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'LY')" class="hidden">
-              <label for="file-ly" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
-                Choose LY File
-              </label>
-              <div id="status-ly" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
-            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Directly connected to spreadsheet: <span class="font-mono text-blue-700 font-bold">RCL Report (1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE)</span></p>
           </div>
+          <button onclick="syncAllFromGoogleSheets()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
+            🔄 Fetch & Auto-Sync from Google Sheets
+          </button>
+        </div>
 
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2.5 mb-2">
-                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">📊</div>
-                <div>
-                  <h3 class="font-bold text-slate-800 text-sm">Secondary Sales CY (26-27)</h3>
-                  <p class="text-[11px] text-slate-500">File: S FY 26-27.xlsx</p>
-                </div>
-              </div>
-              <p class="text-xs text-slate-600 mb-3">Current FY secondary sales invoices and channel categorizations.</p>
-            </div>
-            <div>
-              <input type="file" id="file-cy" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'CY')" class="hidden">
-              <label for="file-cy" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
-                Choose CY File
-              </label>
-              <div id="status-cy" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mt-3">
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <div class="font-bold text-slate-700">1. Secondary LY (S_FY 25-26)</div>
+            <div id="gsheet-status-ly" class="text-slate-500 mt-1">Ready to fetch (GID: 14886667)</div>
           </div>
-
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2.5 mb-2">
-                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">🚛</div>
-                <div>
-                  <h3 class="font-bold text-slate-800 text-sm">Primary Sales CY (26-27)</h3>
-                  <p class="text-[11px] text-slate-500">File: Primary FY 26-27.xlsx</p>
-                </div>
-              </div>
-              <p class="text-xs text-slate-600 mb-3">Stockist primary supplies and invoice dates used to calculate Receipt in KL.</p>
-            </div>
-            <div>
-              <input type="file" id="file-primary" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'PRIMARY')" class="hidden">
-              <label for="file-primary" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
-                Choose Primary File
-              </label>
-              <div id="status-primary" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
-            </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <div class="font-bold text-slate-700">2. Secondary CY (S_FY 26-27)</div>
+            <div id="gsheet-status-cy" class="text-slate-500 mt-1">Ready to fetch (GID: 1106362987)</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <div class="font-bold text-slate-700">3. Primary CY (P_FY 26-27)</div>
+            <div id="gsheet-status-primary" class="text-slate-500 mt-1">Ready to fetch (GID: 1856894261)</div>
           </div>
         </div>
       </div>
@@ -744,23 +714,21 @@
               Clear
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 mt-1">Enter your token once on each device. Any uploads or changes you make on one device will automatically update all others.</p>
+          <p class="text-[11px] text-slate-400 mt-1">Enter your token once on each device. Any updates made on one device will automatically sync to all others.</p>
         </div>
         <div id="gh-feedback" class="text-xs font-semibold text-slate-500"></div>
       </div>
 
       <!-- Static Universe Configuration -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center justify-between mb-2">
-          <div>
-            <h2 class="text-lg font-bold text-slate-800">Static Universe (Total No. of Outlets / Stockist)</h2>
-          </div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold text-slate-800">Static Universe (Total No. of Outlets / Stockist)</h2>
           <button onclick="resetUniverseDefaults()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
             ↺ Reset Defaults
           </button>
         </div>
 
-        <div class="overflow-x-auto mt-4">
+        <div class="overflow-x-auto mt-2">
           <table class="w-full text-xs sheet-table" id="table-universe">
             <thead>
               <tr class="sheet-subheader text-center">
@@ -860,6 +828,14 @@
     const GITHUB_USERNAME = "binaykrishna";
     const GITHUB_REPO = "inspection";
     const GITHUB_DATA_PATH = "data/portal_data.json";
+    const GOOGLE_SHEET_ID = "1RHHcNpxbdJ8PMalnT6wnbovd_NgPiGGFzovDTUbNLUE";
+
+    // Explicit GIDs for RCL Report tabs
+    const SHEET_GIDS = {
+      "S_FY 25-26": "14886667",
+      "S_FY 26-27": "1106362987",
+      "P_FY 26-27": "1856894261"
+    };
 
     function switchTab(tab) {
       const tabs = ['stockist', 'analysis', 'ssf', 'other', 'upload'];
@@ -1036,6 +1012,11 @@
             const m = parts[1].padStart(2, '0');
             const y = parts[2];
             return `${y}-${m}-${d}`;
+          } else if (parts[2].length === 2) {
+            const d = parts[0].padStart(2, '0');
+            const m = parts[1].padStart(2, '0');
+            const y = "20" + parts[2];
+            return `${y}-${m}-${d}`;
           }
         }
       }
@@ -1091,12 +1072,12 @@
         : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
 
       if (!primaryRows || primaryRows.length === 0) {
-        return { kl: 0, text: "0.000 KL", subtext: "Upload Primary Sales File in Settings" };
+        return { kl: 0, text: "0.000 KL", subtext: "Sync Google Sheets in Settings" };
       }
 
       const stClean = stockistName.toLowerCase();
       const stockistRows = primaryRows.filter(row => {
-        const rowName = String(row['Name'] || '').trim().toLowerCase();
+        const rowName = String(row['Name'] || row['Stockist Name'] || '').trim().toLowerCase();
         return rowName.includes(stClean) || stClean.includes(rowName);
       });
 
@@ -1308,6 +1289,7 @@
       const diff = Math.max(0, mNum - aprVal);
       const superSatCount = 2 * diff;
 
+      // Point 2
       const p2 = document.getElementById('camp-item-2');
       if (p2 && !p2.dataset.manualOverride) {
         p2.value = `${superSatCount} Super Saturday campaigns`;
@@ -1315,9 +1297,11 @@
       const f2 = document.getElementById('camp-item-2-formula');
       if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
 
+      // BTL Meets
       const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
       const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
 
+      // Point 4
       const p4 = document.getElementById('camp-item-4');
       const btlCumulativeParts = [];
       if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
@@ -1330,6 +1314,7 @@
       const f4 = document.getElementById('camp-item-4-formula');
       if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
 
+      // Point 3
       const p3 = document.getElementById('camp-item-3');
       const note3 = document.getElementById('camp-item-3-note');
 
@@ -1572,7 +1557,7 @@
         marketInfo: activeMarketInfo,
         campaigns: getCampaignsObject(),
         primaryData: rawDatasetPrimary.map(r => ({
-          'Name': r['Name'],
+          'Name': r['Name'] || r['Stockist Name'],
           'Inv.Date': normalizeDateStr(r['Inv.Date']),
           'Invoice No': r['Invoice No'],
           'KL': parseFloat(r['KL']) || 0
@@ -1704,227 +1689,73 @@
       return matrix;
     }
 
-    function handleFileUpload(event, type) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      const statusId = type === 'LY' ? 'status-ly' : (type === 'CY' ? 'status-cy' : 'status-primary');
-      const statusEl = document.getElementById(statusId);
-      statusEl.textContent = `Reading ${file.name}...`;
-
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-          const firstSheet = workbook.SheetNames[0];
-          const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
-          
-          if (type === 'LY') {
-            rawDatasetLY = rawRows;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
-          } else if (type === 'CY') {
-            rawDatasetCY = rawRows;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
-          } else if (type === 'PRIMARY') {
-            rawDatasetPrimary = rawRows;
-            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
-            renderStockistDetailsTable();
-          }
-
-          portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
-          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
-
-          document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-          document.getElementById('data-status-badge').textContent = "Local Excel Data Active";
-
-          runAnalysis();
-          renderSSFAnalysis();
-
-          saveCloudData();
-        } catch (err) {
-          console.error(err);
-          statusEl.innerHTML = `<span class="text-rose-600 font-bold">✕ Error loading file: ${err.message}</span>`;
-        }
-      };
-      reader.readAsArrayBuffer(file);
+    // Google Sheets Direct Fetcher via exact GIDs
+    async function fetchGoogleSheetCsv(sheetKey) {
+      const gid = SHEET_GIDS[sheetKey];
+      const primaryUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=${gid}&t=${Date.now()}`;
+      
+      try {
+        const res = await fetch(primaryUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const csvText = await res.text();
+        const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
+        return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+      } catch (err) {
+        const fallbackUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}&t=${Date.now()}`;
+        const resFallback = await fetch(fallbackUrl);
+        if (!resFallback.ok) throw new Error(`Failed to fetch ${sheetKey} (HTTP ${resFallback.status})`);
+        const csvText = await resFallback.text();
+        const workbook = XLSX.read(csvText, { type: 'string', cellDates: true });
+        return XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+      }
     }
 
-    function runAnalysis() {
-      const stockist = document.getElementById('sel-stockist').value;
-      const month = parseInt(document.getElementById('sel-month').value);
-      const spanMonths = getMonthSpan(month);
-      const numMonths = spanMonths.length;
+    async function syncAllFromGoogleSheets() {
+      const statusLy = document.getElementById('gsheet-status-ly');
+      const statusCy = document.getElementById('gsheet-status-cy');
+      const statusPri = document.getElementById('gsheet-status-primary');
 
-      document.getElementById('disp-stockist-title').textContent = stockist;
-      document.getElementById('disp-stockist-name').textContent = stockist;
-      document.getElementById('disp-month-label').textContent = MONTH_NAMES[month];
-      
-      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
-      document.getElementById('disp-period-title').textContent = periodLabel;
-      document.getElementById('disp-cum-range').textContent = periodLabel;
-      document.getElementById('disp-channel-period').textContent = periodLabel;
+      if (statusLy) statusLy.innerHTML = `<span class="text-blue-600 font-semibold animate-pulse">Fetching...</span>`;
+      if (statusCy) statusCy.innerHTML = `<span class="text-blue-600 font-semibold animate-pulse">Fetching...</span>`;
+      if (statusPri) statusPri.innerHTML = `<span class="text-blue-600 font-semibold animate-pulse">Fetching...</span>`;
 
-      const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
-      let mPotential = (month === 3) ? basePot * 2 : basePot;
-      let cumPotential = basePot * numMonths;
-      if (spanMonths.includes(3)) cumPotential += basePot;
+      try {
+        const [rowsLy, rowsCy, rowsPrimary] = await Promise.all([
+          fetchGoogleSheetCsv("S_FY 25-26"),
+          fetchGoogleSheetCsv("S_FY 26-27"),
+          fetchGoogleSheetCsv("P_FY 26-27")
+        ]);
 
-      document.getElementById('input-m-pot').value = mPotential.toFixed(1);
-      document.getElementById('input-cum-pot').value = cumPotential.toFixed(1);
+        rawDatasetLY = rowsLy;
+        rawDatasetCY = rowsCy;
+        rawDatasetPrimary = rowsPrimary;
 
-      applyUniverseToActiveView();
+        if (statusLy) statusLy.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${rowsLy.length.toLocaleString()} rows synced</span>`;
+        if (statusCy) statusCy.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${rowsCy.length.toLocaleString()} rows synced</span>`;
+        if (statusPri) statusPri.innerHTML = `<span class="text-emerald-700 font-bold">✓ ${rowsPrimary.length.toLocaleString()} rows synced</span>`;
 
-      if (portalCompiledData && portalCompiledData.monthlyData && portalCompiledData.monthlyData[stockist] && portalCompiledData.monthlyData[stockist][month]) {
-        const d = portalCompiledData.monthlyData[stockist][month];
-
-        document.getElementById('input-m-cy').value = d.mCY.toFixed(1);
-        document.getElementById('input-m-ly').value = d.mLY.toFixed(1);
-        document.getElementById('input-cum-cy').value = d.cumCY.toFixed(1);
-        document.getElementById('input-cum-ly').value = d.cumLY.toFixed(1);
-
-        const channels = ['nonKsk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
-        const domMap = { nonKsk: 'non-ksk', ksk: 'ksk', nayara: 'nayara', bazaar: 'bazaar', oem: 'oem', fleet: 'fleet' };
-
-        channels.forEach(ch => {
-          const tag = domMap[ch];
-          document.getElementById(`sup-${tag}`).textContent = d.suppliedOutlets[ch];
-          document.getElementById(`cy-${tag}`).textContent = d.channelCY[ch].toFixed(1);
-          document.getElementById(`ly-${tag}`).textContent = d.channelLY[ch].toFixed(1);
-        });
+        portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
+        localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
 
         document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-        document.getElementById('data-status-badge').textContent = "Live Synced Data Active";
+        document.getElementById('data-status-badge').textContent = "Google Sheets Active";
+
+        renderStockistDetailsTable();
+        renderFinancialsWorkingCapital();
+        updateCampaignsFormula();
+        renderMarketInfoTable();
+        runAnalysis();
+        renderSSFAnalysis();
+
+        await saveCloudData();
+        alert("✓ Successfully fetched and synchronized S_FY 25-26, S_FY 26-27, and P_FY 26-27 from Google Sheets!");
+      } catch (err) {
+        console.error(err);
+        alert("Google Sheet Fetch Error: " + err.message + "\n\nPlease ensure you completed:\nFile -> Share -> Publish to web in Google Sheets.");
+        if (statusLy) statusLy.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
+        if (statusCy) statusCy.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
+        if (statusPri) statusPri.innerHTML = `<span class="text-rose-600 font-semibold">Failed</span>`;
       }
-
-      updateCalculations();
-      renderFinancialsWorkingCapital();
-    }
-
-    function updateCalculations() {
-      const mCY = parseFloat(document.getElementById('input-m-cy').value) || 0;
-      const mLY = parseFloat(document.getElementById('input-m-ly').value) || 0;
-      const mDiff = mCY - mLY;
-      const mDiffEl = document.getElementById('cell-m-diff');
-      mDiffEl.textContent = (mDiff >= 0 ? `+${mDiff.toFixed(1)}` : mDiff.toFixed(1));
-      mDiffEl.className = `font-bold ${mDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
-
-      const cumCY = parseFloat(document.getElementById('input-cum-cy').value) || 0;
-      const cumLY = parseFloat(document.getElementById('input-cum-ly').value) || 0;
-      const cumDiff = cumCY - cumLY;
-      const cumDiffEl = document.getElementById('cell-cum-diff');
-      cumDiffEl.textContent = (cumDiff >= 0 ? `+${cumDiff.toFixed(1)}` : cumDiff.toFixed(1));
-      cumDiffEl.className = `font-bold ${cumDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
-
-      const tags = ['non-ksk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
-      let totSup = 0, totCY = 0, totLY = 0;
-
-      tags.forEach(tag => {
-        totSup += parseInt(document.getElementById(`sup-${tag}`).textContent) || 0;
-        totCY += parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
-        totLY += parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
-      });
-
-      document.getElementById('sup-total').textContent = totSup;
-      document.getElementById('cy-total').textContent = totCY.toFixed(1);
-      document.getElementById('ly-total').textContent = totLY.toFixed(1);
-
-      tags.forEach(tag => {
-        const cy = parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
-        const ly = parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
-        const pctCY = totCY > 0 ? (cy / totCY) * 100 : 0;
-        const pctLY = totLY > 0 ? (ly / totLY) * 100 : 0;
-        document.getElementById(`pct-cy-${tag}`).textContent = pctCY.toFixed(1) + '%';
-        document.getElementById(`pct-ly-${tag}`).textContent = pctLY.toFixed(1) + '%';
-      });
-    }
-
-    function renderSSFAnalysis() {
-      const stockist = document.getElementById('sel-ssf-stockist').value;
-      const month = parseInt(document.getElementById('sel-ssf-month').value);
-
-      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
-      document.getElementById('disp-ssf-stockist-title').textContent = stockist;
-      document.getElementById('disp-ssf-period-title').textContent = periodLabel;
-
-      const tbody = document.getElementById('tbody-ssf');
-      const tfoot = document.getElementById('tfoot-ssf');
-      tbody.innerHTML = '';
-      tfoot.innerHTML = '';
-
-      let ssfList = [];
-
-      if (portalCompiledData && portalCompiledData.ssfData && portalCompiledData.ssfData[stockist] && portalCompiledData.ssfData[stockist][month]) {
-        ssfList = portalCompiledData.ssfData[stockist][month];
-      }
-
-      const grandTotalSales = ssfList.reduce((acc, x) => acc + x.total, 0);
-      const grandTotalOutlets = ssfList.reduce((acc, x) => acc + x.outlets, 0);
-      let totNonKsk = 0, totKsk = 0, totNayara = 0, totBazaar = 0, totOem = 0, totFleet = 0;
-
-      document.getElementById('kpi-ssf-count').textContent = ssfList.length;
-      document.getElementById('kpi-ssf-sales').textContent = grandTotalSales.toFixed(1) + ' KL';
-      document.getElementById('kpi-ssf-outlets').textContent = grandTotalOutlets;
-
-      ssfList.forEach(item => {
-        totNonKsk += item.nonKsk;
-        totKsk += item.ksk;
-        totNayara += item.nayara;
-        totBazaar += item.bazaar;
-        totOem += item.oem;
-        totFleet += item.fleet;
-
-        const sharePct = grandTotalSales > 0 ? (item.total / grandTotalSales) * 100 : 0;
-
-        const tr = document.createElement('tr');
-        tr.className = "text-right hover:bg-slate-50 transition";
-        tr.innerHTML = `
-          <td class="text-left font-bold text-slate-800">${item.name}</td>
-          <td class="font-black text-blue-900 bg-blue-50/70 text-right pr-4">${item.total.toFixed(1)}</td>
-          <td class="text-center text-xs font-mono text-slate-500">${item.code}</td>
-          <td class="text-center font-semibold text-slate-700">${item.outlets}</td>
-          <td class="font-medium">${item.nonKsk.toFixed(1)}</td>
-          <td class="font-medium">${item.ksk.toFixed(1)}</td>
-          <td class="font-medium">${item.nayara.toFixed(1)}</td>
-          <td class="font-medium">${item.bazaar.toFixed(1)}</td>
-          <td class="font-medium">${item.oem.toFixed(1)}</td>
-          <td class="font-medium">${item.fleet.toFixed(1)}</td>
-          <td class="text-center font-bold text-slate-700">${sharePct.toFixed(1)}%</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      tfoot.innerHTML = `
-        <tr class="text-right">
-          <td class="text-left font-bold uppercase py-2.5">Total</td>
-          <td class="font-black text-blue-950 bg-blue-100 text-right pr-4">${grandTotalSales.toFixed(1)}</td>
-          <td class="text-center">-</td>
-          <td class="text-center font-bold">${grandTotalOutlets}</td>
-          <td class="font-bold">${totNonKsk.toFixed(1)}</td>
-          <td class="font-bold">${totKsk.toFixed(1)}</td>
-          <td class="font-bold">${totNayara.toFixed(1)}</td>
-          <td class="font-bold">${totBazaar.toFixed(1)}</td>
-          <td class="font-bold">${totOem.toFixed(1)}</td>
-          <td class="font-bold">${totFleet.toFixed(1)}</td>
-          <td class="text-center font-bold">100.0%</td>
-        </tr>
-      `;
-    }
-
-    function exportToPDF(elementId, baseName) {
-      const stockist = document.getElementById('sel-stockist').value;
-      const month = document.getElementById('sel-month').options[document.getElementById('sel-month').selectedIndex].text;
-      const element = document.getElementById(elementId);
-      
-      const opt = {
-        margin:       [10, 10, 10, 10],
-        filename:     `${baseName}_${stockist.replace(/\s+/g, '_')}_${month}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
     }
 
     function getCleanToken() {
@@ -2003,22 +1834,12 @@
 
           if (portalCompiledData.primaryData && portalCompiledData.primaryData.length > 0) {
             rawDatasetPrimary = portalCompiledData.primaryData;
-            const statusPrimary = document.getElementById('status-primary');
-            if (statusPrimary) {
-              statusPrimary.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced Primary (${rawDatasetPrimary.length} rows)</span>`;
-            }
           }
 
           renderStockistDetailsTable();
           renderFinancialsWorkingCapital();
           updateCampaignsFormula();
           renderMarketInfoTable();
-
-          const sCY = document.getElementById('status-cy');
-          const sLY = document.getElementById('status-ly');
-          if (sCY) sCY.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
-          if (sLY) sLY.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced from Cloud</span>`;
-
           runAnalysis();
           renderSSFAnalysis();
 
@@ -2029,20 +1850,9 @@
           if (showFeedback && feedback) {
             feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Cloud data loaded successfully!</span>`;
           }
-        } else if (res.status === 404) {
-          if (badge) badge.textContent = "Ready to Upload";
-          if (showFeedback && feedback) {
-            feedback.innerHTML = `<span class="text-slate-600">No cloud file found yet. Upload your Excel files to start.</span>`;
-          }
-        } else {
-          throw new Error(`HTTP ${res.status}`);
         }
       } catch (err) {
         console.error("Cloud load error:", err);
-        if (badge) {
-          badge.textContent = "Sync Offline";
-          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
-        }
       }
     }
 
@@ -2123,45 +1933,13 @@
           if (feedback) {
             feedback.innerHTML = `<span class="text-emerald-600 font-bold">✓ Synced to cloud at ${new Date().toLocaleTimeString()}</span>`;
           }
-        } else {
-          if (putRes.status === 409 || putRes.status === 422) {
-            const reGet = await fetch(apiUrl, {
-              headers: { "Authorization": `token ${token}` }
-            });
-            if (reGet.ok) {
-              const reJson = await reGet.json();
-              bodyData.sha = reJson.sha;
-              const retryPut = await fetch(apiUrl, {
-                method: "PUT",
-                headers: {
-                  "Authorization": `token ${token}`,
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(bodyData)
-              });
-              if (retryPut.ok) {
-                const retryJson = await retryPut.json();
-                window._ghFileSha = retryJson.content.sha;
-                if (badge) {
-                  badge.textContent = "Cloud Synced ✓";
-                  badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-                }
-                return;
-              }
-            }
-          }
-          const errData = await putRes.json();
-          throw new Error(errData.message || "Failed to commit");
         }
       } catch (err) {
         console.error("Cloud save error:", err);
-        if (badge) {
-          badge.textContent = "Sync Failed";
-          badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
-        }
       }
     }
 
+    // App Initialization on Boot
     window.onload = function() {
       const savedToken = localStorage.getItem('ghp_token');
       if (savedToken) {
