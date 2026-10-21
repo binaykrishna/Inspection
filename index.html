@@ -1,4 +1,2032 @@
-// Robust UTF-8 Base64 Encoder / Decoder (No redirects, no epoch bugs, no header stripping)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secondary Sales & SSF Performance Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .sheet-table th, .sheet-table td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+    }
+    .sheet-header-dark {
+      background-color: #1e3a8a;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .sheet-subheader {
+      background-color: #e2e8f0;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .sheet-accent {
+      background-color: #f8fafc;
+    }
+    .sheet-total-row {
+      background-color: #f1f5f9;
+      font-weight: 700;
+    }
+    .input-cell {
+      background-color: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 4px;
+      padding: 3px 6px;
+      width: 100%;
+      text-align: right;
+      font-size: 0.82rem;
+    }
+    .input-cell:focus {
+      outline: 2px solid #2563eb;
+      background-color: #eff6ff;
+    }
+    .input-universe {
+      width: 75px;
+      text-align: center;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 3px 5px;
+      font-weight: 600;
+      color: #1e293b;
+      background-color: #ffffff;
+    }
+    .input-universe:focus {
+      outline: 2px solid #2563eb;
+      background-color: #eff6ff;
+    }
+    .editable-yellow {
+      background-color: #fef08a !important;
+      border: 1px solid #eab308 !important;
+      font-weight: 600;
+      color: #713f12;
+      border-radius: 4px;
+      padding: 3px 6px;
+      width: 100%;
+    }
+    .editable-yellow:focus {
+      outline: 2px solid #ca8a04;
+      background-color: #fef9c3 !important;
+    }
+    .date-picker-yellow {
+      background-color: #fef08a !important;
+      border: 1px solid #eab308 !important;
+      font-weight: 600;
+      color: #713f12;
+      border-radius: 4px;
+      padding: 3px 5px;
+      width: 100%;
+      font-size: 0.80rem;
+    }
+    .date-picker-yellow:focus {
+      outline: 2px solid #ca8a04;
+      background-color: #fef9c3 !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-blue-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold tracking-wide">Secondary Sales & SSF Performance Portal</h1>
+        <p class="text-xs text-blue-200">Lubes Reseller Group — Performance Matrix & Inspection Analytics</p>
+      </div>
+      
+      <!-- Reordered Navigation Tabs -->
+      <div class="flex flex-wrap items-center gap-1.5 bg-blue-950 p-1.5 rounded-lg">
+        <button id="tab-btn-stockist" onclick="switchTab('stockist')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow">
+          📋 Stockist Details
+        </button>
+        <button id="tab-btn-analysis" onclick="switchTab('analysis')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          📊 Sales Analysis
+        </button>
+        <button id="tab-btn-ssf" onclick="switchTab('ssf')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          👥 SSF Analysis
+        </button>
+        <button id="tab-btn-other" onclick="switchTab('other')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          📑 Other Details
+        </button>
+        <button id="tab-btn-upload" onclick="switchTab('upload')" 
+          class="px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white">
+          📁 Upload Catalog
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-6 flex-1 w-full">
+
+    <!-- ======================================================= -->
+    <!-- TAB 1: STOCKIST DETAILS                                 -->
+    <!-- ======================================================= -->
+    <div id="tab-stockist" class="space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-4 mb-5">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
+            <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
+          </div>
+          <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
+            💾 Save & Update All Devices
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse sheet-table text-left" id="table-stockist-details">
+            <thead>
+              <tr class="sheet-header-dark text-center">
+                <th class="text-left w-1/4 py-2.5">Attribute / Parameter</th>
+                <th class="w-1/6">TAKSHVI CO</th>
+                <th class="w-1/6">BIHARIJI AUTO SERVICE</th>
+                <th class="w-1/6">M/S NALATESWARI LUBRICANTS</th>
+                <th class="w-1/6">SMG TRADES</th>
+                <th class="w-1/6">SWASTIK AUTOMOBILES</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-stockist-details"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: SALES ANALYSIS                      -->
+    <!-- ========================================== -->
+    <div id="tab-analysis" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-6">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Stockist Name</label>
+            <select id="sel-stockist" onchange="syncStockist(this.value); runAnalysis();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="Takshvi Co">Takshvi Co</option>
+              <option value="Nalateswari Lubricants">Nalateswari Lubricants</option>
+              <option value="Bihariji Auto Service Station">Bihariji Auto Service Station</option>
+              <option value="SMG Trades">SMG Trades</option>
+              <option value="Swastik Automobiles">Swastik Automobiles</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Select Month</label>
+            <select id="sel-month" onchange="syncMonth(this.value); runAnalysis(); updateCampaignsFormula();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="4">Apr'26</option>
+              <option value="5">May'26</option>
+              <option value="6">Jun'26</option>
+              <option value="7">Jul'26</option>
+              <option value="8" selected>Aug'26</option>
+              <option value="9">Sep'26</option>
+              <option value="10">Oct'26</option>
+              <option value="11">Nov'26</option>
+              <option value="12">Dec'26</option>
+              <option value="1">Jan'27</option>
+              <option value="2">Feb'27</option>
+              <option value="3">Mar'27</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
+            Awaiting Data
+          </span>
+          <button onclick="exportToPDF('pdf-report-content', 'Sales_Analysis')" class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            📄 Export to PDF
+          </button>
+        </div>
+      </div>
+
+      <div id="pdf-report-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
+        <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">* 2 - Sales Analysis</h2>
+            <p class="text-xs text-slate-500 font-medium">LUBES RESELLER GROUP — SECONDARY PERFORMANCE MATRIX</p>
+          </div>
+          <div class="text-right text-xs text-slate-600">
+            <div><span class="font-bold">Stockist:</span> <span id="disp-stockist-title" class="font-semibold text-blue-900">Takshvi Co</span></div>
+            <div><span class="font-bold">Period:</span> <span id="disp-period-title" class="font-semibold text-blue-900">Apr'26- Aug'26</span></div>
+          </div>
+        </div>
+
+        <table class="w-full border-collapse sheet-table text-left" id="analysis-table">
+          <thead>
+            <tr class="sheet-accent">
+              <th class="w-1/4 font-bold text-slate-700">Name of the Stockist</th>
+              <th colspan="6" id="disp-stockist-name" class="font-bold text-blue-900 text-base">Takshvi Co</th>
+            </tr>
+            <tr class="sheet-accent">
+              <th class="font-bold text-slate-700">Month</th>
+              <th colspan="6" id="disp-month-label" class="font-semibold text-slate-800">Aug'26</th>
+            </tr>
+            <tr class="sheet-subheader text-center">
+              <th class="text-left">Potential (KL)</th>
+              <th>Target (KL)</th>
+              <th>Sales CY (KL)</th>
+              <th>Sales LY (KL)</th>
+              <th>(+/-)</th>
+              <th colspan="2">Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="text-right">
+              <td><input type="number" step="0.1" id="input-m-pot" class="input-cell font-semibold text-left" value="80.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-m-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td class="font-bold" id="cell-m-diff">0.0</td>
+              <td colspan="2"><input type="text" id="input-m-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
+            </tr>
+
+            <tr class="sheet-accent">
+              <th class="font-bold text-slate-700">Cumulative</th>
+              <th colspan="6" id="disp-cum-range" class="font-semibold text-slate-800">Apr'26- Aug'26</th>
+            </tr>
+
+            <tr class="sheet-subheader text-center">
+              <th class="text-left">Potential (KL)</th>
+              <th>Target (KL)</th>
+              <th>Sales CY (KL)</th>
+              <th>Sales LY (KL)</th>
+              <th>(+/-)</th>
+              <th colspan="2">Remarks</th>
+            </tr>
+
+            <tr class="text-right">
+              <td><input type="number" step="0.1" id="input-cum-pot" class="input-cell font-semibold text-left" value="400.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-target" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-cy" class="input-cell font-bold text-blue-900" value="0.0" oninput="updateCalculations()"></td>
+              <td><input type="number" step="0.1" id="input-cum-ly" class="input-cell" value="0.0" oninput="updateCalculations()"></td>
+              <td class="font-bold" id="cell-cum-diff">0.0</td>
+              <td colspan="2"><input type="text" id="input-cum-remarks" class="input-cell text-left" placeholder="Optional remarks"></td>
+            </tr>
+
+            <tr class="bg-slate-200">
+              <td colspan="7" class="py-1"></td>
+            </tr>
+
+            <tr class="sheet-header-dark text-center">
+              <th colspan="7" class="py-2 tracking-wider uppercase">LUBES RESELLER GROUP — Analysis of Secondary Sales</th>
+            </tr>
+            <tr class="sheet-accent">
+              <th class="font-bold text-slate-700">Period</th>
+              <th colspan="6" id="disp-channel-period" class="font-semibold text-slate-800">Apr'26- Aug'26</th>
+            </tr>
+
+            <tr class="sheet-subheader text-center">
+              <th class="text-left">Channel</th>
+              <th>Total No.</th>
+              <th>Cum. No. Supplied</th>
+              <th>Sales CY</th>
+              <th>Sales LY</th>
+              <th>% of Total Sales CY</th>
+              <th>% of Total Sales LY</th>
+            </tr>
+
+            <tr id="row-non-ksk" class="text-right">
+              <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
+              <td id="tot-non-ksk">100</td>
+              <td id="sup-non-ksk">0</td>
+              <td class="font-semibold" id="cy-non-ksk">0.0</td>
+              <td class="font-semibold" id="ly-non-ksk">0.0</td>
+              <td id="pct-cy-non-ksk">0.0%</td>
+              <td id="pct-ly-non-ksk">0.0%</td>
+            </tr>
+
+            <tr id="row-ksk" class="text-right">
+              <td class="text-left font-medium">Retail Outlets - KSK RO</td>
+              <td id="tot-ksk">41</td>
+              <td id="sup-ksk">0</td>
+              <td class="font-semibold" id="cy-ksk">0.0</td>
+              <td class="font-semibold" id="ly-ksk">0.0</td>
+              <td id="pct-cy-ksk">0.0%</td>
+              <td id="pct-ly-ksk">0.0%</td>
+            </tr>
+
+            <tr id="row-nayara" class="text-right">
+              <td class="text-left font-medium">Retail Outlets - Nayara Energy</td>
+              <td id="tot-nayara">4</td>
+              <td id="sup-nayara">0</td>
+              <td class="font-semibold" id="cy-nayara">0.0</td>
+              <td class="font-semibold" id="ly-nayara">0.1</td>
+              <td id="pct-cy-nayara">0.0%</td>
+              <td id="pct-ly-nayara">0.1%</td>
+            </tr>
+
+            <tr id="row-bazaar" class="text-right">
+              <td class="text-left font-medium">Bazaar Shop</td>
+              <td id="tot-bazaar">550</td>
+              <td id="sup-bazaar">0</td>
+              <td class="font-semibold" id="cy-bazaar">66.4</td>
+              <td class="font-semibold" id="ly-bazaar">0.0</td>
+              <td id="pct-cy-bazaar">0.0%</td>
+              <td id="pct-ly-bazaar">0.0%</td>
+            </tr>
+
+            <tr id="row-oem" class="text-right">
+              <td class="text-left font-medium">OE Dealers</td>
+              <td id="tot-oem">4</td>
+              <td id="sup-oem">0</td>
+              <td class="font-semibold" id="cy-oem">0.0</td>
+              <td class="font-semibold" id="ly-oem">0.0</td>
+              <td id="pct-cy-oem">0.0%</td>
+              <td id="pct-ly-oem">0.0%</td>
+            </tr>
+
+            <tr id="row-fleet" class="text-right">
+              <td class="text-left font-medium">Fleet</td>
+              <td id="tot-fleet">4</td>
+              <td id="sup-fleet">0</td>
+              <td class="font-semibold" id="cy-fleet">0.0</td>
+              <td class="font-semibold" id="ly-fleet">0.0</td>
+              <td id="pct-cy-fleet">0.0%</td>
+              <td id="pct-ly-fleet">0.0%</td>
+            </tr>
+
+            <tr class="sheet-total-row text-right text-blue-950">
+              <td class="text-left font-bold uppercase">Total</td>
+              <td id="tot-total">703</td>
+              <td id="sup-total">0</td>
+              <td class="font-bold text-blue-900" id="cy-total">0.0</td>
+              <td class="font-bold" id="ly-total">0.0</td>
+              <td id="pct-cy-total">100.0%</td>
+              <td id="pct-ly-total">100.0%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: SSF WISE SALES ANALYSIS             -->
+    <!-- ========================================== -->
+    <div id="tab-ssf" class="hidden space-y-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-6">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Stockist Name</label>
+            <select id="sel-ssf-stockist" onchange="syncStockist(this.value); renderSSFAnalysis();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="Takshvi Co">Takshvi Co</option>
+              <option value="Nalateswari Lubricants">Nalateswari Lubricants</option>
+              <option value="Bihariji Auto Service Station">Bihariji Auto Service Station</option>
+              <option value="SMG Trades">SMG Trades</option>
+              <option value="Swastik Automobiles">Swastik Automobiles</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Select Month (Cumulative Till)</label>
+            <select id="sel-ssf-month" onchange="syncMonth(this.value); renderSSFAnalysis(); updateCampaignsFormula();" 
+              class="border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500">
+              <option value="4">Apr'26</option>
+              <option value="5">May'26</option>
+              <option value="6">Jun'26</option>
+              <option value="7">Jul'26</option>
+              <option value="8" selected>Aug'26</option>
+              <option value="9">Sep'26</option>
+              <option value="10">Oct'26</option>
+              <option value="11">Nov'26</option>
+              <option value="12">Dec'26</option>
+              <option value="1">Jan'27</option>
+              <option value="2">Feb'27</option>
+              <option value="3">Mar'27</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="pdf-ssf-content" class="bg-white rounded-xl shadow border border-slate-200 overflow-x-auto p-6">
+        <div class="border-b-2 border-blue-900 pb-3 mb-5 flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">SSF Wise Cumulative Sales Analysis (FY 2026-27)</h2>
+            <p class="text-xs text-slate-500 font-medium">SECONDARY SALES FORCE PERFORMANCE BREAKDOWN & CHANNEL CONTRIBUTION</p>
+          </div>
+          <div class="text-right text-xs text-slate-600">
+            <div><span class="font-bold">Stockist:</span> <span id="disp-ssf-stockist-title" class="font-semibold text-blue-900">Takshvi Co</span></div>
+            <div><span class="font-bold">Period:</span> <span id="disp-ssf-period-title" class="font-semibold text-blue-900">Apr'26 - Aug'26</span></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <div class="text-xs font-bold text-slate-500 uppercase">Total SSF Count</div>
+            <div id="kpi-ssf-count" class="text-2xl font-black text-blue-900 mt-1">0</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <div class="text-xs font-bold text-slate-500 uppercase">Cumulative Sales CY (KL)</div>
+            <div id="kpi-ssf-sales" class="text-2xl font-black text-emerald-700 mt-1">0.0 KL</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
+            <div class="text-xs font-bold text-slate-500 uppercase">Total Outlets Supplied</div>
+            <div id="kpi-ssf-outlets" class="text-2xl font-black text-indigo-900 mt-1">0</div>
+          </div>
+        </div>
+
+        <table class="w-full border-collapse sheet-table text-left" id="table-ssf">
+          <thead>
+            <tr class="sheet-header-dark text-center">
+              <th rowspan="2" class="text-left py-3">SSF Name</th>
+              <th rowspan="2" class="bg-blue-800 text-amber-200">Cum. Sales CY (KL)</th>
+              <th rowspan="2">SSF Code</th>
+              <th rowspan="2">Supplied Outlets</th>
+              <th colspan="6">Channel Breakdown (Sales in KL)</th>
+              <th rowspan="2">% Share</th>
+            </tr>
+            <tr class="sheet-subheader text-center text-xs">
+              <th>Non-KSK</th>
+              <th>KSK</th>
+              <th>Nayara</th>
+              <th>Bazaar</th>
+              <th>OEM</th>
+              <th>Fleet</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-ssf"></tbody>
+          <tfoot id="tfoot-ssf" class="sheet-total-row text-right text-blue-950"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TAB 4: OTHER DETAILS (Clean Section Headers)           -->
+    <!-- ======================================================= -->
+    <div id="tab-other" class="hidden space-y-8">
+      
+      <!-- Section 1: Godown Inspection -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">8 - Godown Inspection Checklist</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl No</th>
+                <th>Inspection Item</th>
+                <th class="w-1/3">Remarks / Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-center font-bold">1</td><td>Whether adequate space for movement is available?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">2</td><td>Segregation of damaged/ contaminated/ leaky stock is done?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Godown is clean?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Weighing machine available and in working condition?</td><td class="font-semibold text-rose-600">NO</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Valid Calibration certificate for Weighing Machine available?</td><td class="font-semibold text-slate-600">NA</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>Safety Equipment against fire available?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">7</td><td>No. of Fire Extinguishers with proper validity</td><td class="font-semibold text-blue-900">3</td></tr>
+              <tr><td class="text-center font-bold">8</td><td>Proper Illumination available?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">9</td><td>Stacking of barrels/ cartons is proper?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">10</td><td>Last date of Electrical Audit</td><td class="font-semibold text-slate-600">NA</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 2: SSF / OE Promoter Details -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">9 - SSF / OE Promoter Inspection Logs</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-1/3 text-left">Stockist</th>
+                <th>SSFs Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-bold text-blue-950">TAKSHVI CO</td>
+                <td class="font-medium text-slate-700">Ranajit Maitra (8170035510), Sudam Mondal (9083256046), Sudipta Sam (9732096695), Soumitra Das (8918067604)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">BIHARIJI AUTO SERVICE</td>
+                <td class="font-medium text-slate-700">Arup Mukherjee (9749555224), Dolan Paul (7001152823), Bijay Sharma (6297740787), Sukhamay Mukherjee (8436488100)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">M/S NALATESWARI LUBRICANTS</td>
+                <td class="font-medium text-slate-700">Sagar Das (7864004485), Soumen Dutta (7908634950), Biswanath Mitra (9382562229), Timir Baran Nandi (9474352537), Uttam Kabiraj (9593438808)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">SMG TRADES</td>
+                <td class="font-medium text-slate-700">Pinaki Chakraborty (9531568565), Robin Chakraborty (9434845141), Sujit Chattaraj (7872139666), Ram Prasad Chakraborty (9733939912)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-blue-950">SWASTIK AUTOMOBILES</td>
+                <td class="font-medium text-slate-700">Nayan Choudhury (8016185353), Lalu Mahata (9800153677), Tapas Adhikary (8972880326), Dayal Mahato (8016185353)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 3: Financials Inspection Review -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="border-b-2 border-blue-900 pb-2 mb-4">
+          <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">10 - Financials Inspection Review</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl No</th>
+                <th>Inspection Item</th>
+                <th>Remarks / Contractual Provision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center font-bold">1</td>
+                <td>Working Capital requirement as per contract</td>
+                <td class="font-bold text-blue-900 bg-blue-50/60" id="fin-wc-display"></td>
+              </tr>
+              <tr><td class="text-center font-bold">2</td><td>Details of Source of capital – Own & Other sources</td><td class="font-medium text-slate-700">OWN FOR ALL EXCEPT BIHARIJI (OWN & BANK LOAN)</td></tr>
+              <tr><td class="text-center font-bold">3</td><td>Current assets – Stock, Receivables, Cash</td><td class="font-medium text-slate-700">STOCK, RECEIVABLES & CASH IN BANK</td></tr>
+              <tr><td class="text-center font-bold">4</td><td>Current liabilities – Payables, debt</td><td class="font-medium text-slate-700">PAYABLES</td></tr>
+              <tr><td class="text-center font-bold">5</td><td>Stocks Cover: Stocks Held/ Monthly sales (No of Days)</td><td class="font-semibold text-blue-900">40 Days</td></tr>
+              <tr><td class="text-center font-bold">6</td><td>Incentives Received by Stockist on time</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+              <tr><td class="text-center font-bold">7</td><td>Annual Closing Balance reconciliation done?</td><td class="font-semibold text-emerald-700">Yes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 4: Details of Sales Promotion Campaigns -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
+          <div>
+            <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
+          </div>
+          <button onclick="saveAndSyncCampaigns()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+            💾 Save & Sync Campaigns
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl No</th>
+                <th>Inspection Item</th>
+                <th class="w-3/5">Remarks / Computed Volume & BTL Log</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center font-bold">1</td>
+                <td>Number of RO Campaigns conducted last month (including Super Saturday campaign)</td>
+                <td><input type="text" id="camp-item-1" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()"></td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">2</td>
+                <td>Cumulative number of RO Campaigns conducted in current FY</td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <input type="text" id="camp-item-2" class="editable-yellow font-bold text-blue-950" value="8 Super Saturday campaigns" oninput="markCampaignDirty()">
+                    <span class="text-[11px] text-slate-400 whitespace-nowrap" id="camp-item-2-formula"></span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">3</td>
+                <td>Number of Bazaar Campaigns conducted last month</td>
+                <td>
+                  <input type="text" id="camp-item-3" class="editable-yellow" value="2 Super Saturday campaigns" oninput="markCampaignDirty()">
+                  <div class="text-[11px] text-slate-500 font-medium mt-1" id="camp-item-3-note"></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">4</td>
+                <td>Cumulative number of Bazaar Campaigns conducted in current FY</td>
+                <td>
+                  <textarea id="camp-item-4" class="editable-yellow font-bold text-blue-950 w-full" rows="2" oninput="markCampaignDirty()"></textarea>
+                  <div class="text-[11px] text-slate-400 mt-0.5" id="camp-item-4-formula"></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">5</td>
+                <td>Campaign Van - Campaigns done last month</td>
+                <td><input type="number" id="camp-item-5" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
+              </tr>
+              <tr>
+                <td class="text-center font-bold">6</td>
+                <td>Campaign Van - Cumulative Campaigns done in current FY</td>
+                <td><input type="number" id="camp-item-6" class="editable-yellow" value="0" oninput="markCampaignDirty()"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 5: Market Information -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
+          <div>
+            <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">Market Information & Competitor Intelligence</h2>
+          </div>
+          <button onclick="openMarketEditModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
+            ✏️ Edit / Add More Observations
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sheet-table" id="table-market-info">
+            <thead>
+              <tr class="sheet-subheader">
+                <th class="w-12 text-center">Sl.No.</th>
+                <th>Additional Observations Or General Remarks</th>
+                <th class="w-1/3">Applicability / Region</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-market-info"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TAB 5: UPLOADS & GITHUB SYNC                            -->
+    <!-- ======================================================= -->
+    <div id="tab-upload" class="hidden space-y-6">
+      
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <h2 class="text-lg font-bold text-slate-800 mb-1">Catalog & Transaction Dataset Manager</h2>
+        <p class="text-sm text-slate-500 mb-6">Upload raw secondary and primary sales reports from SAP/SDMS extraction. Data processes in real time in your browser.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">📄</div>
+                <div>
+                  <h3 class="font-bold text-slate-800 text-sm">Secondary Sales LY (25-26)</h3>
+                  <p class="text-[11px] text-slate-500">File: S FY 25-26.xlsx</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 mb-3">Prior FY secondary sales invoices and channel categorizations.</p>
+            </div>
+            <div>
+              <input type="file" id="file-ly" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'LY')" class="hidden">
+              <label for="file-ly" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+                Choose LY File
+              </label>
+              <div id="status-ly" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+            </div>
+          </div>
+
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">📊</div>
+                <div>
+                  <h3 class="font-bold text-slate-800 text-sm">Secondary Sales CY (26-27)</h3>
+                  <p class="text-[11px] text-slate-500">File: S FY 26-27.xlsx</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 mb-3">Current FY secondary sales invoices and channel categorizations.</p>
+            </div>
+            <div>
+              <input type="file" id="file-cy" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'CY')" class="hidden">
+              <label for="file-cy" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+                Choose CY File
+              </label>
+              <div id="status-cy" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+            </div>
+          </div>
+
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-5 hover:border-blue-500 transition-all bg-slate-50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">🚛</div>
+                <div>
+                  <h3 class="font-bold text-slate-800 text-sm">Primary Sales CY (26-27)</h3>
+                  <p class="text-[11px] text-slate-500">File: Primary FY 26-27.xlsx</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 mb-3">Stockist primary supplies and invoice dates used to calculate Receipt in KL.</p>
+            </div>
+            <div>
+              <input type="file" id="file-primary" accept=".xlsx, .xls, .csv" onchange="handleFileUpload(event, 'PRIMARY')" class="hidden">
+              <label for="file-primary" class="cursor-pointer block text-center w-full py-2 px-3 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm transition">
+                Choose Primary File
+              </label>
+              <div id="status-primary" class="mt-1.5 text-xs text-slate-500 font-medium truncate">No file chosen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cloud Sync Box -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span>🐙</span> GitHub Multi-Device Cloud Sync
+            </h2>
+            <p class="text-sm text-slate-500">Target path: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-bold">binaykrishna/inspection/data/portal_data.json</code></p>
+          </div>
+          <span id="sync-status-indicator" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-300">
+            Sync: Idle
+          </span>
+        </div>
+
+        <div class="max-w-xl mb-4">
+          <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Personal Access Token (ghp_...)</label>
+          <div class="flex gap-2">
+            <input type="password" id="gh-token" placeholder="Enter ghp_ token" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" onchange="saveGithubToken()">
+            <button onclick="clearSavedToken()" class="text-rose-600 hover:text-rose-800 text-xs font-semibold px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+              Clear
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">Requires <code>repo</code> access. Stored locally in your browser cache.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="pushDataToGithub()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            ⬆️ Push Latest Data to GitHub
+          </button>
+          <button onclick="pullDataFromGithub(true)" class="bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            ⬇️ Pull & Sync Now
+          </button>
+        </div>
+        <p id="gh-feedback" class="text-xs font-semibold mt-3 text-slate-500"></p>
+      </div>
+
+      <!-- Static Universe Configuration -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Static Universe (Total No. of Outlets / Stockist)</h2>
+            <p class="text-xs text-slate-500">Editable baseline outlet numbers as configured in Rules.xlsx (Rows 27–34). Changes reflect across all tabs.</p>
+          </div>
+          <button onclick="resetUniverseDefaults()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+            ↺ Reset Defaults
+          </button>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-xs sheet-table" id="table-universe">
+            <thead>
+              <tr class="sheet-subheader text-center">
+                <th class="text-left py-2.5">Channel</th>
+                <th>Takshvi Co</th>
+                <th>Bihariji</th>
+                <th>Nalateswari</th>
+                <th>Swastik</th>
+                <th>SMG Trades</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - Non KSK RO</td>
+                <td><input type="number" id="u-nonKsk-tak" class="input-universe" value="100" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-bih" class="input-universe" value="56" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-nal" class="input-universe" value="118" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-swa" class="input-universe" value="30" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nonKsk-smg" class="input-universe" value="50" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - KSK RO</td>
+                <td><input type="number" id="u-ksk-tak" class="input-universe" value="41" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-bih" class="input-universe" value="17" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-nal" class="input-universe" value="78" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-swa" class="input-universe" value="16" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-ksk-smg" class="input-universe" value="20" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Retail Outlets - Nayara Energy</td>
+                <td><input type="number" id="u-nayara-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-bih" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-nal" class="input-universe" value="6" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-nayara-smg" class="input-universe" value="2" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Bazaar Shop</td>
+                <td><input type="number" id="u-bazaar-tak" class="input-universe" value="550" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-bih" class="input-universe" value="400" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-nal" class="input-universe" value="800" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-swa" class="input-universe" value="200" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-bazaar-smg" class="input-universe" value="350" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">OE Dealers</td>
+                <td><input type="number" id="u-oem-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-bih" class="input-universe" value="8" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-nal" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-swa" class="input-universe" value="1" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-oem-smg" class="input-universe" value="3" oninput="onUniverseChange()"></td>
+              </tr>
+              <tr>
+                <td class="text-left font-medium">Fleet</td>
+                <td><input type="number" id="u-fleet-tak" class="input-universe" value="4" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-bih" class="input-universe" value="10" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-nal" class="input-universe" value="100" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-swa" class="input-universe" value="2" oninput="onUniverseChange()"></td>
+                <td><input type="number" id="u-fleet-smg" class="input-universe" value="5" oninput="onUniverseChange()"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Market Observations Edit Modal -->
+  <div id="modal-market-edit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-slate-800 text-base">Edit Market & Competitor Intelligence</h3>
+        <button onclick="closeMarketEditModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+      </div>
+
+      <div class="overflow-y-auto flex-1 space-y-3 p-1" id="modal-market-rows"></div>
+
+      <div class="flex items-center justify-between pt-3 border-t">
+        <button onclick="addMarketObservationRow()" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+          + Add New Row
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeMarketEditModal()" class="text-xs font-semibold px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-600">
+            Cancel
+          </button>
+          <button onclick="saveMarketObservations()" class="text-xs font-bold px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow">
+            Save & Sync Across Devices
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    const GITHUB_USERNAME = "binaykrishna";
+    const GITHUB_REPO = "inspection";
+    const GITHUB_DATA_PATH = "data/portal_data.json";
+
+    function switchTab(tab) {
+      const tabs = ['stockist', 'analysis', 'ssf', 'other', 'upload'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (el) el.classList.add('hidden');
+        if (btn) btn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all text-blue-200 hover:text-white";
+      });
+
+      const activeEl = document.getElementById(`tab-${tab}`);
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all bg-white text-blue-900 shadow";
+
+      if (tab === 'stockist') renderStockistDetailsTable();
+      if (tab === 'analysis') runAnalysis();
+      if (tab === 'ssf') renderSSFAnalysis();
+      if (tab === 'other') {
+        renderFinancialsWorkingCapital();
+        updateCampaignsFormula();
+        renderMarketInfoTable();
+      }
+    }
+
+    function syncStockist(val) {
+      document.getElementById('sel-stockist').value = val;
+      document.getElementById('sel-ssf-stockist').value = val;
+      renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
+    }
+    function syncMonth(val) {
+      document.getElementById('sel-month').value = val;
+      document.getElementById('sel-ssf-month').value = val;
+      updateCampaignsFormula();
+    }
+
+    const STOCKIST_BASE_POTENTIAL = {
+      "Takshvi Co": 80,
+      "Nalateswari Lubricants": 200,
+      "Bihariji Auto Service Station": 100,
+      "SMG Trades": 70,
+      "Swastik Automobiles": 30
+    };
+
+    const STOCKIST_KEY_MAP = {
+      "Takshvi Co": "tak",
+      "Bihariji Auto Service Station": "bih",
+      "Nalateswari Lubricants": "nal",
+      "Swastik Automobiles": "swa",
+      "SMG Trades": "smg"
+    };
+
+    const MONTH_ORDER = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3];
+    const MONTH_NAMES = {
+      4: "Apr'26", 5: "May'26", 6: "Jun'26", 7: "Jul'26", 8: "Aug'26", 9: "Sep'26",
+      10: "Oct'26", 11: "Nov'26", 12: "Dec'26", 1: "Jan'27", 2: "Feb'27", 3: "Mar'27"
+    };
+
+    const STOCKIST_NAMES = [
+      "Takshvi Co",
+      "Bihariji Auto Service Station",
+      "Nalateswari Lubricants",
+      "SMG Trades",
+      "Swastik Automobiles"
+    ];
+
+    let rawDatasetLY = [];
+    let rawDatasetCY = [];
+    let rawDatasetPrimary = [];
+    let portalCompiledData = null;
+
+    const DEFAULT_STOCKIST_DETAILS = {
+      type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
+      location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
+      lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"],
+      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "03/09/2013", "30/11/2023"],
+      officeAddress: [
+        "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
+        "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
+        "NALHATI, PAIKPARA, BIRBHUM",
+        "HOLDING NO 29, KUCHKUCHIA ROAD, BANKURA",
+        "BARAKAR ROAD, SADAR PARA, PURULIA"
+      ],
+      telNo: ["9332329077", "9434008309", "9434001479 / 9641191381", "9332329077", "9434029800"],
+      godownAddress: [
+        "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
+        "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
+        "NALHATI, PAIKPARA, BIRBHUM",
+        "HOLDING NO 29, KUCHKUCHIA ROAD, BANKURA",
+        "BARAKAR ROAD, SADAR PARA, PURULIA"
+      ],
+      godownTel: ["9332329077", "7001516052", "9932470623", "9332329077", "9434029800"],
+      constitution: ["Proprietorship", "Proprietorship", "PARTNERSHIP", "PROPRIETORSHIP", "PROPRIETORSHIP"],
+      proprietor: ["MANOJ GUPTA", "AJAY KUMAR KHAITAN", "RANJANA AGARWALA / RAKESH SINGH", "MANOJ GUPTA", "SUMIT SULTANIA"],
+      vanCount: [1, 1, 3, 1, 1],
+      vanMake: ["MAHINDRA BOLERO PICKUP", "TATA ACE, 2015", "MAHINDRA BOLERO PICKUP (3 Nos)", "MAHINDRA VEERO PICK UP", "TATA ACE"],
+      vanCapacity: ["1.28 TON", "1.5 TON", "3 TON", "1.435 TON", "WB56K2090 (3 T)"],
+      vanOwnership: ["RENT", "RENT", "OWN", "OWN", "OWN"],
+      documentation: ["SDMS", "SDMS", "SDMS", "SDMS", "SDMS"],
+      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "-", "19AQLPS8030K1Z7"],
+      areaOperation: ["PURBA BARDHAMAN", "PASCHIM BARDHAMAN", "BIRBHUM, MURSHIDABAD", "BANKURA", "PURULIA"],
+      bgBank: ["SBI", "STATE BANK OF INDIA", "UCO", "SBI", "PNB"],
+      bgAmount: ["6.0 LACS", "6.0 LACS", "12 Lacs", "6.0 LACS", "1.0 LACS"],
+      bgNo: ["0570425BG0B00021", "0618825BG0B00010", "0757IGFIN000124", "-", "04750ILG000423"],
+      bgValidity: ["11.09.2028", "09.07.2028", "22.01.2028", "-", "16.11.2027"],
+      agreementValidity: ["29.04.2028", "02.03.2028", "22.01.2028", "14.09.2029", "29.11.2026"],
+      annualTargetKL: [360, 619, 1107, 300, 150],
+      stockLastInspection: [25.838, 31.069, 57.459, 14.672, 16.881],
+      currentInspectionDate: ["", "", "", "", ""],
+      giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
+      resellerMeets: [
+        "2 Reseller Meets", 
+        "5 Reseller Meets (1: Durgapur- Jun'26)", 
+        "1 Reseller Meet", 
+        "1 Reseller Meet", 
+        "1 Reseller Meet (1: Purulia- Mar'27)"
+      ],
+      mechanicMeets: [
+        "2 Mechanic Meets (2: Katwa- Jul'26, Bardhaman- Jul'26)", 
+        "11 Mechanic Meets (1: Durgapur- Jun'26)", 
+        "6 Mechanic Meets", 
+        "3 Mechanic Meets", 
+        "1 Mechanic Meet (2: Purulia- Nov'26, Raghunathpur- Mar'27)"
+      ]
+    };
+
+    let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
+
+    const DEFAULT_MARKET_INFO = [
+      { text: "CASTROL overstretching in 4T & multigrades with aggressive lower pricing products.", region: "All Areas" },
+      { text: "Gulf DEO coupons available in the market with double redeem value.", region: "Bazaar & Commercial" },
+      { text: "Gel-based RED Grease is in high demand for the retail market.", region: "Retail Trade" },
+      { text: "Servo Chakkada is urgently required in 2.2 L pack size.", region: "3-Wheeler / Rural" },
+      { text: "Motul 7100 launched in API SP specification with attractive packaging and aggressive rates.", region: "Premium 2W" },
+      { text: "MAK and Castrol have launched API SP Products for PCMO category.", region: "Passenger Car Segment" },
+      { text: "MAK has launched scooter gear oil in small convenience pouches.", region: "Bazaar Trade" },
+      { text: "Less than 20% market share of Servo in the area.", region: "Swastik Automobiles & SMG Trades" }
+    ];
+
+    let activeMarketInfo = JSON.parse(JSON.stringify(DEFAULT_MARKET_INFO));
+
+    function calcMinWorkingCapital(targetKL) {
+      const t = parseFloat(targetKL) || 0;
+      const raw = (t / 12) * 1.18 * 1.75 * 2.76;
+      return "Rs. " + Math.ceil(raw) + " L";
+    }
+
+    // Convert any date value into clean YYYY-MM-DD
+    function normalizeDateStr(val) {
+      if (val === null || val === undefined || val === '') return '';
+
+      // If val is an Excel serial number
+      if (typeof val === 'number') {
+        if (isNaN(val) || val <= 0) return '';
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const jsDate = new Date(excelEpoch.getTime() + val * 86400000);
+        return jsDate.toISOString().split('T')[0];
+      }
+
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          return trimmed;
+        }
+        if (/^\d{5}$/.test(trimmed)) {
+          const num = parseFloat(trimmed);
+          const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+          const jsDate = new Date(excelEpoch.getTime() + num * 86400000);
+          return jsDate.toISOString().split('T')[0];
+        }
+        const parts = trimmed.split(/[/.-]/);
+        if (parts.length === 3) {
+          if (parts[2].length === 4) {
+            const d = parts[0].padStart(2, '0');
+            const m = parts[1].padStart(2, '0');
+            const y = parts[2];
+            return `${y}-${m}-${d}`;
+          }
+        }
+      }
+
+      try {
+        const dt = new Date(val);
+        if (!isNaN(dt.getTime())) {
+          const y = dt.getUTCFullYear();
+          const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+          const d = String(dt.getUTCDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        }
+      } catch(e) {}
+      return '';
+    }
+
+    // Clean UTC date subtraction without epoch (1970-01-01) bugs
+    function subtractOneDay(dateStr) {
+      if (!dateStr || dateStr.length < 10) return null;
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+      const dt = new Date(Date.UTC(y, m, d));
+      dt.setUTCDate(dt.getUTCDate() - 1);
+      return dt.toISOString().split('T')[0];
+    }
+
+    // Primary Stock Receipt Calculation:
+    function calculateStockistReceipt(stockistIndex) {
+      const stockistName = STOCKIST_NAMES[stockistIndex];
+
+      const domCurInput = document.getElementById(`cur-insp-date-${stockistIndex}`);
+      const curDateSelected = domCurInput && domCurInput.value ? domCurInput.value.trim() : (activeStockistDetails.currentInspectionDate[stockistIndex] || '').trim();
+
+      const domLastInput = document.getElementById(`last-insp-date-${stockistIndex}`);
+      const lastDateSelected = domLastInput && domLastInput.value ? domLastInput.value.trim() : (activeStockistDetails.lastInspection[stockistIndex] || '').trim();
+
+      const lastInspectionDateRaw = normalizeDateStr(lastDateSelected);
+      const currentInspectionDateRaw = normalizeDateStr(curDateSelected);
+
+      if (!currentInspectionDateRaw) {
+        return { kl: 0, text: "Select Current Date", subtext: "Pick inspection date in calendar" };
+      }
+
+      const targetEndDate = subtractOneDay(currentInspectionDateRaw);
+      if (!targetEndDate) {
+        return { kl: 0, text: "Invalid Current Date", subtext: "Please re-select date" };
+      }
+
+      const primaryRows = rawDatasetPrimary.length > 0 
+        ? rawDatasetPrimary 
+        : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
+
+      if (!primaryRows || primaryRows.length === 0) {
+        return { kl: 0, text: "0.000 KL", subtext: "Upload Primary Sales File in Settings" };
+      }
+
+      const stClean = stockistName.toLowerCase();
+      const stockistRows = primaryRows.filter(row => {
+        const rowName = String(row['Name'] || '').trim().toLowerCase();
+        return rowName.includes(stClean) || stClean.includes(rowName);
+      });
+
+      if (stockistRows.length === 0) {
+        return { kl: 0, text: "0.000 KL", subtext: "No primary billing records for stockist" };
+      }
+
+      const upliftmentDatesSet = new Set();
+      stockistRows.forEach(r => {
+        const d = normalizeDateStr(r['Inv.Date']);
+        if (d && d.length === 10 && !d.startsWith('1970')) {
+          upliftmentDatesSet.add(d);
+        }
+      });
+      const sortedUpliftmentDates = Array.from(upliftmentDatesSet).sort();
+
+      if (sortedUpliftmentDates.length === 0) {
+        return { kl: 0, text: "0.000 KL", subtext: "No valid invoice dates found" };
+      }
+
+      let effectiveEndDate = null;
+      if (upliftmentDatesSet.has(targetEndDate)) {
+        effectiveEndDate = targetEndDate;
+      } else {
+        for (let i = sortedUpliftmentDates.length - 1; i >= 0; i--) {
+          if (sortedUpliftmentDates[i] <= targetEndDate) {
+            effectiveEndDate = sortedUpliftmentDates[i];
+            break;
+          }
+        }
+      }
+
+      let effectiveStartDate = null;
+      if (lastInspectionDateRaw) {
+        if (upliftmentDatesSet.has(lastInspectionDateRaw)) {
+          effectiveStartDate = lastInspectionDateRaw;
+        } else {
+          for (let i = 0; i < sortedUpliftmentDates.length; i++) {
+            if (sortedUpliftmentDates[i] >= lastInspectionDateRaw) {
+              effectiveStartDate = sortedUpliftmentDates[i];
+              break;
+            }
+          }
+        }
+      } else {
+        effectiveStartDate = sortedUpliftmentDates[0];
+      }
+
+      if (!effectiveStartDate || !effectiveEndDate || effectiveStartDate > effectiveEndDate) {
+        return { 
+          kl: 0, 
+          text: "0.000 KL", 
+          subtext: `No upliftments found between ${effectiveStartDate || lastInspectionDateRaw} and ${effectiveEndDate || targetEndDate}` 
+        };
+      }
+
+      let totalKL = 0;
+      let countInv = 0;
+
+      stockistRows.forEach(row => {
+        const invDateStr = normalizeDateStr(row['Inv.Date']);
+        if (invDateStr && invDateStr >= effectiveStartDate && invDateStr <= effectiveEndDate) {
+          const kl = parseFloat(row['KL']) || 0;
+          totalKL += kl;
+          countInv++;
+        }
+      });
+
+      return {
+        kl: totalKL,
+        count: countInv,
+        text: `${totalKL.toFixed(3)} KL`,
+        subtext: `From ${effectiveStartDate} to ${effectiveEndDate} (${countInv} bills)`
+      };
+    }
+
+    function renderStockistDetailsTable() {
+      const tbody = document.getElementById('tbody-stockist-details');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const rows = [
+        { label: "Type of Stockist", key: "type", isYellow: false },
+        { label: "Location", key: "location", isYellow: false },
+        { label: "Date of Last Inspection", key: "lastInspection", isDate: true, inputIdPrefix: "last-insp-date" },
+        { label: "Date of Commissioning", key: "commissioning", isYellow: false },
+        { label: "Office Address", key: "officeAddress", isYellow: false },
+        { label: "Office Tel No & Mobile No:", key: "telNo", isYellow: false },
+        { label: "Godown Address", key: "godownAddress", isYellow: false },
+        { label: "Godown Tel. No.", key: "godownTel", isYellow: false },
+        { label: "Constitution of Firm", key: "constitution", isYellow: false },
+        { label: "Proprietor / Partners / Person in Charge", key: "proprietor", isYellow: false },
+        { label: "Delivery Van - Number of Delivery Vans", key: "vanCount", isYellow: false },
+        { label: "Delivery Van - Make & Year of Manufacture", key: "vanMake", isYellow: false },
+        { label: "Delivery Van - Capacity", key: "vanCapacity", isYellow: false },
+        { label: "Delivery Van - Ownership", key: "vanOwnership", isYellow: false },
+        { label: "Documentation using Standard Software", key: "documentation", isYellow: false },
+        { label: "GST Number of the Stockist", key: "gstNumber", isYellow: false },
+        { label: "Area of operation of the Stockist", key: "areaOperation", isYellow: false },
+        { label: "Performance BG - Bank Name", key: "bgBank", isYellow: false },
+        { label: "Performance BG - Amount", key: "bgAmount", isYellow: false },
+        { label: "Performance BG - BG Number", key: "bgNo", isYellow: false },
+        { label: "Performance BG - Validity", key: "bgValidity", isYellow: false },
+        { label: "Agreement Validity", key: "agreementValidity", isYellow: false },
+        { label: "Annual Sales Target for Current FY (KL)", key: "annualTargetKL", isYellow: true, isNumber: true },
+        { label: "Stock During Last Inspection (KL)", key: "stockLastInspection", isYellow: true, isNumber: true },
+        { label: "Current Inspection Date", key: "currentInspectionDate", isDate: true, inputIdPrefix: "cur-insp-date" },
+        { label: "Receipt (KL) - Auto Computed from Primary", key: "receiptKL", isReceiptAuto: true },
+        { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
+        { label: "Giveaway Amount", key: "giveaway", isYellow: false },
+        { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true },
+        { label: "BTL - Mechanic Meets", key: "mechanicMeets", isYellow: true }
+      ];
+
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        let html = `<td class="font-bold text-slate-800 bg-slate-50">${r.label}</td>`;
+
+        for (let idx = 0; idx < 5; idx++) {
+          if (r.isFormula) {
+            const tgt = activeStockistDetails.annualTargetKL[idx];
+            html += `<td class="text-center font-bold text-blue-900 bg-blue-50" id="wc-col-${idx}">${calcMinWorkingCapital(tgt)}</td>`;
+          } else if (r.isReceiptAuto) {
+            const receiptRes = calculateStockistReceipt(idx);
+            html += `
+              <td class="text-center font-bold text-emerald-800 bg-emerald-50/70 p-2" id="receipt-col-${idx}">
+                <div class="text-sm">${receiptRes.text}</div>
+                ${receiptRes.subtext ? `<div class="text-[10px] text-emerald-600 font-medium">${receiptRes.subtext}</div>` : ''}
+              </td>`;
+          } else if (r.isDate) {
+            const dateVal = normalizeDateStr(activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '');
+            const inputId = `${r.inputIdPrefix}-${idx}`;
+            html += `<td class="p-1.5"><input type="date" id="${inputId}" class="date-picker-yellow text-center" value="${dateVal}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)" onchange="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
+          } else if (r.isYellow) {
+            const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '';
+            html += `<td class="p-1"><input type="${r.isNumber ? 'number' : 'text'}" step="0.01" class="editable-yellow text-center" value="${val}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
+          } else {
+            const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '-';
+            html += `<td class="text-center font-medium">${val}</td>`;
+          }
+        }
+        tr.innerHTML = html;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function onStockistYellowChange(key, idx, val) {
+      if (!activeStockistDetails[key]) activeStockistDetails[key] = [];
+      activeStockistDetails[key][idx] = val;
+
+      if (key === 'annualTargetKL') {
+        const wcEl = document.getElementById(`wc-col-${idx}`);
+        if (wcEl) wcEl.textContent = calcMinWorkingCapital(val);
+        renderFinancialsWorkingCapital();
+      }
+
+      if (key === 'lastInspection' || key === 'currentInspectionDate') {
+        const receiptCol = document.getElementById(`receipt-col-${idx}`);
+        if (receiptCol) {
+          const res = calculateStockistReceipt(idx);
+          receiptCol.innerHTML = `
+            <div class="text-sm">${res.text}</div>
+            ${res.subtext ? `<div class="text-[10px] text-emerald-600 font-medium">${res.subtext}</div>` : ''}
+          `;
+        }
+      }
+
+      if (key === 'resellerMeets' || key === 'mechanicMeets') {
+        updateCampaignsFormula();
+      }
+
+      localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+    }
+
+    async function saveAndUpdateStockistDetails() {
+      localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.stockistDetails = activeStockistDetails;
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+      renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
+
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        await pushDataToGithub();
+        alert("Stockist Details updated locally and synced across all devices via GitHub!");
+      } else {
+        alert("Stockist Details saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
+      }
+    }
+
+    function renderFinancialsWorkingCapital() {
+      const finEl = document.getElementById('fin-wc-display');
+      if (!finEl) return;
+      
+      const currentStockist = document.getElementById('sel-stockist').value;
+      const idx = STOCKIST_NAMES.indexOf(currentStockist);
+      const target = idx >= 0 ? activeStockistDetails.annualTargetKL[idx] : 360;
+      const wcVal = calcMinWorkingCapital(target);
+
+      finEl.innerHTML = `
+        <span class="text-sm text-blue-950 font-bold">${wcVal}</span> 
+        <span class="text-[11px] text-slate-500 font-normal ml-2">(${currentStockist} - Auto-derived from Stockist Details)</span>
+      `;
+    }
+
+    // Dynamic Updates for Section 14
+    function updateCampaignsFormula() {
+      const selectedMonthVal = parseInt(document.getElementById('sel-month').value);
+      const selectedMonthName = MONTH_NAMES[selectedMonthVal] || "Aug'26";
+      const monthPrefix = selectedMonthName.split("'")[0];
+
+      const currentStockist = document.getElementById('sel-stockist').value;
+      const sIdx = Math.max(0, STOCKIST_NAMES.indexOf(currentStockist));
+
+      const aprVal = 4;
+      let mNum = selectedMonthVal;
+      if (selectedMonthVal < 4) {
+        mNum = selectedMonthVal === 3 ? 12 : (selectedMonthVal + 12);
+      }
+      const diff = Math.max(0, mNum - aprVal);
+      const superSatCount = 2 * diff;
+
+      // Point 2
+      const p2 = document.getElementById('camp-item-2');
+      if (p2 && !p2.dataset.manualOverride) {
+        p2.value = `${superSatCount} Super Saturday campaigns`;
+      }
+      const f2 = document.getElementById('camp-item-2-formula');
+      if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
+
+      // BTL Meets
+      const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
+      const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
+
+      // Point 4
+      const p4 = document.getElementById('camp-item-4');
+      const btlCumulativeParts = [];
+      if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
+      if (mechStr && mechStr !== "-") btlCumulativeParts.push(`Mechanic: ${mechStr}`);
+      const btlCombinedText = btlCumulativeParts.length > 0 ? " + BTL Meets (" + btlCumulativeParts.join(" | ") + ")" : "";
+
+      if (p4 && !p4.dataset.manualOverride) {
+        p4.value = `${superSatCount} Super Saturday campaigns${btlCombinedText}`;
+      }
+      const f4 = document.getElementById('camp-item-4-formula');
+      if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
+
+      // Point 3
+      const p3 = document.getElementById('camp-item-3');
+      const note3 = document.getElementById('camp-item-3-note');
+
+      const matchingMeets = [];
+      const monthRegex = new RegExp(`\\b${monthPrefix}\\b`, 'i');
+      if (resStr && monthRegex.test(resStr)) {
+        matchingMeets.push(`Reseller: ${resStr}`);
+      }
+      if (mechStr && monthRegex.test(mechStr)) {
+        matchingMeets.push(`Mechanic: ${mechStr}`);
+      }
+
+      if (p3 && !p3.dataset.manualOverride) {
+        if (matchingMeets.length > 0) {
+          p3.value = `2 Super Saturday campaigns + ${matchingMeets.join(", ")}`;
+          if (note3) note3.textContent = `✓ Auto-updated: Detected BTL meet conducted in ${selectedMonthName}`;
+        } else {
+          p3.value = `2 Super Saturday campaigns`;
+          if (note3) note3.textContent = `Standard 2 Super Saturday campaigns (No BTL meet in ${selectedMonthName})`;
+        }
+      }
+    }
+
+    function markCampaignDirty() {
+      const p2 = document.getElementById('camp-item-2');
+      const p3 = document.getElementById('camp-item-3');
+      const p4 = document.getElementById('camp-item-4');
+      if (p2) p2.dataset.manualOverride = "true";
+      if (p3) p3.dataset.manualOverride = "true";
+      if (p4) p4.dataset.manualOverride = "true";
+    }
+
+    function getCampaignsObject() {
+      return {
+        item1: document.getElementById('camp-item-1')?.value || "2 Super Saturday campaigns",
+        item2: document.getElementById('camp-item-2')?.value || "8 Super Saturday campaigns",
+        item3: document.getElementById('camp-item-3')?.value || "2 Super Saturday campaigns",
+        item4: document.getElementById('camp-item-4')?.value || "8 Super Saturday campaigns",
+        item5: document.getElementById('camp-item-5')?.value || "0",
+        item6: document.getElementById('camp-item-6')?.value || "0",
+        manualOverride: document.getElementById('camp-item-2')?.dataset.manualOverride === "true"
+      };
+    }
+
+    function applyCampaignsObject(c) {
+      if (!c) return;
+      if (document.getElementById('camp-item-1')) document.getElementById('camp-item-1').value = c.item1 || '';
+      if (document.getElementById('camp-item-2')) {
+        document.getElementById('camp-item-2').value = c.item2 || '';
+        if (c.manualOverride) document.getElementById('camp-item-2').dataset.manualOverride = "true";
+      }
+      if (document.getElementById('camp-item-3')) {
+        document.getElementById('camp-item-3').value = c.item3 || '';
+        if (c.manualOverride) document.getElementById('camp-item-3').dataset.manualOverride = "true";
+      }
+      if (document.getElementById('camp-item-4')) {
+        document.getElementById('camp-item-4').value = c.item4 || '';
+        if (c.manualOverride) document.getElementById('camp-item-4').dataset.manualOverride = "true";
+      }
+      if (document.getElementById('camp-item-5')) document.getElementById('camp-item-5').value = c.item5 || '0';
+      if (document.getElementById('camp-item-6')) document.getElementById('camp-item-6').value = c.item6 || '0';
+    }
+
+    async function saveAndSyncCampaigns() {
+      const campObj = getCampaignsObject();
+      localStorage.setItem('campaigns_data', JSON.stringify(campObj));
+
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: campObj,
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.campaigns = campObj;
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        await pushDataToGithub();
+        alert("Sales Promotion Campaigns (Section 14) saved and synced across all devices via GitHub!");
+      } else {
+        alert("Campaign details saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
+      }
+    }
+
+    // Market Information Table & Modal
+    function renderMarketInfoTable() {
+      const tbody = document.getElementById('tbody-market-info');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      activeMarketInfo.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center font-bold">${index + 1}</td>
+          <td class="font-medium text-slate-800">${item.text}</td>
+          <td class="text-slate-600 font-semibold">${item.region}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openMarketEditModal() {
+      const modal = document.getElementById('modal-market-edit');
+      const container = document.getElementById('modal-market-rows');
+      if (!modal || !container) return;
+      container.innerHTML = '';
+
+      activeMarketInfo.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = "flex items-start gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200";
+        div.innerHTML = `
+          <span class="text-xs font-bold text-slate-400 mt-2">${idx + 1}.</span>
+          <div class="flex-1 space-y-1">
+            <textarea class="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-blue-500" rows="2" id="market-text-${idx}">${item.text}</textarea>
+            <input type="text" class="w-full text-xs border border-slate-300 rounded p-1" value="${item.region}" id="market-region-${idx}" placeholder="Applicability / Region">
+          </div>
+          <button onclick="removeMarketObservationRow(${idx})" class="text-rose-500 hover:text-rose-700 font-bold text-sm px-1 mt-1">&times;</button>
+        `;
+        container.appendChild(div);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeMarketEditModal() {
+      const modal = document.getElementById('modal-market-edit');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function addMarketObservationRow() {
+      activeMarketInfo.push({ text: "New market intelligence observation...", region: "All Areas" });
+      openMarketEditModal();
+    }
+
+    function removeMarketObservationRow(idx) {
+      activeMarketInfo.splice(idx, 1);
+      openMarketEditModal();
+    }
+
+    async function saveMarketObservations() {
+      const count = activeMarketInfo.length;
+      const updated = [];
+      for (let i = 0; i < count; i++) {
+        const textEl = document.getElementById(`market-text-${i}`);
+        const regEl = document.getElementById(`market-region-${i}`);
+        if (textEl && regEl) {
+          updated.push({ text: textEl.value.trim(), region: regEl.value.trim() });
+        }
+      }
+      activeMarketInfo = updated;
+      localStorage.setItem('market_info_data', JSON.stringify(activeMarketInfo));
+      renderMarketInfoTable();
+      closeMarketEditModal();
+
+      if (!portalCompiledData) {
+        portalCompiledData = {
+          updatedAt: new Date().toISOString(),
+          universe: getAllUniverseData(),
+          stockistDetails: activeStockistDetails,
+          marketInfo: activeMarketInfo,
+          campaigns: getCampaignsObject(),
+          monthlyData: {},
+          ssfData: {}
+        };
+      } else {
+        portalCompiledData.marketInfo = activeMarketInfo;
+      }
+      localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        await pushDataToGithub();
+        alert("Market Information updated and synced across all devices via GitHub!");
+      } else {
+        alert("Market Information saved locally! Enter your GitHub token in 'Upload Catalog' to sync across other devices.");
+      }
+    }
+
+    function getStockistUniverse(stockist) {
+      const key = STOCKIST_KEY_MAP[stockist] || "tak";
+      return {
+        nonKsk: parseInt(document.getElementById(`u-nonKsk-${key}`).value) || 0,
+        ksk: parseInt(document.getElementById(`u-ksk-${key}`).value) || 0,
+        nayara: parseInt(document.getElementById(`u-nayara-${key}`).value) || 0,
+        bazaar: parseInt(document.getElementById(`u-bazaar-${key}`).value) || 0,
+        oem: parseInt(document.getElementById(`u-oem-${key}`).value) || 0,
+        fleet: parseInt(document.getElementById(`u-fleet-${key}`).value) || 0
+      };
+    }
+
+    function getAllUniverseData() {
+      const keys = ['tak', 'bih', 'nal', 'swa', 'smg'];
+      const data = {};
+      keys.forEach(k => {
+        data[k] = {
+          nonKsk: parseInt(document.getElementById(`u-nonKsk-${k}`).value) || 0,
+          ksk: parseInt(document.getElementById(`u-ksk-${k}`).value) || 0,
+          nayara: parseInt(document.getElementById(`u-nayara-${k}`).value) || 0,
+          bazaar: parseInt(document.getElementById(`u-bazaar-${k}`).value) || 0,
+          oem: parseInt(document.getElementById(`u-oem-${k}`).value) || 0,
+          fleet: parseInt(document.getElementById(`u-fleet-${k}`).value) || 0
+        };
+      });
+      return data;
+    }
+
+    function setAllUniverseData(data) {
+      if (!data) return;
+      Object.keys(data).forEach(k => {
+        if (data[k]) {
+          if (document.getElementById(`u-nonKsk-${k}`)) document.getElementById(`u-nonKsk-${k}`).value = data[k].nonKsk;
+          if (document.getElementById(`u-ksk-${k}`)) document.getElementById(`u-ksk-${k}`).value = data[k].ksk;
+          if (document.getElementById(`u-nayara-${k}`)) document.getElementById(`u-nayara-${k}`).value = data[k].nayara;
+          if (document.getElementById(`u-bazaar-${k}`)) document.getElementById(`u-bazaar-${k}`).value = data[k].bazaar;
+          if (document.getElementById(`u-oem-${k}`)) document.getElementById(`u-oem-${k}`).value = data[k].oem;
+          if (document.getElementById(`u-fleet-${k}`)) document.getElementById(`u-fleet-${k}`).value = data[k].fleet;
+        }
+      });
+      applyUniverseToActiveView();
+      updateCalculations();
+    }
+
+    function resetUniverseDefaults() {
+      const defaults = {
+        tak: { nonKsk: 100, ksk: 41, nayara: 4, bazaar: 550, oem: 4, fleet: 4 },
+        bih: { nonKsk: 56, ksk: 17, nayara: 1, bazaar: 400, oem: 8, fleet: 10 },
+        nal: { nonKsk: 118, ksk: 78, nayara: 6, bazaar: 800, oem: 4, fleet: 100 },
+        swa: { nonKsk: 30, ksk: 16, nayara: 1, bazaar: 200, oem: 1, fleet: 2 },
+        smg: { nonKsk: 50, ksk: 20, nayara: 2, bazaar: 350, oem: 3, fleet: 5 }
+      };
+      setAllUniverseData(defaults);
+      localStorage.setItem('universe_data', JSON.stringify(defaults));
+    }
+
+    function onUniverseChange() {
+      applyUniverseToActiveView();
+      updateCalculations();
+      localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
+    }
+
+    function applyUniverseToActiveView() {
+      const stockist = document.getElementById('sel-stockist').value;
+      const u = getStockistUniverse(stockist);
+
+      document.getElementById('tot-non-ksk').textContent = u.nonKsk;
+      document.getElementById('tot-ksk').textContent = u.ksk;
+      document.getElementById('tot-nayara').textContent = u.nayara;
+      document.getElementById('tot-bazaar').textContent = u.bazaar;
+      document.getElementById('tot-oem').textContent = u.oem;
+      document.getElementById('tot-fleet').textContent = u.fleet;
+
+      const totalU = u.nonKsk + u.ksk + u.nayara + u.bazaar + u.oem + u.fleet;
+      document.getElementById('tot-total').textContent = totalU;
+    }
+
+    function categorizeChannel(custGroup, custSubGroup) {
+      const cg = String(custGroup || '').trim().toUpperCase();
+      const csg = String(custSubGroup || '').trim().toUpperCase();
+
+      if (cg === 'OEM') return 'oem';
+      if (cg === 'FLEET') return 'fleet';
+      if (cg === 'BAZAAR' || cg === 'SERVOXPERT') return 'bazaar';
+      if (cg.includes('NAYARA') || csg.includes('NAYARA')) return 'nayara';
+
+      const isKsk = (csg.includes('KSK') && !csg.includes('NON'));
+      if (isKsk) return 'ksk';
+
+      return 'nonKsk';
+    }
+
+    function getMonthSpan(targetMonth) {
+      const idx = MONTH_ORDER.indexOf(parseInt(targetMonth));
+      return MONTH_ORDER.slice(0, idx + 1);
+    }
+
+    function compilePortalMatrix(rowsCY, rowsLY) {
+      const stockistKeys = ["Takshvi Co", "Nalateswari Lubricants", "Bihariji Auto Service Station", "SMG Trades", "Swastik Automobiles"];
+      const matrix = {
+        updatedAt: new Date().toISOString(),
+        universe: getAllUniverseData(),
+        stockistDetails: activeStockistDetails,
+        marketInfo: activeMarketInfo,
+        campaigns: getCampaignsObject(),
+        primaryData: rawDatasetPrimary.map(r => ({
+          'Name': r['Name'],
+          'Inv.Date': normalizeDateStr(r['Inv.Date']),
+          'Invoice No': r['Invoice No'],
+          'KL': parseFloat(r['KL']) || 0
+        })),
+        monthlyData: {},
+        ssfData: {}
+      };
+
+      stockistKeys.forEach(stk => {
+        matrix.monthlyData[stk] = {};
+        matrix.ssfData[stk] = {};
+        const stNameClean = stk.toLowerCase();
+
+        MONTH_ORDER.forEach(m => {
+          const spanMonths = getMonthSpan(m);
+          
+          const cySpanRows = rowsCY.filter(r => {
+            const sName = String(r['Stockist Name'] || '').toLowerCase();
+            return sName.includes(stNameClean) && spanMonths.includes(parseInt(r['Month']));
+          });
+
+          const cyMonthRows = rowsCY.filter(r => {
+            const sName = String(r['Stockist Name'] || '').toLowerCase();
+            return sName.includes(stNameClean) && parseInt(r['Month']) === m;
+          });
+
+          const filterLY = (row, targetMonths) => {
+            const sName = String(row['Stockist Name'] || '').toLowerCase();
+            const rowMonth = parseInt(row['Month']);
+            const dist = String(row['District'] || '').toLowerCase();
+
+            if (stk === "Takshvi Co") {
+              if (sName.includes('takshvi')) return targetMonths.includes(rowMonth);
+              if (sName.includes('servo world') && [4,5,6,7,8].includes(rowMonth)) return targetMonths.includes(rowMonth);
+              return false;
+            }
+            if (stk === "SMG Trades") {
+              if (sName.includes('smg')) return targetMonths.includes(rowMonth);
+              if (sName.includes('servo world') && [9,10,11,12,1].includes(rowMonth)) return targetMonths.includes(rowMonth);
+              if (sName.includes('takshvi') && dist.includes('bankura') && [2,3].includes(rowMonth)) return targetMonths.includes(rowMonth);
+              return false;
+            }
+            return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
+          };
+
+          const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths));
+          const lyMonthRows = rowsLY.filter(r => filterLY(r, [m]));
+
+          const channelCY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
+          const channelLY = { nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0 };
+          const custSets = { nonKsk: new Set(), ksk: new Set(), nayara: new Set(), bazaar: new Set(), oem: new Set(), fleet: new Set() };
+
+          cySpanRows.forEach(r => {
+            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+            const custId = r['Customer Id'];
+            if (channelCY[ch] !== undefined) {
+              channelCY[ch] += qty;
+              if (qty > 0 && custId) custSets[ch].add(custId);
+            }
+          });
+
+          lySpanRows.forEach(r => {
+            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+            if (channelLY[ch] !== undefined) {
+              channelLY[ch] += qty;
+            }
+          });
+
+          const mCY = cyMonthRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+          const mLY = lyMonthRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+          const cumCY = cySpanRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+          const cumLY = lySpanRows.reduce((acc, r) => acc + (parseFloat(r['Product Quantity(L/Kg)']) || 0), 0) / 1000;
+
+          matrix.monthlyData[stk][m] = {
+            mCY, mLY, cumCY, cumLY,
+            channelCY, channelLY,
+            suppliedOutlets: {
+              nonKsk: custSets.nonKsk.size,
+              ksk: custSets.ksk.size,
+              nayara: custSets.nayara.size,
+              bazaar: custSets.bazaar.size,
+              oem: custSets.oem.size,
+              fleet: custSets.fleet.size
+            }
+          };
+
+          const ssfMap = {};
+          cySpanRows.forEach(r => {
+            const ssfName = String(r['SSF Name'] || 'Unassigned').trim();
+            const ssfCode = String(r['SSF Code'] || '-').trim();
+            const key = ssfName + '___' + ssfCode;
+
+            if (!ssfMap[key]) {
+              ssfMap[key] = {
+                name: ssfName,
+                code: ssfCode,
+                custIds: new Set(),
+                nonKsk: 0, ksk: 0, nayara: 0, bazaar: 0, oem: 0, fleet: 0, total: 0
+              };
+            }
+
+            const qty = (parseFloat(r['Product Quantity(L/Kg)']) || 0) / 1000;
+            const ch = categorizeChannel(r['Customer Group'], r['Customer Sub Group']);
+            const custId = r['Customer Id'];
+
+            if (qty > 0 && custId) ssfMap[key].custIds.add(custId);
+            ssfMap[key][ch] = (ssfMap[key][ch] || 0) + qty;
+            ssfMap[key].total += qty;
+          });
+
+          matrix.ssfData[stk][m] = Object.values(ssfMap).map(item => ({
+            name: item.name,
+            code: item.code,
+            outlets: item.custIds.size,
+            nonKsk: item.nonKsk,
+            ksk: item.ksk,
+            nayara: item.nayara,
+            bazaar: item.bazaar,
+            oem: item.oem,
+            fleet: item.fleet,
+            total: item.total
+          })).sort((a, b) => b.total - a.total);
+
+        });
+      });
+
+      return matrix;
+    }
+
+    function handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      const statusId = type === 'LY' ? 'status-ly' : (type === 'CY' ? 'status-cy' : 'status-primary');
+      const statusEl = document.getElementById(statusId);
+      statusEl.textContent = `Reading ${file.name}...`;
+
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          // cellDates: true parses date cells into JS Date objects
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+          const firstSheet = workbook.SheetNames[0];
+          const rawRows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+          
+          if (type === 'LY') {
+            rawDatasetLY = rawRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
+          } else if (type === 'CY') {
+            rawDatasetCY = rawRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
+          } else if (type === 'PRIMARY') {
+            rawDatasetPrimary = rawRows;
+            statusEl.innerHTML = `<span class="text-emerald-600 font-bold">✓ Loaded ${rawRows.length.toLocaleString()} rows</span> (${file.name})`;
+            renderStockistDetailsTable();
+          }
+
+          portalCompiledData = compilePortalMatrix(rawDatasetCY, rawDatasetLY);
+          localStorage.setItem('compiled_portal_data', JSON.stringify(portalCompiledData));
+
+          document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          document.getElementById('data-status-badge').textContent = "Local Excel Data Active";
+
+          runAnalysis();
+          renderSSFAnalysis();
+
+          if (document.getElementById('gh-token').value.trim()) {
+            pushDataToGithub();
+          } else {
+            document.getElementById('gh-feedback').textContent = "Data compiled. Enter your ghp_ token below to push across other devices.";
+            document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-amber-600";
+          }
+        } catch (err) {
+          console.error(err);
+          statusEl.innerHTML = `<span class="text-rose-600 font-bold">✕ Error loading file: ${err.message}</span>`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function runAnalysis() {
+      const stockist = document.getElementById('sel-stockist').value;
+      const month = parseInt(document.getElementById('sel-month').value);
+      const spanMonths = getMonthSpan(month);
+      const numMonths = spanMonths.length;
+
+      document.getElementById('disp-stockist-title').textContent = stockist;
+      document.getElementById('disp-stockist-name').textContent = stockist;
+      document.getElementById('disp-month-label').textContent = MONTH_NAMES[month];
+      
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      document.getElementById('disp-period-title').textContent = periodLabel;
+      document.getElementById('disp-cum-range').textContent = periodLabel;
+      document.getElementById('disp-channel-period').textContent = periodLabel;
+
+      const basePot = STOCKIST_BASE_POTENTIAL[stockist] || 80;
+      let mPotential = (month === 3) ? basePot * 2 : basePot;
+      let cumPotential = basePot * numMonths;
+      if (spanMonths.includes(3)) cumPotential += basePot;
+
+      document.getElementById('input-m-pot').value = mPotential.toFixed(1);
+      document.getElementById('input-cum-pot').value = cumPotential.toFixed(1);
+
+      applyUniverseToActiveView();
+
+      if (portalCompiledData && portalCompiledData.monthlyData && portalCompiledData.monthlyData[stockist] && portalCompiledData.monthlyData[stockist][month]) {
+        const d = portalCompiledData.monthlyData[stockist][month];
+
+        document.getElementById('input-m-cy').value = d.mCY.toFixed(1);
+        document.getElementById('input-m-ly').value = d.mLY.toFixed(1);
+        document.getElementById('input-cum-cy').value = d.cumCY.toFixed(1);
+        document.getElementById('input-cum-ly').value = d.cumLY.toFixed(1);
+
+        const channels = ['nonKsk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+        const domMap = { nonKsk: 'non-ksk', ksk: 'ksk', nayara: 'nayara', bazaar: 'bazaar', oem: 'oem', fleet: 'fleet' };
+
+        channels.forEach(ch => {
+          const tag = domMap[ch];
+          document.getElementById(`sup-${tag}`).textContent = d.suppliedOutlets[ch];
+          document.getElementById(`cy-${tag}`).textContent = d.channelCY[ch].toFixed(1);
+          document.getElementById(`ly-${tag}`).textContent = d.channelLY[ch].toFixed(1);
+        });
+
+        document.getElementById('data-status-badge').className = "text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        document.getElementById('data-status-badge').textContent = "Live Synced Data Active";
+      }
+
+      updateCalculations();
+      renderFinancialsWorkingCapital();
+    }
+
+    function updateCalculations() {
+      const mCY = parseFloat(document.getElementById('input-m-cy').value) || 0;
+      const mLY = parseFloat(document.getElementById('input-m-ly').value) || 0;
+      const mDiff = mCY - mLY;
+      const mDiffEl = document.getElementById('cell-m-diff');
+      mDiffEl.textContent = (mDiff >= 0 ? `+${mDiff.toFixed(1)}` : mDiff.toFixed(1));
+      mDiffEl.className = `font-bold ${mDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+      const cumCY = parseFloat(document.getElementById('input-cum-cy').value) || 0;
+      const cumLY = parseFloat(document.getElementById('input-cum-ly').value) || 0;
+      const cumDiff = cumCY - cumLY;
+      const cumDiffEl = document.getElementById('cell-cum-diff');
+      cumDiffEl.textContent = (cumDiff >= 0 ? `+${cumDiff.toFixed(1)}` : cumDiff.toFixed(1));
+      cumDiffEl.className = `font-bold ${cumDiff >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+      const tags = ['non-ksk', 'ksk', 'nayara', 'bazaar', 'oem', 'fleet'];
+      let totSup = 0, totCY = 0, totLY = 0;
+
+      tags.forEach(tag => {
+        totSup += parseInt(document.getElementById(`sup-${tag}`).textContent) || 0;
+        totCY += parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
+        totLY += parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
+      });
+
+      document.getElementById('sup-total').textContent = totSup;
+      document.getElementById('cy-total').textContent = totCY.toFixed(1);
+      document.getElementById('ly-total').textContent = totLY.toFixed(1);
+
+      tags.forEach(tag => {
+        const cy = parseFloat(document.getElementById(`cy-${tag}`).textContent) || 0;
+        const ly = parseFloat(document.getElementById(`ly-${tag}`).textContent) || 0;
+        const pctCY = totCY > 0 ? (cy / totCY) * 100 : 0;
+        const pctLY = totLY > 0 ? (ly / totLY) * 100 : 0;
+        document.getElementById(`pct-cy-${tag}`).textContent = pctCY.toFixed(1) + '%';
+        document.getElementById(`pct-ly-${tag}`).textContent = pctLY.toFixed(1) + '%';
+      });
+    }
+
+    function renderSSFAnalysis() {
+      const stockist = document.getElementById('sel-ssf-stockist').value;
+      const month = parseInt(document.getElementById('sel-ssf-month').value);
+
+      const periodLabel = `Apr'26- ${MONTH_NAMES[month]}`;
+      document.getElementById('disp-ssf-stockist-title').textContent = stockist;
+      document.getElementById('disp-ssf-period-title').textContent = periodLabel;
+
+      const tbody = document.getElementById('tbody-ssf');
+      const tfoot = document.getElementById('tfoot-ssf');
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+
+      let ssfList = [];
+
+      if (portalCompiledData && portalCompiledData.ssfData && portalCompiledData.ssfData[stockist] && portalCompiledData.ssfData[stockist][month]) {
+        ssfList = portalCompiledData.ssfData[stockist][month];
+      }
+
+      const grandTotalSales = ssfList.reduce((acc, x) => acc + x.total, 0);
+      const grandTotalOutlets = ssfList.reduce((acc, x) => acc + x.outlets, 0);
+      let totNonKsk = 0, totKsk = 0, totNayara = 0, totBazaar = 0, totOem = 0, totFleet = 0;
+
+      document.getElementById('kpi-ssf-count').textContent = ssfList.length;
+      document.getElementById('kpi-ssf-sales').textContent = grandTotalSales.toFixed(1) + ' KL';
+      document.getElementById('kpi-ssf-outlets').textContent = grandTotalOutlets;
+
+      ssfList.forEach(item => {
+        totNonKsk += item.nonKsk;
+        totKsk += item.ksk;
+        totNayara += item.nayara;
+        totBazaar += item.bazaar;
+        totOem += item.oem;
+        totFleet += item.fleet;
+
+        const sharePct = grandTotalSales > 0 ? (item.total / grandTotalSales) * 100 : 0;
+
+        const tr = document.createElement('tr');
+        tr.className = "text-right hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="text-left font-bold text-slate-800">${item.name}</td>
+          <td class="font-black text-blue-900 bg-blue-50/70 text-right pr-4">${item.total.toFixed(1)}</td>
+          <td class="text-center text-xs font-mono text-slate-500">${item.code}</td>
+          <td class="text-center font-semibold text-slate-700">${item.outlets}</td>
+          <td class="font-medium">${item.nonKsk.toFixed(1)}</td>
+          <td class="font-medium">${item.ksk.toFixed(1)}</td>
+          <td class="font-medium">${item.nayara.toFixed(1)}</td>
+          <td class="font-medium">${item.bazaar.toFixed(1)}</td>
+          <td class="font-medium">${item.oem.toFixed(1)}</td>
+          <td class="font-medium">${item.fleet.toFixed(1)}</td>
+          <td class="text-center font-bold text-slate-700">${sharePct.toFixed(1)}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tfoot.innerHTML = `
+        <tr class="text-right">
+          <td class="text-left font-bold uppercase py-2.5">Total</td>
+          <td class="font-black text-blue-950 bg-blue-100 text-right pr-4">${grandTotalSales.toFixed(1)}</td>
+          <td class="text-center">-</td>
+          <td class="text-center font-bold">${grandTotalOutlets}</td>
+          <td class="font-bold">${totNonKsk.toFixed(1)}</td>
+          <td class="font-bold">${totKsk.toFixed(1)}</td>
+          <td class="font-bold">${totNayara.toFixed(1)}</td>
+          <td class="font-bold">${totBazaar.toFixed(1)}</td>
+          <td class="font-bold">${totOem.toFixed(1)}</td>
+          <td class="font-bold">${totFleet.toFixed(1)}</td>
+          <td class="text-center font-bold">100.0%</td>
+        </tr>
+      `;
+    }
+
+    function exportToPDF(elementId, baseName) {
+      const stockist = document.getElementById('sel-stockist').value;
+      const month = document.getElementById('sel-month').options[document.getElementById('sel-month').selectedIndex].text;
+      const element = document.getElementById(elementId);
+      
+      const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     `${baseName}_${stockist.replace(/\s+/g, '_')}_${month}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Robust Base64 Encoders / Decoders
     function encodeGithubBase64(str) {
       return btoa(unescape(encodeURIComponent(str)));
     }
@@ -13,7 +2041,6 @@
       return new TextDecoder('utf-8').decode(bytes);
     }
 
-    // Cache-busted SHA query using standard JSON API
     async function getLatestFileSha(token) {
       const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
       try {
@@ -36,6 +2063,23 @@
         console.warn("Could not query SHA:", e);
       }
       return null;
+    }
+
+    function saveGithubToken() {
+      const token = document.getElementById('gh-token').value.trim();
+      if (token) {
+        localStorage.setItem('ghp_token', token);
+        document.getElementById('gh-feedback').textContent = "✓ Token saved securely in browser storage.";
+        document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-emerald-600";
+        pullDataFromGithub(false);
+      }
+    }
+
+    function clearSavedToken() {
+      localStorage.removeItem('ghp_token');
+      document.getElementById('gh-token').value = '';
+      document.getElementById('gh-feedback').textContent = "Token removed.";
+      document.getElementById('gh-feedback').className = "text-xs font-semibold mt-3 text-slate-500";
     }
 
     async function pushDataToGithub() {
@@ -96,7 +2140,6 @@
           body: JSON.stringify(bodyData)
         });
 
-        // Auto-retry if SHA conflict occurs
         if (!putRes.ok && (putRes.status === 422 || putRes.status === 409)) {
           sha = await getLatestFileSha(token);
           if (sha) {
@@ -139,7 +2182,6 @@
       badge.textContent = "Sync: Fetching Cloud Data...";
       badge.className = "text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 border border-blue-300";
 
-      // Direct JSON API call (prevents 302 redirect and authorization loss)
       const apiUrl = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}?t=${Date.now()}`;
       const headers = { 
         'Accept': 'application/vnd.github.v3+json',
@@ -161,7 +2203,6 @@
             throw new Error("Empty content received from GitHub.");
           }
 
-          // Decode inline base64 content
           const decodedJsonStr = decodeGithubBase64(fileMeta.content);
           portalCompiledData = JSON.parse(decodedJsonStr);
 
@@ -241,3 +2282,68 @@
         }
       }
     }
+
+    // App Boot
+    window.onload = function() {
+      const savedToken = localStorage.getItem('ghp_token');
+      if (savedToken) {
+        document.getElementById('gh-token').value = savedToken;
+      }
+
+      const savedUniverse = localStorage.getItem('universe_data');
+      if (savedUniverse) {
+        try {
+          setAllUniverseData(JSON.parse(savedUniverse));
+        } catch(e) {}
+      }
+
+      const savedStockistDetails = localStorage.getItem('stockist_details_data');
+      if (savedStockistDetails) {
+        try {
+          activeStockistDetails = JSON.parse(savedStockistDetails);
+        } catch(e) {}
+      }
+
+      const savedMarketInfo = localStorage.getItem('market_info_data');
+      if (savedMarketInfo) {
+        try {
+          activeMarketInfo = JSON.parse(savedMarketInfo);
+        } catch(e) {}
+      }
+
+      const savedCampaigns = localStorage.getItem('campaigns_data');
+      if (savedCampaigns) {
+        try {
+          applyCampaignsObject(JSON.parse(savedCampaigns));
+        } catch(e) {}
+      }
+
+      const cachedData = localStorage.getItem('compiled_portal_data');
+      if (cachedData) {
+        try {
+          portalCompiledData = JSON.parse(cachedData);
+          if (portalCompiledData.stockistDetails) {
+            activeStockistDetails = portalCompiledData.stockistDetails;
+          }
+          if (portalCompiledData.marketInfo) {
+            activeMarketInfo = portalCompiledData.marketInfo;
+          }
+          if (portalCompiledData.campaigns) {
+            applyCampaignsObject(portalCompiledData.campaigns);
+          }
+          if (portalCompiledData.primaryData) {
+            rawDatasetPrimary = portalCompiledData.primaryData;
+          }
+        } catch(e) {}
+      }
+
+      renderStockistDetailsTable();
+      renderFinancialsWorkingCapital();
+      updateCampaignsFormula();
+      renderMarketInfoTable();
+      runAnalysis();
+      pullDataFromGithub(false);
+    };
+  </script>
+</body>
+</html>
