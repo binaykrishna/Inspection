@@ -76,9 +76,9 @@
       font-weight: 600;
       color: #713f12;
       border-radius: 4px;
-      padding: 2px 4px;
+      padding: 3px 5px;
       width: 100%;
-      font-size: 0.78rem;
+      font-size: 0.80rem;
     }
     .date-picker-yellow:focus {
       outline: 2px solid #ca8a04;
@@ -431,7 +431,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-4 mb-5">
           <div>
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
-            <p class="text-xs text-slate-500 font-medium">Yellow cells are editable. Click "Save & Update All Devices" to sync across all devices.</p>
+            <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
           </div>
           <button onclick="saveAndUpdateStockistDetails()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow transition">
             💾 Save & Update All Devices
@@ -457,7 +457,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 4: OTHER DETAILS                                    -->
+    <!-- TAB 4: OTHER DETAILS (Clean Section Headers)           -->
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
@@ -561,7 +561,7 @@
         </div>
       </div>
 
-      <!-- Section 4: Details of Sales Promotion Campaigns -->
+      <!-- Section 4: Details of Sales Promotion Campaigns (With Save & Sync Button) -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
           <div>
@@ -982,7 +982,7 @@
       currentInspectionDate: ["", "", "", "", ""],
       giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
       resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
-      mechanicMeets: ["1 Mechanic", "11 Mechanic", "6 Mechanic", "3 Mechanic", "1 Mechanic"] // Replaced BTL Mega Meets with BTL Mechanic Meets
+      mechanicMeets: ["1 Mechanic", "11 Mechanic", "6 Mechanic", "3 Mechanic", "1 Mechanic"]
     };
 
     let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
@@ -1006,10 +1006,14 @@
       return "Rs. " + Math.ceil(raw) + " L";
     }
 
+    // Clean date string normalizer avoiding timezone offsets
     function normalizeDateStr(val) {
       if (!val) return '';
       if (typeof val === 'string') {
         const trimmed = val.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          return trimmed;
+        }
         const parts = trimmed.split(/[/.-]/);
         if (parts.length === 3) {
           if (parts[2].length === 4) {
@@ -1017,36 +1021,58 @@
             const m = parts[1].padStart(2, '0');
             const y = parts[2];
             return `${y}-${m}-${d}`;
-          } else if (parts[0].length === 4) {
-            return trimmed;
           }
         }
       }
       try {
         const dt = new Date(val);
         if (!isNaN(dt.getTime())) {
-          return dt.toISOString().split('T')[0];
+          const y = dt.getUTCFullYear();
+          const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+          const d = String(dt.getUTCDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
         }
       } catch(e) {}
       return '';
     }
 
-    // Precise Primary Stock Receipt Calculation:
-    // receipt = primary stock received till (current inspection date - 1, or immediate previous upliftment date)
-    // minus primary stock received before (last inspection date, or immediate next upliftment date)
+    // Clean UTC date subtraction without epoch (1970-01-01) bugs
+    function subtractOneDay(dateStr) {
+      if (!dateStr || dateStr.length < 10) return null;
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      const d = parseInt(parts[2], 10);
+      if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+      const dt = new Date(Date.UTC(y, m, d));
+      dt.setUTCDate(dt.getUTCDate() - 1);
+      return dt.toISOString().split('T')[0];
+    }
+
+    // Primary Stock Receipt Calculation:
     function calculateStockistReceipt(stockistIndex) {
       const stockistName = STOCKIST_NAMES[stockistIndex];
-      const lastInspectionDateRaw = normalizeDateStr(activeStockistDetails.lastInspection[stockistIndex]);
-      const currentInspectionDateRaw = normalizeDateStr(activeStockistDetails.currentInspectionDate[stockistIndex]);
+
+      // Read directly from DOM input if available, else active state
+      const domCurInput = document.getElementById(`cur-insp-date-${stockistIndex}`);
+      const curDateSelected = domCurInput && domCurInput.value ? domCurInput.value.trim() : (activeStockistDetails.currentInspectionDate[stockistIndex] || '').trim();
+
+      const domLastInput = document.getElementById(`last-insp-date-${stockistIndex}`);
+      const lastDateSelected = domLastInput && domLastInput.value ? domLastInput.value.trim() : (activeStockistDetails.lastInspection[stockistIndex] || '').trim();
+
+      const lastInspectionDateRaw = normalizeDateStr(lastDateSelected);
+      const currentInspectionDateRaw = normalizeDateStr(curDateSelected);
 
       if (!currentInspectionDateRaw) {
-        return { kl: 0, text: "Select Current Date" };
+        return { kl: 0, text: "Select Current Date", subtext: "Pick inspection date in calendar" };
       }
 
-      // 1. Determine target date before current inspection date
-      const curDtObj = new Date(currentInspectionDateRaw);
-      curDtObj.setDate(curDtObj.getDate() - 1);
-      const targetEndDate = curDtObj.toISOString().split('T')[0];
+      // 1. Determine target date: 1 day before current inspection date
+      const targetEndDate = subtractOneDay(currentInspectionDateRaw);
+      if (!targetEndDate) {
+        return { kl: 0, text: "Invalid Current Date", subtext: "Please re-select date" };
+      }
 
       // 2. Fetch primary records for this stockist
       const primaryRows = rawDatasetPrimary.length > 0 
@@ -1054,7 +1080,7 @@
         : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
 
       if (!primaryRows || primaryRows.length === 0) {
-        return { kl: 0, text: "Upload Primary Sales File" };
+        return { kl: 0, text: "0.000 KL", subtext: "Upload Primary Sales File in Settings" };
       }
 
       const stClean = stockistName.toLowerCase();
@@ -1064,7 +1090,7 @@
       });
 
       if (stockistRows.length === 0) {
-        return { kl: 0, text: "No Primary Data Found" };
+        return { kl: 0, text: "0.000 KL", subtext: "No primary billing records for stockist" };
       }
 
       // Collect unique upliftment dates sorted chronologically
@@ -1076,7 +1102,7 @@
       const sortedUpliftmentDates = Array.from(upliftmentDatesSet).sort();
 
       if (sortedUpliftmentDates.length === 0) {
-        return { kl: 0, text: "No Valid Dates in Primary" };
+        return { kl: 0, text: "0.000 KL", subtext: "No valid invoice dates found" };
       }
 
       // 3. Find effective END upliftment date:
@@ -1085,7 +1111,6 @@
       if (upliftmentDatesSet.has(targetEndDate)) {
         effectiveEndDate = targetEndDate;
       } else {
-        // Find largest date <= targetEndDate
         for (let i = sortedUpliftmentDates.length - 1; i >= 0; i--) {
           if (sortedUpliftmentDates[i] <= targetEndDate) {
             effectiveEndDate = sortedUpliftmentDates[i];
@@ -1101,7 +1126,6 @@
         if (upliftmentDatesSet.has(lastInspectionDateRaw)) {
           effectiveStartDate = lastInspectionDateRaw;
         } else {
-          // Find smallest date >= lastInspectionDateRaw
           for (let i = 0; i < sortedUpliftmentDates.length; i++) {
             if (sortedUpliftmentDates[i] >= lastInspectionDateRaw) {
               effectiveStartDate = sortedUpliftmentDates[i];
@@ -1138,7 +1162,7 @@
         kl: totalKL,
         count: countInv,
         text: `${totalKL.toFixed(3)} KL`,
-        subtext: `Upliftments from ${effectiveStartDate} to ${effectiveEndDate} (${countInv} bills)`
+        subtext: `From ${effectiveStartDate} to ${effectiveEndDate} (${countInv} bills)`
       };
     }
 
@@ -1150,7 +1174,7 @@
       const rows = [
         { label: "Type of Stockist", key: "type", isYellow: false },
         { label: "Location", key: "location", isYellow: false },
-        { label: "Date of Last Inspection", key: "lastInspection", isDate: true },
+        { label: "Date of Last Inspection", key: "lastInspection", isDate: true, inputIdPrefix: "last-insp-date" },
         { label: "Date of Commissioning", key: "commissioning", isYellow: false },
         { label: "Office Address", key: "officeAddress", isYellow: false },
         { label: "Office Tel No & Mobile No:", key: "telNo", isYellow: false },
@@ -1172,12 +1196,12 @@
         { label: "Agreement Validity", key: "agreementValidity", isYellow: false },
         { label: "Annual Sales Target for Current FY (KL)", key: "annualTargetKL", isYellow: true, isNumber: true },
         { label: "Stock During Last Inspection (KL)", key: "stockLastInspection", isYellow: true, isNumber: true },
-        { label: "Current Inspection Date", key: "currentInspectionDate", isDate: true },
+        { label: "Current Inspection Date", key: "currentInspectionDate", isDate: true, inputIdPrefix: "cur-insp-date" },
         { label: "Receipt (KL) - Auto Computed from Primary", key: "receiptKL", isReceiptAuto: true },
         { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
         { label: "Giveaway Amount", key: "giveaway", isYellow: false },
         { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true },
-        { label: "BTL - Mechanic Meets", key: "mechanicMeets", isYellow: true } // Replaced BTL - Mega Meets with Mechanic Meets
+        { label: "BTL - Mechanic Meets", key: "mechanicMeets", isYellow: true }
       ];
 
       rows.forEach(r => {
@@ -1197,7 +1221,8 @@
               </td>`;
           } else if (r.isDate) {
             const dateVal = normalizeDateStr(activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '');
-            html += `<td class="p-1.5"><input type="date" class="date-picker-yellow text-center" value="${dateVal}" onchange="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
+            const inputId = `${r.inputIdPrefix}-${idx}`;
+            html += `<td class="p-1.5"><input type="date" id="${inputId}" class="date-picker-yellow text-center" value="${dateVal}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)" onchange="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
           } else if (r.isYellow) {
             const val = activeStockistDetails[r.key] ? activeStockistDetails[r.key][idx] : '';
             html += `<td class="p-1"><input type="${r.isNumber ? 'number' : 'text'}" step="0.01" class="editable-yellow text-center" value="${val}" oninput="onStockistYellowChange('${r.key}', ${idx}, this.value)"></td>`;
