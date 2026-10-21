@@ -285,7 +285,7 @@
               <td class="font-semibold" id="cy-nayara">0.0</td>
               <td class="font-semibold" id="ly-nayara">0.1</td>
               <td id="pct-cy-nayara">0.0%</td>
-              <td id="pct-ly-nayara">0.1%</td>
+              <td id="pct-ly-nayara">0.0%</td>
             </tr>
 
             <tr id="row-bazaar" class="text-right">
@@ -457,7 +457,7 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- TAB 4: OTHER DETAILS (Subheadings removed + Section 14 Sync) -->
+    <!-- TAB 4: OTHER DETAILS                                    -->
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
@@ -561,13 +561,12 @@
         </div>
       </div>
 
-      <!-- Section 4: Details of Sales Promotion Campaigns (With Save & Sync Button) -->
+      <!-- Section 4: Details of Sales Promotion Campaigns -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-blue-900 pb-3 mb-4">
           <div>
             <h2 class="text-base font-black text-blue-950 uppercase tracking-wide">14 - Details of Sales Promotion Campaigns</h2>
           </div>
-          <!-- Dedicated Save & Sync Button for Section 14 -->
           <button onclick="saveAndSyncCampaigns()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow transition">
             💾 Save & Sync Campaigns
           </button>
@@ -983,7 +982,7 @@
       currentInspectionDate: ["", "", "", "", ""],
       giveaway: ["Rs. 61,327", "Rs. 66,318", "Rs. 1,48,538", "Rs. 81,710", "Rs. 22,330"],
       resellerMeets: ["2 Reseller", "5 Reseller", "1 Reseller", "1 Reseller", "1 Reseller"],
-      megaMeets: ["1 Mega", "1 Mega", "0 Mega", "1 Mega", "0 Mega"]
+      mechanicMeets: ["1 Mechanic", "11 Mechanic", "6 Mechanic", "3 Mechanic", "1 Mechanic"] // Replaced BTL Mega Meets with BTL Mechanic Meets
     };
 
     let activeStockistDetails = JSON.parse(JSON.stringify(DEFAULT_STOCKIST_DETAILS));
@@ -1032,23 +1031,24 @@
       return '';
     }
 
+    // Precise Primary Stock Receipt Calculation:
+    // receipt = primary stock received till (current inspection date - 1, or immediate previous upliftment date)
+    // minus primary stock received before (last inspection date, or immediate next upliftment date)
     function calculateStockistReceipt(stockistIndex) {
       const stockistName = STOCKIST_NAMES[stockistIndex];
-      const lastDate = normalizeDateStr(activeStockistDetails.lastInspection[stockistIndex]);
-      const curDate = normalizeDateStr(activeStockistDetails.currentInspectionDate[stockistIndex]);
+      const lastInspectionDateRaw = normalizeDateStr(activeStockistDetails.lastInspection[stockistIndex]);
+      const currentInspectionDateRaw = normalizeDateStr(activeStockistDetails.currentInspectionDate[stockistIndex]);
 
-      if (!curDate) {
+      if (!currentInspectionDateRaw) {
         return { kl: 0, text: "Select Current Date" };
       }
 
-      const curDtObj = new Date(curDate);
+      // 1. Determine target date before current inspection date
+      const curDtObj = new Date(currentInspectionDateRaw);
       curDtObj.setDate(curDtObj.getDate() - 1);
-      const curMinusOne = curDtObj.toISOString().split('T')[0];
+      const targetEndDate = curDtObj.toISOString().split('T')[0];
 
-      if (lastDate && curMinusOne < lastDate) {
-        return { kl: 0, text: "Current Date must be > Last Date" };
-      }
-
+      // 2. Fetch primary records for this stockist
       const primaryRows = rawDatasetPrimary.length > 0 
         ? rawDatasetPrimary 
         : (portalCompiledData && portalCompiledData.primaryData ? portalCompiledData.primaryData : []);
@@ -1058,31 +1058,87 @@
       }
 
       const stClean = stockistName.toLowerCase();
+      const stockistRows = primaryRows.filter(row => {
+        const rowName = String(row['Name'] || '').trim().toLowerCase();
+        return rowName.includes(stClean) || stClean.includes(rowName);
+      });
+
+      if (stockistRows.length === 0) {
+        return { kl: 0, text: "No Primary Data Found" };
+      }
+
+      // Collect unique upliftment dates sorted chronologically
+      const upliftmentDatesSet = new Set();
+      stockistRows.forEach(r => {
+        const d = normalizeDateStr(r['Inv.Date']);
+        if (d) upliftmentDatesSet.add(d);
+      });
+      const sortedUpliftmentDates = Array.from(upliftmentDatesSet).sort();
+
+      if (sortedUpliftmentDates.length === 0) {
+        return { kl: 0, text: "No Valid Dates in Primary" };
+      }
+
+      // 3. Find effective END upliftment date:
+      // Exact targetEndDate if primary lifted on that date, else immediate previous date on which upliftment was made
+      let effectiveEndDate = null;
+      if (upliftmentDatesSet.has(targetEndDate)) {
+        effectiveEndDate = targetEndDate;
+      } else {
+        // Find largest date <= targetEndDate
+        for (let i = sortedUpliftmentDates.length - 1; i >= 0; i--) {
+          if (sortedUpliftmentDates[i] <= targetEndDate) {
+            effectiveEndDate = sortedUpliftmentDates[i];
+            break;
+          }
+        }
+      }
+
+      // 4. Find effective START upliftment date:
+      // Exact lastInspectionDateRaw if primary lifted on that date, else immediate next date on which upliftment was made
+      let effectiveStartDate = null;
+      if (lastInspectionDateRaw) {
+        if (upliftmentDatesSet.has(lastInspectionDateRaw)) {
+          effectiveStartDate = lastInspectionDateRaw;
+        } else {
+          // Find smallest date >= lastInspectionDateRaw
+          for (let i = 0; i < sortedUpliftmentDates.length; i++) {
+            if (sortedUpliftmentDates[i] >= lastInspectionDateRaw) {
+              effectiveStartDate = sortedUpliftmentDates[i];
+              break;
+            }
+          }
+        }
+      } else {
+        effectiveStartDate = sortedUpliftmentDates[0];
+      }
+
+      if (!effectiveStartDate || !effectiveEndDate || effectiveStartDate > effectiveEndDate) {
+        return { 
+          kl: 0, 
+          text: "0.000 KL", 
+          subtext: `No upliftments found between ${effectiveStartDate || lastInspectionDateRaw} and ${effectiveEndDate || targetEndDate}` 
+        };
+      }
+
+      // 5. Sum primary quantities between effectiveStartDate and effectiveEndDate (inclusive)
       let totalKL = 0;
       let countInv = 0;
 
-      primaryRows.forEach(row => {
-        const rowName = String(row['Name'] || '').trim().toLowerCase();
-        if (rowName.includes(stClean) || stClean.includes(rowName)) {
-          const invDateStr = normalizeDateStr(row['Inv.Date']);
-          if (invDateStr) {
-            const afterOrOnLast = !lastDate || (invDateStr >= lastDate);
-            const beforeCurMinusOne = invDateStr <= curMinusOne;
-
-            if (afterOrOnLast && beforeCurMinusOne) {
-              const kl = parseFloat(row['KL']) || 0;
-              totalKL += kl;
-              countInv++;
-            }
-          }
+      stockistRows.forEach(row => {
+        const invDateStr = normalizeDateStr(row['Inv.Date']);
+        if (invDateStr && invDateStr >= effectiveStartDate && invDateStr <= effectiveEndDate) {
+          const kl = parseFloat(row['KL']) || 0;
+          totalKL += kl;
+          countInv++;
         }
       });
 
       return {
         kl: totalKL,
         count: countInv,
-        text: totalKL > 0 ? `${totalKL.toFixed(3)} KL` : "0.000 KL",
-        subtext: `From ${lastDate || 'Start'} to ${curMinusOne} (${countInv} items)`
+        text: `${totalKL.toFixed(3)} KL`,
+        subtext: `Upliftments from ${effectiveStartDate} to ${effectiveEndDate} (${countInv} bills)`
       };
     }
 
@@ -1121,7 +1177,7 @@
         { label: "Minimum Working Capital (Auto-calculated)", key: "workingCapital", isFormula: true },
         { label: "Giveaway Amount", key: "giveaway", isYellow: false },
         { label: "BTL - Reseller Meets", key: "resellerMeets", isYellow: true },
-        { label: "BTL - Mega Meets", key: "megaMeets", isYellow: true }
+        { label: "BTL - Mechanic Meets", key: "mechanicMeets", isYellow: true } // Replaced BTL - Mega Meets with Mechanic Meets
       ];
 
       rows.forEach(r => {
@@ -1284,7 +1340,6 @@
       if (document.getElementById('camp-item-6')) document.getElementById('camp-item-6').value = c.item6 || '0';
     }
 
-    // Save and Sync specifically for Section 14
     async function saveAndSyncCampaigns() {
       const campObj = getCampaignsObject();
       localStorage.setItem('campaigns_data', JSON.stringify(campObj));
@@ -1313,7 +1368,6 @@
       }
     }
 
-    // Market Information Table & Modal
     function renderMarketInfoTable() {
       const tbody = document.getElementById('tbody-market-info');
       if (!tbody) return;
