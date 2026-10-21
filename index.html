@@ -163,7 +163,6 @@
             <h2 class="text-lg font-black text-blue-950 uppercase tracking-wide">Stockist Inspection & Profile Details</h2>
             <p class="text-xs text-slate-500 font-medium">Select current inspection date in calendar. Primary receipt volume will automatically compute between upliftment dates.</p>
           </div>
-          <!-- Update Button for Tab 1 -->
           <button onclick="updateManualEntries('Stockist Details')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
             💾 Update Entries
           </button>
@@ -229,7 +228,6 @@
           <span id="data-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-300">
             Awaiting Data
           </span>
-          <!-- Update Button for Tab 2 -->
           <button onclick="updateManualEntries('Sales Analysis')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
             💾 Update Entries
           </button>
@@ -515,7 +513,6 @@
         </div>
 
         <div>
-          <!-- Update Button for Tab 3 -->
           <button onclick="updateManualEntries('SSF Analysis')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg flex items-center gap-2 shadow transition">
             💾 Update Entries
           </button>
@@ -579,7 +576,6 @@
     <!-- ======================================================= -->
     <div id="tab-other" class="hidden space-y-8">
       
-      <!-- Top Bar with Update Button for Tab 4 -->
       <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div>
           <h2 class="text-base font-black text-blue-950 uppercase">Operational & Inspection Review Items</h2>
@@ -682,10 +678,7 @@
               <tr>
                 <td class="text-center font-bold">2</td>
                 <td>Details of Source of capital – Own & Other sources</td>
-                <!-- Point 2 Auto-calculated -->
-                <td class="font-bold text-slate-800 bg-slate-50" id="fin-source-capital-display">
-                  OWN
-                </td>
+                <td class="font-bold text-slate-800 bg-slate-50" id="fin-source-capital-display">OWN</td>
               </tr>
               <tr><td class="text-center font-bold">3</td><td>Current assets – Stock, Receivables, Cash</td><td class="font-medium text-slate-700">STOCK, RECEIVABLES & CASH IN BANK</td></tr>
               <tr><td class="text-center font-bold">4</td><td>Current liabilities – Payables, debt</td><td class="font-medium text-slate-700">PAYABLES</td></tr>
@@ -1019,6 +1012,20 @@
       return '';
     }
 
+    // Robust Month Extractor for LY invoices (handles number or date strings)
+    function getRowMonth(row) {
+      const mVal = row['Month'];
+      if (mVal !== undefined && mVal !== null && !isNaN(parseInt(mVal))) {
+        return parseInt(mVal);
+      }
+      const dateStr = normalizeDateStr(row['Inv.Date'] || row['Invoice Date']);
+      if (dateStr && dateStr.length === 10) {
+        const parts = dateStr.split('-');
+        return parseInt(parts[1], 10);
+      }
+      return null;
+    }
+
     function subtractOneDay(dateStr) {
       if (!dateStr || dateStr.length < 10) return null;
       const parts = dateStr.split('-');
@@ -1238,6 +1245,7 @@
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
     }
 
+    // Universal Update Function for all pages
     function updateManualEntries(pageName) {
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
       localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
@@ -1273,6 +1281,7 @@
       alert(`✓ ${pageName}: Manual entries updated and saved successfully!`);
     }
 
+    // Point 1 & Point 2 in Financials Review: Auto-calculated
     function renderFinancialsWorkingCapital() {
       const finEl = document.getElementById('fin-wc-display');
       const sourceCapitalEl = document.getElementById('fin-source-capital-display');
@@ -1289,6 +1298,7 @@
         `;
       }
 
+      // Point 2 Auto-calculation: OWN & LOAN for Bihariji, OWN for all others
       if (sourceCapitalEl) {
         if (currentStockist === "Bihariji Auto Service Station") {
           sourceCapitalEl.innerHTML = `
@@ -1320,6 +1330,7 @@
       const diff = Math.max(0, mNum - aprVal);
       const superSatCount = 2 * diff;
 
+      // Point 2
       const p2 = document.getElementById('camp-item-2');
       if (p2 && !p2.dataset.manualOverride) {
         p2.value = `${superSatCount} Super Saturday campaigns`;
@@ -1327,9 +1338,11 @@
       const f2 = document.getElementById('camp-item-2-formula');
       if (f2) f2.textContent = `Formula: 2 * (${mNum} - 4) = ${superSatCount}`;
 
+      // BTL Meets
       const resStr = activeStockistDetails.resellerMeets[sIdx] || "";
       const mechStr = activeStockistDetails.mechanicMeets[sIdx] || "";
 
+      // Point 4
       const p4 = document.getElementById('camp-item-4');
       const btlCumulativeParts = [];
       if (resStr && resStr !== "-") btlCumulativeParts.push(`Reseller: ${resStr}`);
@@ -1342,6 +1355,7 @@
       const f4 = document.getElementById('camp-item-4-formula');
       if (f4) f4.textContent = `Includes ${superSatCount} Super Saturday + BTL details of ${currentStockist}`;
 
+      // Point 3
       const p3 = document.getElementById('camp-item-3');
       const note3 = document.getElementById('camp-item-3-note');
 
@@ -1572,25 +1586,26 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Precise Cumulative Sales LY Logic for SMG Trades and Takshvi Co
+    // Precise Sales LY Calculation Engine based on user rules
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
+      const rowMonth = getRowMonth(row);
+      if (rowMonth === null || !targetMonths.includes(rowMonth)) return false;
+
       const sName = String(row['Stockist Name'] || row['Stockist'] || '').toLowerCase();
-      const rowMonth = parseInt(row['Month']);
       const dist = String(row['District'] || row['Customer District'] || '').toLowerCase();
 
-      // SMG Trades Rule: Apr-Sep LY = 0. Oct onwards = Bankura district cumulative from Oct.
+      // SMG Trades Rule: 0 for Apr-Sep, cumulative Bankura from Oct onwards
       if (stk === "SMG Trades") {
         if ([4, 5, 6, 7, 8, 9].includes(currentSelectedMonth)) return false;
         const octOnwards = [10, 11, 12, 1, 2, 3];
-        if (octOnwards.includes(rowMonth) && targetMonths.includes(rowMonth)) {
+        if (octOnwards.includes(rowMonth)) {
           return dist.includes('bankura');
         }
         return false;
       }
 
-      // Takshvi Co Rule: Apr-Sep = Takshvi + Servo World. Oct onwards = Takshvi excluding Bankura district.
+      // Takshvi Co Rule: Takshvi + Servo World for Apr-Sep, Takshvi excluding Bankura from Oct onwards
       if (stk === "Takshvi Co") {
-        if (!targetMonths.includes(rowMonth)) return false;
         if ([4, 5, 6, 7, 8, 9].includes(rowMonth)) {
           return sName.includes('takshvi') || sName.includes('servo world');
         }
@@ -1602,7 +1617,7 @@
 
       // Other Stockists Rule
       const stNameClean = stk.toLowerCase();
-      return sName.includes(stNameClean) && targetMonths.includes(rowMonth);
+      return sName.includes(stNameClean);
     };
 
     function compilePortalMatrix(rowsCY, rowsLY) {
@@ -1633,12 +1648,12 @@
           
           const cySpanRows = rowsCY.filter(r => {
             const sName = String(r['Stockist Name'] || '').toLowerCase();
-            return sName.includes(stNameClean) && spanMonths.includes(parseInt(r['Month']));
+            return sName.includes(stNameClean) && spanMonths.includes(getRowMonth(r));
           });
 
           const cyMonthRows = rowsCY.filter(r => {
             const sName = String(r['Stockist Name'] || '').toLowerCase();
-            return sName.includes(stNameClean) && parseInt(r['Month']) === m;
+            return sName.includes(stNameClean) && getRowMonth(r) === m;
           });
 
           const lySpanRows = rowsLY.filter(r => filterLY(r, spanMonths, m, stk));
