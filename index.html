@@ -895,8 +895,7 @@
       type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
       location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
       lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"],
-      // SMG Trades commissioning date updated to 14.09.2026 as requested
-      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "14.09.2026", "30/11/2023"],
+      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "14/09/2026", "30/11/2023"],
       officeAddress: [
         "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
         "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
@@ -920,8 +919,8 @@
       vanCapacity: ["1.28 TON", "1.5 TON", "3 TON", "1.435 TON", "WB56K2090 (3 T)"],
       vanOwnership: ["RENT", "RENT", "OWN", "OWN", "OWN"],
       documentation: ["SDMS", "SDMS", "SDMS", "SDMS", "SDMS"],
-      // SMG Trades GST updated to 19AIKPG8495M2ZA as requested
-      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "19AIKPG8495M2ZA", "19AQLPS8030K1Z7"],
+      // Updated GST number for SMG Trades
+      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "19AIKPG8495M3Z9", "19AQLPS8030K1Z7"],
       areaOperation: ["PURBA BARDHAMAN", "PASCHIM BARDHAMAN", "BIRBHUM, MURSHIDABAD", "BANKURA", "PURULIA"],
       bgBank: ["SBI", "STATE BANK OF INDIA", "UCO", "SBI", "PNB"],
       bgAmount: ["6.0 LACS", "6.0 LACS", "12 Lacs", "6.0 LACS", "1.0 LACS"],
@@ -1237,7 +1236,6 @@
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
     }
 
-    // Universal Update Function for all pages
     function updateManualEntries(pageName) {
       localStorage.setItem('stockist_details_data', JSON.stringify(activeStockistDetails));
       localStorage.setItem('universe_data', JSON.stringify(getAllUniverseData()));
@@ -1572,13 +1570,15 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Precise Sales LY Logic matching exact cumulative rules for SMG and Takshvi Co
+    // Fully Rectified Sales LY Logic (S_FY 25-26):
+    // - SMG Trades: 0 for Apr-Sep (4-9). From Oct onwards (10-3), cumulative sales of Bankura district.
+    // - Takshvi Co: Takshvi + Servo World for Apr-Sep (4-9). Beyond Oct (10-3), Takshvi Co excluding Bankura district.
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
       const sName = String(row['Stockist Name'] || row['Stockist'] || row['Name'] || '').toLowerCase();
       const rowMonth = parseInt(row['Month']);
       const dist = String(row['District'] || row['Customer District'] || row['Billing District'] || '').toLowerCase();
 
-      // SMG Trades Rule: 0 for Apr-Sep (4-9). From Oct onwards (10-3), cumulative sales of Bankura district.
+      // SMG Trades Rule
       if (stk === "SMG Trades") {
         if ([4, 5, 6, 7, 8, 9].includes(currentSelectedMonth)) return false;
         const octOnwards = [10, 11, 12, 1, 2, 3];
@@ -1588,7 +1588,7 @@
         return false;
       }
 
-      // Takshvi Co Rule: Takshvi + Servo World for Apr-Sep (4-9). Beyond Oct (10-3), Takshvi Co excluding Bankura district.
+      // Takshvi Co Rule
       if (stk === "Takshvi Co") {
         if (!targetMonths.includes(rowMonth)) return false;
         if ([4, 5, 6, 7, 8, 9].includes(rowMonth)) {
