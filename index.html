@@ -895,7 +895,8 @@
       type: ["Auto", "Auto", "AUTO", "Auto", "Gramin"],
       location: ["PURBA BARDHAMAN", "JAMURIA Paschim Bardhaman", "NALHATI, PAIKPARA, BIRBHUM", "HOLDING NO 29, BANKURA", "BARAKAR ROAD, PURULIA"],
       lastInspection: ["2026-09-09", "2026-09-28", "2026-09-16", "2026-01-20", "2026-09-18"],
-      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "15.09.2026", "30/11/2023"],
+      // SMG Trades commissioning date updated to 14.09.2026 as requested
+      commissioning: ["30/04/2025", "02/03/2018", "25/01/2021", "14.09.2026", "30/11/2023"],
       officeAddress: [
         "BEHIND IOC RO PRASAD SERVICE STATION, URA BAZARE, NH2, 713406",
         "JAMURIA INDUSTRIAL ESTATE MONDALPUR PASCHIM BARDHAMAN 713336",
@@ -919,7 +920,8 @@
       vanCapacity: ["1.28 TON", "1.5 TON", "3 TON", "1.435 TON", "WB56K2090 (3 T)"],
       vanOwnership: ["RENT", "RENT", "OWN", "OWN", "OWN"],
       documentation: ["SDMS", "SDMS", "SDMS", "SDMS", "SDMS"],
-      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "-", "19AQLPS8030K1Z7"],
+      // SMG Trades GST updated to 19AIKPG8495M2ZA as requested
+      gstNumber: ["19AIKPG8495M2ZA", "19ANRPK0428J1ZN", "19ABRFM6042J1ZP", "19AIKPG8495M2ZA", "19AQLPS8030K1Z7"],
       areaOperation: ["PURBA BARDHAMAN", "PASCHIM BARDHAMAN", "BIRBHUM, MURSHIDABAD", "BANKURA", "PURULIA"],
       bgBank: ["SBI", "STATE BANK OF INDIA", "UCO", "SBI", "PNB"],
       bgAmount: ["6.0 LACS", "6.0 LACS", "12 Lacs", "6.0 LACS", "1.0 LACS"],
@@ -1570,7 +1572,7 @@
       return MONTH_ORDER.slice(0, idx + 1);
     }
 
-    // Fully Rectified Sales LY Logic matching exact cumulative rules for SMG and Takshvi
+    // Precise Sales LY Logic matching exact cumulative rules for SMG and Takshvi Co
     const filterLY = (row, targetMonths, currentSelectedMonth, stk) => {
       const sName = String(row['Stockist Name'] || row['Stockist'] || row['Name'] || '').toLowerCase();
       const rowMonth = parseInt(row['Month']);
